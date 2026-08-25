@@ -51,11 +51,11 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                 <div key={s.id} className="relative group">
                   <button
                     onClick={() => dispatch({ type: 'SET_CAL_SET', set: s.id })}
-                    className="rounded-[8px] pl-[11px] pr-[11px] py-[6px] text-[12px] font-semibold border"
+                    className="rounded-[7px] pl-[11px] pr-[11px] py-[6px] text-[12px] font-medium"
                     style={
                       active
-                        ? { background: 'var(--accent)', color: 'var(--accentText)', borderColor: 'var(--accent)' }
-                        : { background: 'var(--surface2)', color: 'var(--text2)', borderColor: 'var(--border)' }
+                        ? { background: 'var(--accent)', color: 'var(--accentText)' }
+                        : { background: 'var(--surface2)', color: 'var(--text2)' }
                     }
                   >
                     {s.name}
@@ -98,8 +98,8 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
             ) : (
               <button
                 onClick={() => setAddingSet(true)}
-                className="rounded-[8px] px-2 py-[6px] text-[12px] font-semibold border flex items-center gap-1"
-                style={{ background: 'var(--surface2)', color: 'var(--text3)', borderColor: 'var(--border)' }}
+                className="rounded-[7px] px-2 py-[6px] text-[12px] font-medium flex items-center gap-1"
+                style={{ background: 'var(--surface2)', color: 'var(--text3)' }}
                 title="Salvar seleção atual de calendários como um novo set"
               >
                 <Plus size={12} />
@@ -155,10 +155,8 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                   e.dataTransfer.effectAllowed = 'copyMove';
                 }}
                 onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
-                className="border rounded-[10px] px-[10px] py-[9px] cursor-grab select-none"
+                className="rounded-[9px] px-[10px] py-[8px] cursor-grab select-none hover:[background:var(--surface2)]"
                 style={{
-                  background: 'var(--surface2)',
-                  borderColor: 'var(--border)',
                   opacity: task.done ? 0.45 : 1,
                 }}
               >
@@ -182,8 +180,8 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                     {task.dur}min
                   </span>
                   <span
-                    className="rounded-[5px] border px-1.5 py-[1px]"
-                    style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text3)' }}
+                    className="rounded-[5px] px-1.5 py-[1px]"
+                    style={{ background: 'var(--surface2)', color: 'var(--text3)' }}
                   >
                     {task.tag}
                   </span>
@@ -193,23 +191,20 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
           </div>
         </section>
 
-        <div
-          className="mt-auto rounded-[11px] p-3"
-          style={{ border: '1px dashed var(--border)' }}
-        >
-          <div className="text-[12px] font-bold mb-1" style={{ color: 'var(--text)' }}>
+        <div className="mt-auto rounded-[10px] p-3" style={{ background: 'var(--surface2)' }}>
+          <div className="text-[11.5px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
             Horário de trabalho
           </div>
-          <div className="text-[11.5px] font-mono-ae mb-2" style={{ color: 'var(--text2)' }}>
+          <div className="text-[11px] font-mono-ae mb-2" style={{ color: 'var(--text3)' }}>
             08:00 – 19:00 · seg a sex
           </div>
           <button
             onClick={() => dispatch({ type: 'TOGGLE_WORK_ONLY' })}
-            className="w-full rounded-[8px] px-2.5 py-[7px] text-[12px] font-semibold"
+            className="w-full rounded-[7px] px-2.5 py-[7px] text-[12px] font-medium"
             style={
               state.workOnly
                 ? { background: 'var(--accent)', color: 'var(--accentText)' }
-                : { background: 'var(--surface2)', color: 'var(--text2)' }
+                : { background: 'var(--surface)', color: 'var(--text2)' }
             }
           >
             {state.workOnly ? 'Mostrar 24 horas' : 'Colapsar fora do horário'}

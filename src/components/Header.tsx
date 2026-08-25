@@ -45,39 +45,29 @@ export function Header() {
 
   return (
     <header
-      className="flex items-center gap-3.5 px-4 py-2.5 flex-wrap border-b"
+      className="flex items-center gap-2 px-3 py-2 flex-wrap border-b"
       style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
     >
       <button
         onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
-        className="flex items-center gap-2.5 shrink-0"
+        className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
         aria-label="Abrir menu"
       >
         <span
-          className="w-[30px] h-[30px] rounded-[9px] grid place-items-center font-extrabold text-[15px]"
+          className="w-[26px] h-[26px] rounded-[7px] grid place-items-center font-extrabold text-[13px] sm:hidden-none"
           style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
         >
           A
         </span>
-        <span className="hidden sm:flex flex-col items-start leading-tight">
-          <span className="text-[15px] font-bold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
-            Aether
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.1em]" style={{ color: 'var(--text3)' }}>
-            Calendar
-          </span>
-        </span>
-        <Menu size={18} className="sm:hidden" style={{ color: 'var(--text2)' }} />
+        <Menu size={17} className="sm:hidden" style={{ color: 'var(--text2)' }} />
       </button>
 
-      <div className="relative flex-1 min-w-[220px] basis-[320px]">
+      <div className="relative flex-1 min-w-[200px] basis-[300px]">
         <div
-          className="h-10 flex items-center gap-2 rounded-[11px] px-2.5 border"
-          style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}
+          className="h-9 flex items-center gap-2 rounded-[9px] px-2.5 transition-colors"
+          style={{ background: focused ? 'var(--surface2)' : 'transparent' }}
         >
-          <span className="text-[13px]" style={{ color: 'var(--text3)' }}>
-            ⌘
-          </span>
+          <Search size={13} style={{ color: 'var(--text3)' }} />
           <input
             ref={inputRef}
             id="quick-add-input"
@@ -89,13 +79,13 @@ export function Header() {
               if (e.key === 'Enter') createFromQuick();
             }}
             placeholder="Reunião com João amanhã 14h no Zoom"
-            className="flex-1 bg-transparent outline-none text-[14px] min-w-0"
+            className="flex-1 bg-transparent outline-none text-[13.5px] min-w-0"
             style={{ color: 'var(--text)' }}
           />
           {state.quick.trim() && (
             <button
               onClick={createFromQuick}
-              className="h-7 px-3 rounded-[8px] text-[12.5px] font-semibold shrink-0"
+              className="h-6 px-2.5 rounded-[7px] text-[12px] font-semibold shrink-0"
               style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
             >
               Criar
@@ -105,7 +95,7 @@ export function Header() {
 
         {focused && parsed && (
           <div
-            className="absolute top-[46px] left-0 right-0 z-10 rounded-[12px] border p-3.5 animate-ae-in"
+            className="absolute top-[42px] left-0 right-0 z-10 rounded-[12px] border p-3.5 animate-ae-in"
             style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -129,19 +119,28 @@ export function Header() {
         )}
       </div>
 
-      {(state.w >= 560 || searchOpen) && (
-        <div
-          className="h-9 flex items-center gap-1.5 rounded-[10px] px-2.5"
-          style={{ background: 'var(--surface2)' }}
-        >
-          <Search size={14} style={{ color: 'var(--text3)' }} />
+      {state.w >= 560 && (
+        <div className="h-8 flex items-center gap-1.5 rounded-[8px] px-2" style={{ background: 'var(--surface2)' }}>
+          <Search size={13} style={{ color: 'var(--text3)' }} />
+          <input
+            value={state.search}
+            onChange={(e) => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
+            placeholder="Buscar"
+            className="bg-transparent outline-none text-[12.5px] w-20 sm:w-24"
+            style={{ color: 'var(--text)' }}
+          />
+        </div>
+      )}
+      {state.w < 560 && searchOpen && (
+        <div className="h-8 flex items-center gap-1.5 rounded-[8px] px-2" style={{ background: 'var(--surface2)' }}>
+          <Search size={13} style={{ color: 'var(--text3)' }} />
           <input
             value={state.search}
             onChange={(e) => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
             onBlur={() => !state.search && setSearchOpen(false)}
-            autoFocus={searchOpen}
+            autoFocus
             placeholder="Buscar"
-            className="bg-transparent outline-none text-[13px] w-20 sm:w-24"
+            className="bg-transparent outline-none text-[12.5px] w-20"
             style={{ color: 'var(--text)' }}
           />
         </div>
@@ -149,11 +148,10 @@ export function Header() {
       {state.w < 560 && !searchOpen && (
         <button
           onClick={() => setSearchOpen(true)}
-          className="w-9 h-9 rounded-[10px] border grid place-items-center shrink-0"
-          style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}
+          className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
           aria-label="Buscar"
         >
-          <Search size={15} style={{ color: 'var(--text2)' }} />
+          <Search size={14} style={{ color: 'var(--text2)' }} />
         </button>
       )}
 
@@ -165,44 +163,36 @@ export function Header() {
           }
           dispatch({ type: 'GOOGLE_TOGGLE' });
         }}
-        className="h-9 flex items-center gap-2 rounded-[10px] px-2.5 sm:px-3 border text-[12.5px] font-semibold shrink-0"
-        style={
-          state.google === 'on'
-            ? { background: 'color-mix(in oklab, var(--sync-ok) 14%, var(--surface))', borderColor: 'color-mix(in oklab, var(--sync-ok) 40%, transparent)', color: 'var(--text)' }
-            : { background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text)' }
-        }
+        className="h-8 flex items-center gap-1.5 rounded-[8px] px-2 text-[12px] font-medium shrink-0 hover:[background:var(--surface2)]"
+        style={{ color: 'var(--text2)' }}
         aria-label={GOOGLE_LABEL[state.google]}
       >
         <span
-          className={`w-2 h-2 rounded-full shrink-0 ${state.google === 'sync' ? 'animate-ae-spin' : ''}`}
+          className={`w-[7px] h-[7px] rounded-full shrink-0 ${state.google === 'sync' ? 'animate-ae-spin' : ''}`}
           style={{
             background: state.google === 'off' ? 'oklch(0.7 0.02 95)' : state.google === 'sync' ? 'var(--sync-progress)' : 'var(--sync-ok)',
           }}
         />
-        {state.w >= 720 && GOOGLE_LABEL[state.google]}
+        {state.w >= 760 && GOOGLE_LABEL[state.google]}
       </button>
 
       <button
         onClick={() => window.dispatchEvent(new CustomEvent('aether:open-command-menu'))}
-        className="w-9 h-9 rounded-[10px] border grid place-items-center shrink-0"
-        style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}
+        className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
         aria-label="Menu de comando"
         title="Menu de comando (Ctrl+/)"
       >
-        <Command size={16} style={{ color: 'var(--text2)' }} />
+        <Command size={15} style={{ color: 'var(--text2)' }} />
       </button>
 
       {state.w >= 900 && (
         <button
           onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
-          className="w-9 h-9 rounded-[10px] border grid place-items-center shrink-0"
-          style={{
-            background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent',
-            borderColor: state.shortcutsOpen ? 'var(--border)' : 'transparent',
-          }}
+          className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
+          style={{ background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent' }}
           aria-label="Mostrar/ocultar atalhos"
         >
-          <PanelRight size={16} style={{ color: 'var(--text2)' }} />
+          <PanelRight size={15} style={{ color: 'var(--text2)' }} />
         </button>
       )}
 

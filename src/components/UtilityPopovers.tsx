@@ -33,8 +33,7 @@ export function UtilityPopovers() {
             <button
               key={i}
               onClick={() => openSlotInModal(slot.dateKey, slot.startMin, 60)}
-              className="flex items-center justify-between rounded-[9px] border px-[11px] py-[9px] text-left"
-              style={{ borderColor: 'var(--border)' }}
+              className="flex items-center justify-between rounded-[9px] px-[11px] py-[9px] text-left hover:[background:var(--surface2)]"
             >
               <span className="text-[12.5px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
                 {formatDayLabel(slot.dateKey)}
@@ -105,8 +104,7 @@ function BookingLinkPanel({
           <button
             key={i}
             onClick={() => onPick(slot.dateKey, slot.startMin, 30)}
-            className="flex items-center justify-between rounded-[9px] border px-[11px] py-[9px] text-left"
-            style={{ borderColor: 'var(--border)' }}
+            className="flex items-center justify-between rounded-[9px] px-[11px] py-[9px] text-left hover:[background:var(--surface2)]"
           >
             <span className="text-[12.5px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
               {formatDayLabel(slot.dateKey)}
