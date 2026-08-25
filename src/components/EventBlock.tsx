@@ -76,7 +76,7 @@ export function EventBlock({
         left,
         width,
         background: eventBg(color),
-        borderLeft: `3px solid ${color}`,
+        borderLeft: `2px solid ${color}`,
         outline: selected ? '2px solid var(--accent)' : 'none',
         boxShadow: dragging ? 'var(--shadow)' : undefined,
         zIndex: dragging ? 25 : hovered ? 30 : 5,

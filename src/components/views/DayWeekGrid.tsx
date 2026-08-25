@@ -266,7 +266,7 @@ export function DayWeekGrid() {
                           className="text-[11px] font-semibold rounded-[6px] px-[7px] py-[3px] truncate cursor-pointer"
                           style={{
                             background: eventBg(cal?.color ?? 'var(--accent)'),
-                            borderLeft: `3px solid ${cal?.color}`,
+                            borderLeft: `2px solid ${cal?.color}`,
                           }}
                         >
                           {ev.title}

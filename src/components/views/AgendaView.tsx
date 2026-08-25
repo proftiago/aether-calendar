@@ -78,7 +78,7 @@ export function AgendaView() {
                     key={ev.id}
                     onClick={() => dispatch({ type: 'SET_SELECTED', id: ev.id })}
                     className="flex items-center gap-3 rounded-[10px] px-3 py-[9px] border cursor-pointer hover:[box-shadow:var(--shadow)]"
-                    style={{ background: 'var(--surface)', borderColor: 'var(--border)', borderLeft: `3px solid ${cal?.color}` }}
+                    style={{ background: 'var(--surface)', borderColor: 'var(--border)', borderLeft: `2px solid ${cal?.color}` }}
                   >
                     <div className="w-[92px] shrink-0 text-[12px] font-mono-ae" style={{ color: 'var(--text2)' }}>
                       {ev.allDay ? 'dia inteiro' : hm(minutesOfDay(ev.startsAt), state.settings.timeFormat)}

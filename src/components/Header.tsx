@@ -198,8 +198,8 @@ export function Header() {
       {state.w >= 640 && (
         <button
           onClick={() => dispatch({ type: 'SET_FOCUS_MODE', on: true })}
-          className="h-8 flex items-center gap-1.5 rounded-[8px] px-3 text-[12px] font-semibold shrink-0"
-          style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
+          className="h-8 flex items-center gap-1.5 rounded-[8px] px-2.5 text-[12px] font-medium shrink-0 hover:[background:var(--surface2)]"
+          style={{ color: 'var(--gold)' }}
         >
           <Sparkles size={13} />
           Focus Mode
