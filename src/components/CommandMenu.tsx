@@ -91,6 +91,12 @@ export function CommandMenu() {
         run: () => dispatch({ type: 'GO_TODAY' }),
       },
       {
+        id: 'new-task',
+        label: 'Nova tarefa',
+        icon: <CalendarPlus size={15} />,
+        run: () => window.dispatchEvent(new CustomEvent('aether:add-task')),
+      },
+      {
         id: 'create',
         label: 'Criar evento',
         hint: 'C',

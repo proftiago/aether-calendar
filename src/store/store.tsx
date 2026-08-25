@@ -99,6 +99,8 @@ type Action =
   | { type: 'ADD_EVENT'; event: Event; toast?: string }
   | { type: 'PATCH_EVENT'; id: string; changes: Partial<Event>; toast?: string }
   | { type: 'REMOVE_EVENT'; id: string; toast?: string }
+  | { type: 'ADD_TASK'; task: Task }
+  | { type: 'REMOVE_TASK'; id: string }
   | { type: 'TOGGLE_TASK'; id: string }
   | { type: 'SCHEDULE_TASK'; taskId: string; event: Event }
   | { type: 'SET_SELECTED'; id: string | null }
@@ -114,6 +116,7 @@ type Action =
   | { type: 'TOGGLE_SIDEBAR' }
   | { type: 'SET_SIDEBAR'; open: boolean }
   | { type: 'TOGGLE_SHORTCUTS' }
+  | { type: 'SET_SHORTCUTS_OPEN'; open: boolean }
   | { type: 'SET_AI_OPEN'; open: boolean }
   | { type: 'SET_FOCUS_MODE'; on: boolean }
   | { type: 'GOOGLE_TOGGLE' }
@@ -259,6 +262,10 @@ function reducer(state: AppState, action: Action): AppState {
         toast: action.toast ?? state.toast,
       };
     }
+    case 'ADD_TASK':
+      return { ...state, tasks: [...state.tasks, action.task], toast: `Tarefa criada: ${action.task.title}` };
+    case 'REMOVE_TASK':
+      return { ...state, tasks: state.tasks.filter((t) => t.id !== action.id) };
     case 'TOGGLE_TASK':
       return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, done: !t.done } : t)) };
     case 'SCHEDULE_TASK': {
@@ -296,6 +303,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, sidebarOpen: action.open };
     case 'TOGGLE_SHORTCUTS':
       return { ...state, shortcutsOpen: !state.shortcutsOpen };
+    case 'SET_SHORTCUTS_OPEN':
+      return { ...state, shortcutsOpen: action.open };
     case 'SET_AI_OPEN':
       return { ...state, aiOpen: action.open };
     case 'SET_FOCUS_MODE':
