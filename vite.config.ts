@@ -15,15 +15,15 @@ export default defineConfig({
         name: 'Aether Calendar',
         short_name: 'Aether',
         description: 'Calendário para power users — múltiplos calendários, time-blocking e criação por linguagem natural.',
-        theme_color: '#3a4a9f',
-        background_color: '#f9f8f5',
+        theme_color: '#0284c7',
+        background_color: '#0a2e4a',
         display: 'standalone',
         orientation: 'any',
         start_url: '/',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

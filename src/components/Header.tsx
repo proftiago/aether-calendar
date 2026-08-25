@@ -54,10 +54,15 @@ export function Header() {
         aria-label="Abrir menu"
       >
         <span
-          className="hidden sm:grid w-[26px] h-[26px] rounded-[7px] place-items-center font-semibold text-[13px]"
-          style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
+          className="hidden sm:grid w-[26px] h-[26px] rounded-[7px] place-items-center"
+          style={{ background: 'linear-gradient(135deg, #0a2e4a, var(--accent))' }}
         >
-          A
+          <span className="grid grid-cols-2 gap-[2.5px]">
+            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.92)' }} />
+            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.55)' }} />
+            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.55)' }} />
+            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'var(--gold)' }} />
+          </span>
         </span>
         <Menu size={17} className="sm:hidden" style={{ color: 'var(--text2)' }} />
       </button>
