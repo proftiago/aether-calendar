@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { MapPin, Video, Repeat } from 'lucide-react';
 import { eventBg } from '../lib/style';
 import { hm, minutesOfDay, formatDayLabel, dateKeyOf } from '../lib/dates';
 import { travelOf } from '../lib/estimates';
@@ -63,7 +64,7 @@ export function EventBlock({
       onPointerDown={onPointerDownMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="absolute rounded-[7px] px-[9px] py-[7px] overflow-hidden cursor-grab select-none transition-shadow"
+      className="absolute rounded-[8px] px-[9px] py-[7px] overflow-hidden cursor-grab select-none transition-shadow"
       style={{
         top,
         height: Math.max(24, height),
@@ -77,18 +78,24 @@ export function EventBlock({
         touchAction: 'none',
       }}
     >
-      <div className="text-[12px] font-bold truncate" style={{ color: 'var(--text)' }}>
-        {event.title}
+      <div className="flex items-center gap-1 min-w-0">
+        {!!event.seriesId && <Repeat size={10} className="shrink-0" style={{ color: 'var(--text2)' }} />}
+        <div className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+          {event.title}
+        </div>
       </div>
       {height > 34 && (
         <div className="text-[10.5px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>
           {hm(s, state.settings.timeFormat)} – {hm(e, state.settings.timeFormat)}
         </div>
       )}
-      {height > 48 && (event.location || travel) && (
-        <div className="text-[10.5px] truncate" style={{ color: 'var(--text2)' }}>
-          {event.location}
-          {travel ? ` · +${travel} min` : ''}
+      {height > 48 && (event.location || event.meet || travel) && (
+        <div className="flex items-center gap-1 text-[10.5px] truncate" style={{ color: 'var(--text2)' }}>
+          {event.meet ? <Video size={10} className="shrink-0" /> : event.location ? <MapPin size={10} className="shrink-0" /> : null}
+          <span className="truncate">
+            {event.meet ? 'Videochamada' : event.location}
+            {travel ? ` · +${travel} min` : ''}
+          </span>
         </div>
       )}
       <div
