@@ -202,7 +202,11 @@ export function DayWeekGrid() {
     <div className="flex-1 flex flex-col min-h-0" onClick={() => dispatch({ type: 'SET_SELECTED', id: null })}>
       {/* Cabeçalho de colunas */}
       <div className="flex border-b shrink-0" style={{ borderColor: 'var(--border)' }}>
-        <div style={{ width: GUTTER }} />
+        <div style={{ width: GUTTER }} className="flex items-end justify-center pb-1">
+          <span className="text-[9px] font-mono-ae" style={{ color: 'var(--text3)' }}>
+            GMT-3
+          </span>
+        </div>
         {days.map((dateKey) => {
           const isToday = dateKey === today;
           const allDayEvents = (eventsByDay.get(dateKey) ?? []).filter((ev) => ev.allDay);
@@ -356,6 +360,7 @@ export function DayWeekGrid() {
                       left={`${b.lane * (100 / b.lanes)}%`}
                       width={`${100 / b.lanes - 1.5}%`}
                       color={cal?.color ?? 'var(--accent)'}
+                      calendarName={cal?.name}
                       selected={state.selected === b.event.id}
                       dragging={isDragging}
                       onSelect={() => dispatch({ type: 'SET_SELECTED', id: b.event.id })}

@@ -1,5 +1,6 @@
+import { useRef, useState } from 'react';
 import { eventBg } from '../lib/style';
-import { hm, minutesOfDay } from '../lib/dates';
+import { hm, minutesOfDay, formatDayLabel, dateKeyOf } from '../lib/dates';
 import { travelOf } from '../lib/estimates';
 import { useStore } from '../store/store';
 import type { Event } from '../lib/types';
@@ -11,6 +12,7 @@ export function EventBlock({
   left,
   width,
   color,
+  calendarName,
   selected,
   dragging,
   onSelect,
@@ -23,6 +25,7 @@ export function EventBlock({
   left: string;
   width: string;
   color: string;
+  calendarName?: string;
   selected: boolean;
   dragging: boolean;
   onSelect: () => void;
@@ -33,6 +36,18 @@ export function EventBlock({
   const s = minutesOfDay(event.startsAt);
   const e = minutesOfDay(event.endsAt);
   const travel = travelOf(event);
+  const [hovered, setHovered] = useState(false);
+  const hoverTimer = useRef<number | null>(null);
+  const showHoverPreview = state.w >= 900 && !dragging;
+
+  function onMouseEnter() {
+    if (!showHoverPreview) return;
+    hoverTimer.current = window.setTimeout(() => setHovered(true), 380);
+  }
+  function onMouseLeave() {
+    if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
+    setHovered(false);
+  }
 
   return (
     <div
@@ -46,6 +61,8 @@ export function EventBlock({
         if (ev.key === 'Enter') onSelect();
       }}
       onPointerDown={onPointerDownMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className="absolute rounded-[7px] px-[7px] py-1 overflow-hidden cursor-grab select-none transition-shadow"
       style={{
         top,
@@ -56,7 +73,7 @@ export function EventBlock({
         borderLeft: `3px solid ${color}`,
         outline: selected ? '2px solid var(--accent)' : 'none',
         boxShadow: dragging ? 'var(--shadow)' : undefined,
-        zIndex: dragging ? 25 : 5,
+        zIndex: dragging ? 25 : hovered ? 30 : 5,
         touchAction: 'none',
       }}
     >
@@ -84,6 +101,42 @@ export function EventBlock({
       >
         <span className="w-6 h-[3px] rounded-full opacity-0 hover:opacity-40" style={{ background: color }} />
       </div>
+
+      {hovered && (
+        <div
+          className="absolute top-full left-0 mt-1.5 rounded-[10px] border p-3 animate-ae-in pointer-events-none"
+          style={{
+            width: 220,
+            background: 'var(--surface)',
+            borderColor: 'var(--border)',
+            boxShadow: 'var(--shadow)',
+            zIndex: 60,
+          }}
+        >
+          <div className="flex items-start gap-1.5 mb-1.5">
+            <span className="w-2 h-2 rounded-sm mt-1 shrink-0" style={{ background: color }} />
+            <span className="text-[13px] font-bold leading-tight" style={{ color: 'var(--text)' }}>
+              {event.title}
+            </span>
+          </div>
+          <div className="text-[11.5px] font-mono-ae mb-0.5" style={{ color: 'var(--text2)' }}>
+            {event.allDay ? 'Dia inteiro' : `${hm(s, state.settings.timeFormat)} – ${hm(e, state.settings.timeFormat)}`}
+          </div>
+          <div className="text-[11px] capitalize mb-1" style={{ color: 'var(--text3)' }}>
+            {formatDayLabel(dateKeyOf(event.startsAt))}
+          </div>
+          {calendarName && (
+            <div className="text-[11px] mb-1" style={{ color: 'var(--text3)' }}>
+              {calendarName}
+            </div>
+          )}
+          {event.location && (
+            <div className="text-[11px] truncate" style={{ color: 'var(--text3)' }}>
+              {event.location}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

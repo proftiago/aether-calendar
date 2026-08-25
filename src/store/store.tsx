@@ -76,6 +76,7 @@ export type AppState = {
   w: number;
   now: number;
   sidebarOpen: boolean;
+  shortcutsOpen: boolean;
   aiOpen: boolean;
 };
 
@@ -111,6 +112,7 @@ type Action =
   | { type: 'TICK_NOW' }
   | { type: 'TOGGLE_SIDEBAR' }
   | { type: 'SET_SIDEBAR'; open: boolean }
+  | { type: 'TOGGLE_SHORTCUTS' }
   | { type: 'SET_AI_OPEN'; open: boolean }
   | { type: 'GOOGLE_TOGGLE' }
   | { type: 'GOOGLE_CONNECTED_REAL' }
@@ -290,6 +292,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, sidebarOpen: !state.sidebarOpen };
     case 'SET_SIDEBAR':
       return { ...state, sidebarOpen: action.open };
+    case 'TOGGLE_SHORTCUTS':
+      return { ...state, shortcutsOpen: !state.shortcutsOpen };
     case 'SET_AI_OPEN':
       return { ...state, aiOpen: action.open };
     case 'GOOGLE_TOGGLE': {
@@ -381,6 +385,7 @@ function initialState(): AppState {
     w,
     now: nowMinutesOfDay(),
     sidebarOpen: false,
+    shortcutsOpen: w >= 1400,
     aiOpen: false,
   };
 }

@@ -53,7 +53,11 @@ integração real.
   exemplo" e "apagar tudo".
 - **Visual inspirado no Notion Calendar** — mini-calendário navegável na
   sidebar (com números da semana), avatar com menu no canto superior
-  direito, tema escuro mais próximo do preto do que do cinza-azulado.
+  direito, tema escuro mais próximo do preto do que do cinza-azulado,
+  rótulo de fuso "GMT-3" na grade, painel de atalhos úteis à direita
+  (ativa/desativa pelo ícone no header ou `Cmd/Ctrl+K` → "Mostrar/ocultar
+  atalhos"), menu de comando (`Cmd/Ctrl+K`) com busca de ações, e preview
+  ao passar o mouse sobre um evento (telas largas).
 
 ## Rodando localmente
 

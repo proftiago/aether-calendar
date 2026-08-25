@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, PanelRight } from 'lucide-react';
 import { useStore } from '../store/store';
 import { parseQuickAdd } from '../lib/nlParse';
 import { calendarOf } from '../store/selectors';
@@ -181,6 +181,20 @@ export function Header() {
         />
         {state.w >= 720 && GOOGLE_LABEL[state.google]}
       </button>
+
+      {state.w >= 900 && (
+        <button
+          onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
+          className="w-9 h-9 rounded-[10px] border grid place-items-center shrink-0"
+          style={{
+            background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent',
+            borderColor: state.shortcutsOpen ? 'var(--border)' : 'transparent',
+          }}
+          aria-label="Mostrar/ocultar atalhos"
+        >
+          <PanelRight size={16} style={{ color: 'var(--text2)' }} />
+        </button>
+      )}
 
       <AccountMenu />
     </header>

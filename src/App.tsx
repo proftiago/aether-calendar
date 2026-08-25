@@ -13,6 +13,8 @@ import { EventModal } from './components/EventModal';
 import { SettingsModal } from './components/SettingsModal';
 import { UtilityPopovers } from './components/UtilityPopovers';
 import { AIAssistant } from './components/AIAssistant';
+import { ShortcutsPanel } from './components/ShortcutsPanel';
+import { CommandMenu } from './components/CommandMenu';
 import { Toast } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
 import type { ViewKey } from './lib/types';
@@ -94,6 +96,7 @@ function AppShell() {
           )}
           <UtilityPopovers />
         </div>
+        {!drawerOpen && <ShortcutsPanel />}
         {drawerOpen && <Drawer />}
       </div>
       <StatusBar />
@@ -101,6 +104,7 @@ function AppShell() {
       <SettingsModal />
       <Toast />
       <AIAssistant />
+      <CommandMenu />
       {!state.form && !drawerOpen && (
         <button
           onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}

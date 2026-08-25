@@ -22,6 +22,7 @@ export function StatusBar() {
       style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text3)' }}
     >
       <div className="flex items-center gap-3 flex-wrap">
+        <Shortcut k="⌘K">comandos</Shortcut>
         <Shortcut k="T">hoje</Shortcut>
         <Shortcut k="C">criar</Shortcut>
         <Shortcut k="1 2 3 4">dia/semana/mês/agenda</Shortcut>
