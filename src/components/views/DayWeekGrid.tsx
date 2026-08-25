@@ -25,8 +25,8 @@ const PX_PER_MIN = ROW_H / 60;
 const GUTTER = 60;
 
 type DragState =
-  | { type: 'move'; eventId: string; s: number; e: number; colIndex: number; duration: number; origDateKey: string }
-  | { type: 'resize'; eventId: string; s: number; e: number; colIndex: number; origEnd: number };
+  | { type: 'move'; eventId: string; event: Event; s: number; e: number; colIndex: number; duration: number; origDateKey: string }
+  | { type: 'resize'; eventId: string; event: Event; s: number; e: number; colIndex: number; origEnd: number };
 
 export function DayWeekGrid() {
   const { state, dispatch } = useStore();
@@ -102,7 +102,7 @@ export function DayWeekGrid() {
     const origE = minutesOfDay(ev.endsAt);
     const duration = origE - origS;
     const origDateKey = dateKeyOf(ev.startsAt);
-    setDrag({ type: 'move', eventId: ev.id, s: origS, e: origE, colIndex, duration, origDateKey });
+    setDrag({ type: 'move', eventId: ev.id, event: ev, s: origS, e: origE, colIndex, duration, origDateKey });
 
     function onMove(pe: PointerEvent) {
       const dy = pe.clientY - startY;
@@ -141,7 +141,7 @@ export function DayWeekGrid() {
     const startY = e.clientY;
     const origS = minutesOfDay(ev.startsAt);
     const origE = minutesOfDay(ev.endsAt);
-    setDrag({ type: 'resize', eventId: ev.id, s: origS, e: origE, colIndex, origEnd: origE });
+    setDrag({ type: 'resize', eventId: ev.id, event: ev, s: origS, e: origE, colIndex, origEnd: origE });
 
     function onMove(pe: PointerEvent) {
       const dy = pe.clientY - startY;
@@ -380,35 +380,57 @@ export function DayWeekGrid() {
                   </div>
                 )}
 
-                {laidOut.map((b) => {
-                  const isDragging = drag !== null && drag.eventId === b.event.id;
-                  const displayColIndex = isDragging && drag ? drag.colIndex : colIndex;
-                  if (isDragging && displayColIndex !== colIndex) return null;
-                  const s = isDragging && drag ? drag.s : b.s;
-                  const e = isDragging && drag ? drag.e : b.e;
-                  const cal = calendarOf(state, b.event.calId);
-                  return (
-                    <EventBlock
-                      key={b.event.id}
-                      event={b.event}
-                      top={(s - H0) * PX_PER_MIN}
-                      height={(e - s) * PX_PER_MIN - 2}
-                      left={`${b.lane * (100 / b.lanes)}%`}
-                      width={`${100 / b.lanes - 1.5}%`}
-                      color={cal?.color ?? 'var(--accent)'}
-                      calendarName={cal?.name}
-                      lanes={b.lanes}
-                      selected={state.selected === b.event.id}
-                      dragging={isDragging}
-                      onSelect={() => dispatch({ type: 'SET_SELECTED', id: b.event.id })}
-                      onPointerDownMove={(e) => startMove(e, b.event, colIndex)}
-                      onPointerDownResize={(e) => startResize(e, b.event, colIndex)}
-                    />
-                  );
-                })}
+                {laidOut
+                  .filter((b) => !(drag !== null && drag.eventId === b.event.id))
+                  .map((b) => {
+                    const cal = calendarOf(state, b.event.calId);
+                    return (
+                      <EventBlock
+                        key={b.event.id}
+                        event={b.event}
+                        top={(b.s - H0) * PX_PER_MIN}
+                        height={(b.e - b.s) * PX_PER_MIN - 2}
+                        left={`${b.lane * (100 / b.lanes)}%`}
+                        width={`${100 / b.lanes - 1.5}%`}
+                        color={cal?.color ?? 'var(--accent)'}
+                        calendarName={cal?.name}
+                        lanes={b.lanes}
+                        selected={state.selected === b.event.id}
+                        dragging={false}
+                        onSelect={() => dispatch({ type: 'SET_SELECTED', id: b.event.id })}
+                        onPointerDownMove={(e) => startMove(e, b.event, colIndex)}
+                        onPointerDownResize={(e) => startResize(e, b.event, colIndex)}
+                      />
+                    );
+                  })}
               </div>
             );
           })}
+
+          {/* Bloco sendo arrastado — desenhado numa camada única por cima de
+              toda a grade (não dentro de uma coluna específica), pra poder
+              seguir o dedo/mouse pra QUALQUER coluna, não só a original. Sem
+              isso, mover pra outro dia fazia o bloco sumir no meio do
+              arrasto (a coluna de origem escondia ele, mas nenhuma coluna
+              nova sabia que devia desenhá-lo). */}
+          {drag && (
+            <EventBlock
+              key={`ghost-${drag.eventId}`}
+              event={drag.event}
+              top={(drag.s - H0) * PX_PER_MIN}
+              height={(drag.e - drag.s) * PX_PER_MIN - 2}
+              left={`${GUTTER + drag.colIndex * colWidthPx()}px`}
+              width={`${colWidthPx() - 3}px`}
+              color={calendarOf(state, drag.event.calId)?.color ?? 'var(--accent)'}
+              calendarName={calendarOf(state, drag.event.calId)?.name}
+              lanes={1}
+              selected={false}
+              dragging
+              onSelect={() => {}}
+              onPointerDownMove={() => {}}
+              onPointerDownResize={() => {}}
+            />
+          )}
         </div>
         {state.workOnly && (
           <button
