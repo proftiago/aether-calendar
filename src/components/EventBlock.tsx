@@ -84,24 +84,24 @@ export function EventBlock({
       }}
     >
       <div className="flex items-center gap-1 min-w-0">
-        {!!event.seriesId && <Repeat size={12} className="shrink-0" style={{ color: 'var(--text2)' }} />}
-        <div className="text-[13px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+        {!!event.seriesId && <Repeat size={11} className="shrink-0" style={{ color: 'var(--text2)' }} />}
+        <div className="text-[12px] font-semibold truncate min-w-0" style={{ color: 'var(--text)' }}>
           {event.title}
         </div>
       </div>
       {height > 34 && (
-        <div className="text-[11px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>
+        <div className="text-[10px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>
           {hmRange(s, e, state.settings.timeFormat)}
         </div>
       )}
       {height > 48 && showDetailLine && (event.location || event.meet || travel) && (
-        <div className="flex items-center gap-1 text-[11px] truncate" style={{ color: 'var(--text2)' }}>
+        <div className="flex items-center gap-1 text-[10px] min-w-0" style={{ color: 'var(--text2)' }}>
           {event.meet ? (
-            <Video size={12} className="shrink-0" style={{ color: 'var(--accent)' }} />
+            <Video size={11} className="shrink-0" style={{ color: 'var(--accent)' }} />
           ) : event.location ? (
-            <MapPin size={12} className="shrink-0" />
+            <MapPin size={11} className="shrink-0" />
           ) : null}
-          <span className="truncate">
+          <span className="truncate min-w-0 flex-1">
             {event.meet ? 'Videochamada' : event.location}
             {travel ? ` · +${travel} min` : ''}
           </span>
