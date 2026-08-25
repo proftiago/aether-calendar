@@ -87,7 +87,7 @@ function AppShell() {
   const drawerOpen = state.selected !== null;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg)' }}>
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg)', height: '100dvh' }}>
       <Header />
       <div className="flex-1 flex min-h-0 relative">
         {state.focusMode ? (
