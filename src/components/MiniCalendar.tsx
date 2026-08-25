@@ -27,24 +27,24 @@ export function MiniCalendar() {
 
   return (
     <div className="select-none">
-      <div className="flex items-center justify-between mb-1.5 px-0.5">
-        <span className="text-[12px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
+      <div className="flex items-center justify-between mb-2.5 px-0.5">
+        <span className="text-[13px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
           {monthLabel}
         </span>
-        <div className="flex items-center gap-0.5">
-          <button onClick={() => goMonth(-1)} className="w-5 h-5 rounded-[5px] grid place-items-center" aria-label="Mês anterior">
-            <ChevronLeft size={12} style={{ color: 'var(--text3)' }} />
+        <div className="flex items-center gap-1">
+          <button onClick={() => goMonth(-1)} className="w-6 h-6 rounded-[6px] grid place-items-center hover:[background:var(--surface2)]" aria-label="Mês anterior">
+            <ChevronLeft size={13} style={{ color: 'var(--text3)' }} />
           </button>
-          <button onClick={() => goMonth(1)} className="w-5 h-5 rounded-[5px] grid place-items-center" aria-label="Próximo mês">
-            <ChevronRight size={12} style={{ color: 'var(--text3)' }} />
+          <button onClick={() => goMonth(1)} className="w-6 h-6 rounded-[6px] grid place-items-center hover:[background:var(--surface2)]" aria-label="Próximo mês">
+            <ChevronRight size={13} style={{ color: 'var(--text3)' }} />
           </button>
         </div>
       </div>
 
-      <div className="grid text-center" style={{ gridTemplateColumns: state.settings.showWeekNumbers ? '20px repeat(7, 1fr)' : 'repeat(7, 1fr)' }}>
+      <div className="grid text-center" style={{ gridTemplateColumns: state.settings.showWeekNumbers ? '22px repeat(7, 1fr)' : 'repeat(7, 1fr)' }}>
         {state.settings.showWeekNumbers && <span />}
         {labels.map((l, i) => (
-          <span key={i} className="text-[10px] font-semibold pb-1" style={{ color: 'var(--text3)' }}>
+          <span key={i} className="text-[10px] font-semibold pb-1.5" style={{ color: 'var(--text3)' }}>
             {l}
           </span>
         ))}
@@ -64,12 +64,12 @@ export function MiniCalendar() {
                 <button
                   key={dateKey}
                   onClick={() => pick(dateKey)}
-                  className="text-[11px] rounded-full w-6 h-6 mx-auto my-[1px] grid place-items-center"
+                  className="text-[12px] rounded-full w-7 h-7 mx-auto my-[2px] grid place-items-center"
                   style={{
                     opacity: inMonth ? 1 : 0.32,
                     background: isSelected ? 'var(--accent)' : isToday ? 'var(--surface2)' : 'transparent',
                     color: isSelected ? 'var(--accentText)' : isToday ? 'var(--accent)' : 'var(--text)',
-                    fontWeight: isToday || isSelected ? 700 : 400,
+                    fontWeight: isToday || isSelected ? 600 : 400,
                   }}
                 >
                   {dayNum(dateKey)}

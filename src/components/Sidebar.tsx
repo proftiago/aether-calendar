@@ -29,7 +29,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         />
       )}
       <aside
-        className={`w-[268px] shrink-0 overflow-y-auto flex flex-col gap-7 p-4 border-r ${
+        className={`w-[268px] shrink-0 overflow-y-auto flex flex-col p-4 border-r ${
           overlayMode ? 'fixed inset-y-0 left-0 z-30 transition-transform' : 'relative'
         }`}
         style={{
@@ -42,21 +42,29 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
       >
         <MiniCalendar />
 
+        <SectionDivider />
+
         <section>
           <SectionTitle>Calendar sets</SectionTitle>
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="mt-2 flex flex-col gap-0.5">
             {state.calendarSets.map((s) => {
               const active = state.set === s.id;
               return (
                 <div key={s.id} className="relative group">
                   <button
                     onClick={() => dispatch({ type: 'SET_CAL_SET', set: s.id })}
-                    className="rounded-[7px] pl-[11px] pr-[11px] py-[6px] text-[12px] font-medium"
+                    className="w-full text-left rounded-[7px] pl-2.5 pr-2.5 py-[6px] text-[13px] font-medium"
                     style={
                       active
                         ? { background: 'var(--accent)', color: 'var(--accentText)' }
-                        : { background: 'var(--surface2)', color: 'var(--text2)' }
+                        : { color: 'var(--text2)' }
                     }
+                    onMouseEnter={(e) => {
+                      if (!active) e.currentTarget.style.background = 'var(--surface2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active) e.currentTarget.style.background = 'transparent';
+                    }}
                   >
                     {s.name}
                   </button>
@@ -66,56 +74,57 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                         e.stopPropagation();
                         dispatch({ type: 'REMOVE_CALENDAR_SET', id: s.id });
                       }}
-                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ background: 'var(--now-line)', color: 'white' }}
+                      className="absolute top-1/2 -translate-y-1/2 right-1.5 w-5 h-5 rounded-[5px] grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ color: active ? 'var(--accentText)' : 'var(--text3)' }}
                       aria-label={`Excluir set ${s.name}`}
                     >
-                      <X size={9} strokeWidth={3} />
+                      <X size={11} strokeWidth={2.5} />
                     </button>
                   )}
                 </div>
               );
             })}
             {addingSet ? (
-              <div className="flex items-center gap-1">
-                <input
-                  autoFocus
-                  value={newSetName}
-                  onChange={(e) => setNewSetName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') confirmAddSet();
-                    if (e.key === 'Escape') {
-                      setAddingSet(false);
-                      setNewSetName('');
-                    }
-                  }}
-                  onBlur={confirmAddSet}
-                  placeholder="Nome do set"
-                  className="rounded-[8px] px-2 py-[6px] text-[12px] outline-none border w-[110px]"
-                  style={{ background: 'var(--surface2)', borderColor: 'var(--accent)', color: 'var(--text)' }}
-                />
-              </div>
+              <input
+                autoFocus
+                value={newSetName}
+                onChange={(e) => setNewSetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') confirmAddSet();
+                  if (e.key === 'Escape') {
+                    setAddingSet(false);
+                    setNewSetName('');
+                  }
+                }}
+                onBlur={confirmAddSet}
+                placeholder="Nome do set"
+                className="rounded-[7px] px-2.5 py-[6px] text-[13px] outline-none"
+                style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+              />
             ) : (
               <button
                 onClick={() => setAddingSet(true)}
-                className="rounded-[7px] px-2 py-[6px] text-[12px] font-medium flex items-center gap-1"
-                style={{ background: 'var(--surface2)', color: 'var(--text3)' }}
+                className="text-left rounded-[7px] px-2.5 py-[6px] text-[12px] font-medium flex items-center gap-1.5"
+                style={{ color: 'var(--text3)' }}
                 title="Salvar seleção atual de calendários como um novo set"
               >
                 <Plus size={12} />
+                Novo set
               </button>
             )}
           </div>
         </section>
 
+        <SectionDivider />
+
         <section>
           <SectionTitle>Calendários</SectionTitle>
-          <div className="mt-1.5 flex flex-col">
+          <div className="mt-2 flex flex-col">
             {state.calendars.map((c) => (
               <button
                 key={c.id}
                 onClick={() => dispatch({ type: 'TOGGLE_CAL', id: c.id })}
-                className="flex items-center gap-2.5 rounded-[9px] px-1.5 py-[7px] text-left hover:[background:var(--surface2)]"
+                className="flex items-center gap-2.5 rounded-[7px] px-1.5 py-[7px] text-left hover:[background:var(--surface2)]"
                 style={{ opacity: c.visible ? 1 : 0.5 }}
               >
                 <span
@@ -127,7 +136,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                 >
                   {c.visible && <Check size={10} strokeWidth={3.5} color="white" />}
                 </span>
-                <span className="text-[14px] font-medium flex-1" style={{ color: 'var(--text)' }}>
+                <span className="text-[13px] font-medium flex-1" style={{ color: 'var(--text)' }}>
                   {c.name}
                 </span>
                 <span className="text-[11px] font-mono-ae" style={{ color: 'var(--text3)' }}>
@@ -138,14 +147,16 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
           </div>
         </section>
 
+        <SectionDivider />
+
         <section>
           <div className="flex items-center justify-between">
             <SectionTitle>Tarefas</SectionTitle>
-            <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
+            <span className="text-[10px]" style={{ color: 'var(--text3)' }}>
               arraste p/ agendar
             </span>
           </div>
-          <div className="mt-1.5 flex flex-col gap-1.5">
+          <div className="mt-1.5 flex flex-col gap-0.5">
             {state.tasks.map((task) => (
               <div
                 key={task.id}
@@ -155,44 +166,27 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                   e.dataTransfer.effectAllowed = 'copyMove';
                 }}
                 onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
-                className="rounded-[9px] px-[10px] py-[8px] cursor-grab select-none hover:[background:var(--surface2)]"
-                style={{
-                  opacity: task.done ? 0.45 : 1,
-                }}
+                className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] flex items-center gap-2"
+                style={{ opacity: task.done ? 0.45 : 1 }}
               >
-                <div className="flex items-start gap-2">
-                  <span
-                    className="w-1.5 h-5 rounded-[3px] shrink-0"
-                    style={{ background: prioColor(task.prio) }}
-                  />
-                  <span
-                    className="text-[13px] font-semibold"
-                    style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
-                  >
-                    {task.title}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 mt-1 pl-[14px] text-[11px]">
-                  <span className="font-semibold uppercase" style={{ color: prioColor(task.prio) }}>
-                    {task.prio}
-                  </span>
-                  <span className="font-mono-ae" style={{ color: 'var(--text3)' }}>
-                    {task.dur}min
-                  </span>
-                  <span
-                    className="rounded-[5px] px-1.5 py-[1px]"
-                    style={{ background: 'var(--surface2)', color: 'var(--text3)' }}
-                  >
-                    {task.tag}
-                  </span>
-                </div>
+                <span className="w-1 h-3.5 rounded-[2px] shrink-0" style={{ background: prioColor(task.prio) }} />
+                <span
+                  className="text-[12px] font-medium truncate flex-1"
+                  style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
+                >
+                  {task.title}
+                </span>
+                <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
+                  {task.dur}m
+                </span>
               </div>
             ))}
           </div>
         </section>
 
-        <div className="mt-auto rounded-[10px] p-3" style={{ background: 'var(--surface2)' }}>
-          <div className="text-[12px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
+        <div className="mt-auto pt-4">
+          <SectionDivider />
+          <div className="text-[11px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
             Horário de trabalho
           </div>
           <div className="text-[11px] font-mono-ae mb-2" style={{ color: 'var(--text3)' }}>
@@ -204,7 +198,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
             style={
               state.workOnly
                 ? { background: 'var(--accent)', color: 'var(--accentText)' }
-                : { background: 'var(--surface)', color: 'var(--text2)' }
+                : { background: 'var(--surface2)', color: 'var(--text2)' }
             }
           >
             {state.workOnly ? 'Mostrar 24 horas' : 'Colapsar fora do horário'}
@@ -213,6 +207,10 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
       </aside>
     </>
   );
+}
+
+function SectionDivider() {
+  return <div className="h-px my-4" style={{ background: 'var(--border)', opacity: 0.6 }} />;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
