@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Menu, Search, PanelRight, Command } from 'lucide-react';
+import { Menu, Search, PanelRight, Command, Sparkles } from 'lucide-react';
 import { useStore } from '../store/store';
 import { parseQuickAdd } from '../lib/nlParse';
 import { calendarOf } from '../store/selectors';
@@ -193,6 +193,17 @@ export function Header() {
           aria-label="Mostrar/ocultar atalhos"
         >
           <PanelRight size={15} style={{ color: 'var(--text2)' }} />
+        </button>
+      )}
+
+      {state.w >= 640 && (
+        <button
+          onClick={() => dispatch({ type: 'SET_FOCUS_MODE', on: true })}
+          className="h-8 flex items-center gap-1.5 rounded-[8px] px-3 text-[12px] font-semibold shrink-0"
+          style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
+        >
+          <Sparkles size={13} />
+          Focus Mode
         </button>
       )}
 

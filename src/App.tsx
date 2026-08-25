@@ -14,6 +14,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { UtilityPopovers } from './components/UtilityPopovers';
 import { AIAssistant } from './components/AIAssistant';
 import { ShortcutsPanel } from './components/ShortcutsPanel';
+import { FocusModeView } from './components/FocusModeView';
 import { CommandMenu } from './components/CommandMenu';
 import { Toast } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
@@ -84,20 +85,26 @@ function AppShell() {
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg)' }}>
       <Header />
       <div className="flex-1 flex min-h-0 relative">
-        <Sidebar eventCountByCal={eventCountByCal} />
-        <div className="flex-1 flex flex-col min-w-0 relative">
-          <Toolbar />
-          {state.view === 'day' || state.view === 'week' ? (
-            <DayWeekGrid />
-          ) : state.view === 'month' ? (
-            <MonthView />
-          ) : (
-            <AgendaView />
-          )}
-          <UtilityPopovers />
-        </div>
-        {!drawerOpen && <ShortcutsPanel />}
-        {drawerOpen && <Drawer />}
+        {state.focusMode ? (
+          <FocusModeView />
+        ) : (
+          <>
+            <Sidebar eventCountByCal={eventCountByCal} />
+            <div className="flex-1 flex flex-col min-w-0 relative">
+              <Toolbar />
+              {state.view === 'day' || state.view === 'week' ? (
+                <DayWeekGrid />
+              ) : state.view === 'month' ? (
+                <MonthView />
+              ) : (
+                <AgendaView />
+              )}
+              <UtilityPopovers />
+            </div>
+            {!drawerOpen && <ShortcutsPanel />}
+            {drawerOpen && <Drawer />}
+          </>
+        )}
       </div>
       <StatusBar />
       <EventModal />
@@ -105,7 +112,7 @@ function AppShell() {
       <Toast />
       <AIAssistant />
       <CommandMenu />
-      {!state.form && !drawerOpen && (
+      {!state.form && !drawerOpen && !state.focusMode && (
         <button
           onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
           className="fixed z-40 w-12 h-12 rounded-full grid place-items-center"

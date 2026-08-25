@@ -58,6 +58,21 @@ integração real.
   (ativa/desativa pelo ícone no header ou `Cmd/Ctrl+K` → "Mostrar/ocultar
   atalhos"), menu de comando (`Cmd/Ctrl+K`) com busca de ações, e preview
   ao passar o mouse sobre um evento (telas largas).
+- **Tema dark blue + gold** — paleta escura com tom azul-marinho (em vez de
+  cinza neutro) e dourado como cor de destaque secundária (Focus Mode,
+  mapa de calor).
+- **Analytics** (Configurações → Analytics) — distribuição do tempo da
+  semana (Reuniões/Trabalho/Pessoal/Família) e mapa de calor dos horários
+  de pico, calculados a partir dos seus próprios eventos.
+- **Focus Mode** — botão dourado no header (ou `Cmd/Ctrl+K` → "Iniciar
+  Focus Mode") que esconde sidebar/distrações e mostra só o compromisso
+  atual e o próximo, com contagem regressiva.
+- **Reagendamento inteligente** — detecta blocos de tempo de tarefas que
+  ficaram sobrepostos com outro compromisso (ex: uma reunião que "invadiu"
+  um bloco de foco) e realoca automaticamente pro próximo horário livre.
+  Acessível pelo menu "⋯" da toolbar ou `Cmd/Ctrl+K` → "Reorganizar
+  conflitos de agenda". Só mexe em blocos derivados de tarefa — nunca em
+  compromissos normais.
 
 ## Rodando localmente
 

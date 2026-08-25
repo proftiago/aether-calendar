@@ -24,7 +24,7 @@ export type FormState = {
   repeatUntil: string; // dateKey ou ''
 };
 
-export type SettingsTab = 'general' | 'google' | 'data';
+export type SettingsTab = 'general' | 'analytics' | 'google' | 'data';
 
 export type AppSettings = {
   themeMode: 'auto' | 'light' | 'dark';
@@ -78,6 +78,7 @@ export type AppState = {
   sidebarOpen: boolean;
   shortcutsOpen: boolean;
   aiOpen: boolean;
+  focusMode: boolean;
 };
 
 type Action =
@@ -114,6 +115,7 @@ type Action =
   | { type: 'SET_SIDEBAR'; open: boolean }
   | { type: 'TOGGLE_SHORTCUTS' }
   | { type: 'SET_AI_OPEN'; open: boolean }
+  | { type: 'SET_FOCUS_MODE'; on: boolean }
   | { type: 'GOOGLE_TOGGLE' }
   | { type: 'GOOGLE_CONNECTED_REAL' }
   | { type: 'GOOGLE_SYNC_MERGE'; events: Event[]; deletedGoogleIds: string[] }
@@ -296,6 +298,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, shortcutsOpen: !state.shortcutsOpen };
     case 'SET_AI_OPEN':
       return { ...state, aiOpen: action.open };
+    case 'SET_FOCUS_MODE':
+      return { ...state, focusMode: action.on, sidebarOpen: false };
     case 'GOOGLE_TOGGLE': {
       if (state.google === 'on') {
         return {
@@ -387,6 +391,7 @@ function initialState(): AppState {
     sidebarOpen: false,
     shortcutsOpen: w >= 1400,
     aiOpen: false,
+    focusMode: false,
   };
 }
 

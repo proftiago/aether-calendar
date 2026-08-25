@@ -1,10 +1,13 @@
 import { X } from 'lucide-react';
 import { useStore } from '../store/store';
+import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
+import { weeklyTimeBreakdown, focusHeatmap, formatMinutes } from '../lib/analytics';
 import type { SettingsTab } from '../store/store';
 
 const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'general', label: 'Geral' },
+  { key: 'analytics', label: 'Analytics' },
   { key: 'google', label: 'Google Calendar' },
   { key: 'data', label: 'Dados' },
 ];
@@ -85,10 +88,88 @@ export function SettingsModal() {
           </div>
 
           {state.settingsTab === 'general' && <GeneralTab />}
+          {state.settingsTab === 'analytics' && <AnalyticsTab />}
           {state.settingsTab === 'google' && <GoogleTab />}
           {state.settingsTab === 'data' && <DataTab />}
         </div>
       </div>
+    </div>
+  );
+}
+
+function AnalyticsTab() {
+  const { state } = useStore();
+  const allEvents = useAllEvents(state);
+  const visibleEvents = useVisibleEvents(state, allEvents);
+  const buckets = weeklyTimeBreakdown(visibleEvents);
+  const heatmap = focusHeatmap(visibleEvents);
+  const totalMin = buckets.reduce((sum, b) => sum + b.minutes, 0);
+  const maxHeat = Math.max(1, ...heatmap);
+  const peakHour = heatmap.indexOf(maxHeat);
+
+  return (
+    <div className="flex flex-col gap-6 max-w-[440px]">
+      <div>
+        <SectionHeading>Como sua semana está distribuída</SectionHeading>
+        {totalMin === 0 ? (
+          <p className="text-[13px]" style={{ color: 'var(--text3)' }}>
+            Sem eventos com horário nesta semana ainda.
+          </p>
+        ) : (
+          <>
+            <div className="h-2.5 rounded-full overflow-hidden flex mb-3" style={{ background: 'var(--surface2)' }}>
+              {buckets.map((b) => (
+                <div key={b.key} style={{ width: `${b.pct}%`, background: b.color }} title={`${b.label}: ${b.pct}%`} />
+              ))}
+            </div>
+            <div className="flex flex-col gap-2">
+              {buckets.map((b) => (
+                <div key={b.key} className="flex items-center justify-between text-[13px]">
+                  <span className="flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: b.color }} />
+                    {b.label}
+                  </span>
+                  <span style={{ color: 'var(--text2)' }}>
+                    {formatMinutes(b.minutes)} <span style={{ color: 'var(--text3)' }}>· {b.pct}%</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {totalMin > 0 && (
+        <div>
+          <SectionHeading>Horários de pico (mapa de calor)</SectionHeading>
+          <p className="text-[12px] mb-2.5" style={{ color: 'var(--text3)' }}>
+            Horário mais ocupado da semana: <strong style={{ color: 'var(--text)' }}>{peakHour}h</strong>
+          </p>
+          <div className="flex items-end gap-[3px] h-[60px]">
+            {heatmap.map((min, h) => (
+              <div
+                key={h}
+                className="flex-1 rounded-t-[2px]"
+                title={`${h}h — ${formatMinutes(min)}`}
+                style={{
+                  height: `${Math.max(3, (min / maxHeat) * 60)}px`,
+                  background: min === 0 ? 'var(--surface2)' : 'color-mix(in oklab, var(--gold) ' + Math.round(30 + (min / maxHeat) * 70) + '%, var(--surface2))',
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between text-[9px] mt-1" style={{ color: 'var(--text3)' }}>
+            <span>0h</span>
+            <span>12h</span>
+            <span>23h</span>
+          </div>
+        </div>
+      )}
+
+      <p className="text-[11.5px] leading-[1.6]" style={{ color: 'var(--text3)' }}>
+        Calculado a partir dos calendários visíveis, semana atual (segunda a domingo). "Reuniões" conta eventos com
+        videochamada ou palavras como "reunião"/"call"; o resto é dividido pelos calendários Trabalho/Pessoal/Família.
+      </p>
     </div>
   );
 }

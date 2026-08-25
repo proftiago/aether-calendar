@@ -15,6 +15,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
+import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
 import type { ViewKey } from '../lib/types';
 
@@ -28,6 +29,7 @@ type Command = {
 
 export function CommandMenu() {
   const { state, dispatch } = useStore();
+  const { resolveConflicts } = useSmartReschedule();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
@@ -116,6 +118,18 @@ export function CommandMenu() {
         label: 'Abrir Configurações',
         icon: <Settings size={15} />,
         run: () => dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'general' }),
+      },
+      {
+        id: 'focus-mode',
+        label: 'Iniciar Focus Mode',
+        icon: <Sparkles size={15} />,
+        run: () => dispatch({ type: 'SET_FOCUS_MODE', on: true }),
+      },
+      {
+        id: 'resolve-conflicts',
+        label: 'Reorganizar conflitos de agenda',
+        icon: <RefreshCw size={15} />,
+        run: resolveConflicts,
       },
       {
         id: 'assistant',

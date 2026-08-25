@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useStore } from '../store/store';
+import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
 import { weatherOf } from '../lib/estimates';
 import type { ViewKey } from '../lib/types';
@@ -14,6 +15,7 @@ const VIEWS: { key: ViewKey; label: string }[] = [
 
 export function Toolbar() {
   const { state, dispatch } = useStore();
+  const { resolveConflicts } = useSmartReschedule();
   const weather = weatherOf(state.cursor);
   const [moreOpen, setMoreOpen] = useState(false);
   const compact = state.w < 640;
@@ -126,6 +128,14 @@ export function Toolbar() {
               }}
             >
               {state.workOnly ? 'Mostrar 24 horas' : 'Colapsar fora do horário'}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                resolveConflicts();
+                setMoreOpen(false);
+              }}
+            >
+              Reorganizar conflitos de agenda
             </MenuItem>
           </div>
         )}
