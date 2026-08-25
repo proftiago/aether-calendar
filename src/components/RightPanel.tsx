@@ -225,7 +225,7 @@ export function RightPanel() {
                 className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] flex items-center gap-2 group"
                 style={{ opacity: task.done ? 0.45 : 1 }}
               >
-                <span className="w-1 h-3.5 rounded-[2px] shrink-0" style={{ background: prioColor(task.prio) }} />
+                <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: prioColor(task.prio) }} />
                 <span
                   onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
                   className="text-[12px] font-medium truncate flex-1"

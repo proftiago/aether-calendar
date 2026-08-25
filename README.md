@@ -81,9 +81,18 @@ integração real.
   sets, calendários), grade central, painel direito com Tarefas (barra de
   progresso do dia + lista arrastável) e atalhos (em abas). Painel direito
   liga automaticamente em telas >=1100px, ou pelo icone no header.
-- **Paleta dark blue + gold** — fundo `#0d1117`, cartões `#161b22`, dourado
-  `#d9a036` de destaque, ciano `#38bdf8` marcando eventos com
-  videochamada.
+- **Paleta refinada (Raycast/Linear/Notion Calendar)** — atualizada pra
+  fundo `#FAFAFA` (claro) / `#09090B` (escuro), bordas quase invisíveis
+  com transparência em vez de bordas pesadas, sombras sutis, âmbar
+  `#D97706` pro destaque de foco/tarefas e ciano `#0284C7`/`#38BDF8`
+  (claro/escuro) marcando reuniões e videochamadas.
+- **Cmd/Ctrl+/ como barra de comando unificada, estilo Raycast** — além
+  de buscar ações, agora também cria evento por linguagem natural direto
+  ali (mesmo parser do quick-add do header — funciona com `#tag` e
+  `~60m`), sempre como primeira opção quando você digita algo que parece
+  um evento.
+- **Analytics com sparkline** — mini-gráfico dos últimos 7 dias de tempo
+  agendado, além da distribuição semanal e mapa de calor.
 
 ## Rodando localmente
 

@@ -17,7 +17,10 @@ import {
 import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
-import type { ViewKey } from '../lib/types';
+import { parseQuickAdd } from '../lib/nlParse';
+import { calendarOf } from '../store/selectors';
+import { formatDayLabel, hm, toUtcIso } from '../lib/dates';
+import type { Event, ViewKey } from '../lib/types';
 
 type Command = {
   id: string;
@@ -197,6 +200,37 @@ export function CommandMenu() {
     return commands.filter((c) => c.label.toLowerCase().includes(q));
   }, [commands, query]);
 
+  // Comando fixo no topo: criação de evento por linguagem natural, estilo
+  // Raycast — a barra de comando também é a barra de criação rápida.
+  const nlPreview = query.trim().length > 0 ? parseQuickAdd(query) : null;
+  const nlCal = nlPreview ? calendarOf(state, nlPreview.calId) : undefined;
+  const nlCommand: Command | null = nlPreview
+    ? {
+        id: 'nl-create',
+        label: `Criar "${nlPreview.title}"`,
+        hint: undefined,
+        icon: <CalendarPlus size={15} style={{ color: 'var(--gold)' }} />,
+        run: () => {
+          const startsAt = toUtcIso(nlPreview.dateKey, nlPreview.startMin);
+          const endsAt = toUtcIso(nlPreview.dateKey, nlPreview.startMin + nlPreview.durationMin);
+          const event: Event = {
+            id: `local-${Date.now()}`,
+            title: nlPreview.title,
+            calId: nlPreview.calId,
+            startsAt,
+            endsAt,
+            timeZone: 'America/Sao_Paulo',
+            allDay: false,
+            location: nlPreview.location,
+            src: 'local',
+          };
+          dispatch({ type: 'ADD_EVENT', event, toast: `Evento criado: ${event.title}` });
+        },
+      }
+    : null;
+
+  const allEntries: Command[] = nlCommand ? [nlCommand, ...filtered] : filtered;
+
   function execute(cmd: Command) {
     cmd.run();
     setOpen(false);
@@ -208,13 +242,13 @@ export function CommandMenu() {
       setOpen(false);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelected((s) => Math.min(s + 1, filtered.length - 1));
+      setSelected((s) => Math.min(s + 1, allEntries.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelected((s) => Math.max(s - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      const cmd = filtered[selected];
+      const cmd = allEntries[selected];
       if (cmd) execute(cmd);
     }
   }
@@ -242,41 +276,74 @@ export function CommandMenu() {
               setSelected(0);
             }}
             onKeyDown={onKeyDown}
-            placeholder="Buscar um comando…"
+            placeholder="Criar evento ou buscar um comando…"
             className="flex-1 h-12 bg-transparent outline-none text-[14px]"
             style={{ color: 'var(--text)' }}
           />
         </div>
-        <div className="max-h-[320px] overflow-y-auto p-1.5 flex flex-col gap-0.5">
-          {filtered.length === 0 && (
+        <div className="max-h-[360px] overflow-y-auto p-1.5 flex flex-col gap-0.5">
+          {allEntries.length === 0 && (
             <div className="flex flex-col items-center gap-2 py-8" style={{ color: 'var(--text3)' }}>
               <Search size={20} strokeWidth={1.5} />
               <span className="text-[13px]">Nenhum comando encontrado</span>
             </div>
           )}
-          {filtered.map((cmd, i) => (
+          {nlCommand && nlPreview && (
             <button
-              key={cmd.id}
-              onClick={() => execute(cmd)}
-              onMouseEnter={() => setSelected(i)}
-              className="w-full flex items-center gap-2.5 text-left px-2.5 py-2 rounded-[8px] text-[13px] font-medium"
+              onClick={() => execute(nlCommand)}
+              onMouseEnter={() => setSelected(0)}
+              className="w-full flex flex-col gap-1 text-left px-2.5 py-2.5 rounded-[8px]"
               style={{
-                background: i === selected ? 'var(--surface2)' : 'transparent',
-                color: 'var(--text)',
+                background: selected === 0 ? 'color-mix(in oklab, var(--gold) 12%, var(--surface2))' : 'transparent',
               }}
             >
-              <span style={{ color: 'var(--text3)' }}>{cmd.icon}</span>
-              <span className="flex-1">{cmd.label}</span>
-              {cmd.hint && (
-                <kbd
-                  className="text-[11px] font-mono-ae rounded-[5px] px-[6px] py-[1px] border"
-                  style={{ borderColor: 'var(--border)', color: 'var(--text3)' }}
-                >
-                  {cmd.hint}
-                </kbd>
-              )}
+              <div className="flex items-center gap-2.5">
+                <CalendarPlus size={15} style={{ color: 'var(--gold)' }} />
+                <span className="flex-1 text-[13px] font-medium" style={{ color: 'var(--text)' }}>
+                  Criar "{nlPreview.title}"
+                </span>
+              </div>
+              <div className="pl-[25px] flex flex-wrap gap-1.5 text-[11px]" style={{ color: 'var(--text3)' }}>
+                <span className="capitalize">{formatDayLabel(nlPreview.dateKey)}</span>
+                <span>·</span>
+                <span className="font-mono-ae">{hm(nlPreview.startMin)}</span>
+                <span>·</span>
+                <span>{nlCal?.name}</span>
+                {nlPreview.location && (
+                  <>
+                    <span>·</span>
+                    <span>{nlPreview.location}</span>
+                  </>
+                )}
+              </div>
             </button>
-          ))}
+          )}
+          {filtered.map((cmd, i) => {
+            const idx = nlCommand ? i + 1 : i;
+            return (
+              <button
+                key={cmd.id}
+                onClick={() => execute(cmd)}
+                onMouseEnter={() => setSelected(idx)}
+                className="w-full flex items-center gap-2.5 text-left px-2.5 py-2 rounded-[8px] text-[13px] font-medium"
+                style={{
+                  background: idx === selected ? 'var(--surface2)' : 'transparent',
+                  color: 'var(--text)',
+                }}
+              >
+                <span style={{ color: 'var(--text3)' }}>{cmd.icon}</span>
+                <span className="flex-1">{cmd.label}</span>
+                {cmd.hint && (
+                  <kbd
+                    className="text-[11px] font-mono-ae rounded-[5px] px-[6px] py-[1px] border"
+                    style={{ borderColor: 'var(--border)', color: 'var(--text3)' }}
+                  >
+                    {cmd.hint}
+                  </kbd>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

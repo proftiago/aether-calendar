@@ -2,7 +2,8 @@ import { X } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
-import { weeklyTimeBreakdown, focusHeatmap, formatMinutes } from '../lib/analytics';
+import { weeklyTimeBreakdown, focusHeatmap, dailyTotalsSparkline, formatMinutes } from '../lib/analytics';
+import { Sparkline } from './Sparkline';
 import type { SettingsTab } from '../store/store';
 
 const TABS: { key: SettingsTab; label: string }[] = [
@@ -103,12 +104,23 @@ function AnalyticsTab() {
   const visibleEvents = useVisibleEvents(state, allEvents);
   const buckets = weeklyTimeBreakdown(visibleEvents);
   const heatmap = focusHeatmap(visibleEvents);
+  const sparkline = dailyTotalsSparkline(visibleEvents, 7);
   const totalMin = buckets.reduce((sum, b) => sum + b.minutes, 0);
   const maxHeat = Math.max(1, ...heatmap);
   const peakHour = heatmap.indexOf(maxHeat);
 
   return (
     <div className="flex flex-col gap-6 max-w-[440px]">
+      <div>
+        <div className="flex items-center justify-between mb-2.5">
+          <SectionHeading noMargin>Últimos 7 dias</SectionHeading>
+          <span className="text-[11px] font-mono-ae" style={{ color: 'var(--text3)' }}>
+            {formatMinutes(sparkline.reduce((a, b) => a + b, 0))} total
+          </span>
+        </div>
+        <Sparkline values={sparkline} />
+      </div>
+
       <div>
         <SectionHeading>Como sua semana está distribuída</SectionHeading>
         {totalMin === 0 ? (
@@ -117,7 +129,7 @@ function AnalyticsTab() {
           </p>
         ) : (
           <>
-            <div className="h-2.5 rounded-full overflow-hidden flex mb-3" style={{ background: 'var(--surface2)' }}>
+            <div className="h-[5px] rounded-full overflow-hidden flex mb-3" style={{ background: 'var(--surface2)' }}>
               {buckets.map((b) => (
                 <div key={b.key} style={{ width: `${b.pct}%`, background: b.color }} title={`${b.label}: ${b.pct}%`} />
               ))}
@@ -380,9 +392,9 @@ function DataTab() {
   );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
+function SectionHeading({ children, noMargin }: { children: React.ReactNode; noMargin?: boolean }) {
   return (
-    <h3 className="text-[13px] font-semibold mb-2.5" style={{ color: 'var(--text)' }}>
+    <h3 className={noMargin ? 'text-[13px] font-semibold' : 'text-[13px] font-semibold mb-2.5'} style={{ color: 'var(--text)' }}>
       {children}
     </h3>
   );

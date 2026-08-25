@@ -76,6 +76,23 @@ export function focusHeatmap(events: Event[], weekStartKey = startOfWeekKey(toda
   return byHour;
 }
 
+/** Minutos totais agendados por dia, últimos N dias (incluindo hoje) — pra sparkline. */
+export function dailyTotalsSparkline(events: Event[], days = 7): number[] {
+  const today = todayKey();
+  const totals: number[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const dateKey = addDays(today, -i);
+    let min = 0;
+    for (const ev of events) {
+      if (ev.allDay) continue;
+      if (dateKeyOf(ev.startsAt) !== dateKey) continue;
+      min += Math.max(0, minutesOfDay(ev.endsAt) - minutesOfDay(ev.startsAt));
+    }
+    totals.push(min);
+  }
+  return totals;
+}
+
 export function formatMinutes(min: number): string {
   const h = Math.floor(min / 60);
   const m = min % 60;
