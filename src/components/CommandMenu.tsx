@@ -35,7 +35,20 @@ export function CommandMenu() {
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement;
+      const inField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        // Ctrl/Cmd+K é reservado pelo Chrome (foca a barra de endereço) numa
+        // aba normal — só funciona aqui quando o app está instalado como PWA
+        // (sem barra de endereço) ou em navegadores que não reservam essa
+        // combinação. Ainda assim tentamos: se o navegador ignorar o
+        // preventDefault, o atalho "/" abaixo cobre o caso.
+        e.preventDefault();
+        setOpen((o) => !o);
+        return;
+      }
+      if (e.key === '/' && !inField) {
         e.preventDefault();
         setOpen((o) => !o);
       }
@@ -196,7 +209,7 @@ export function CommandMenu() {
               setSelected(0);
             }}
             onKeyDown={onKeyDown}
-            placeholder="Buscar um comando…"
+            placeholder="Buscar um comando… ( / pra abrir )"
             className="flex-1 h-12 bg-transparent outline-none text-[14px]"
             style={{ color: 'var(--text)' }}
           />
