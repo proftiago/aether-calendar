@@ -25,7 +25,7 @@ export function ShortcutsPanel() {
       <div className="text-[11px] font-bold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--text3)' }}>
         Atalhos úteis
       </div>
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-[13px]">
         {SHORTCUTS.map((s, i) => (
           <div key={i} className="flex items-center justify-between gap-3">
             <span className="text-[12.5px]" style={{ color: 'var(--text2)' }}>

@@ -227,7 +227,7 @@ export function CommandMenu() {
             style={{ color: 'var(--text)' }}
           />
         </div>
-        <div className="max-h-[320px] overflow-y-auto p-1.5">
+        <div className="max-h-[320px] overflow-y-auto p-1.5 flex flex-col gap-0.5">
           {filtered.length === 0 && (
             <div className="text-[13px] text-center py-6" style={{ color: 'var(--text3)' }}>
               Nenhum comando encontrado

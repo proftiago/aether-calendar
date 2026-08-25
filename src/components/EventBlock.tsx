@@ -63,7 +63,7 @@ export function EventBlock({
       onPointerDown={onPointerDownMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="absolute rounded-[7px] px-[7px] py-1 overflow-hidden cursor-grab select-none transition-shadow"
+      className="absolute rounded-[7px] px-[9px] py-[7px] overflow-hidden cursor-grab select-none transition-shadow"
       style={{
         top,
         height: Math.max(24, height),

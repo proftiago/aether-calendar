@@ -20,7 +20,7 @@ import { weatherOf } from '../../lib/estimates';
 import { EventBlock } from '../EventBlock';
 import type { Event } from '../../lib/types';
 
-const ROW_H = 52;
+const ROW_H = 56;
 const PX_PER_MIN = ROW_H / 60;
 const GUTTER = 60;
 
