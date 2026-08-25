@@ -182,17 +182,15 @@ export function Header() {
         {state.w >= 720 && GOOGLE_LABEL[state.google]}
       </button>
 
-      {state.w >= 900 && (
-        <button
-          onClick={() => window.dispatchEvent(new CustomEvent('aether:open-command-menu'))}
-          className="w-9 h-9 rounded-[10px] border grid place-items-center shrink-0"
-          style={{ background: 'transparent', borderColor: 'transparent' }}
-          aria-label="Menu de comando"
-          title="Menu de comando (Ctrl+/)"
-        >
-          <Command size={16} style={{ color: 'var(--text2)' }} />
-        </button>
-      )}
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('aether:open-command-menu'))}
+        className="w-9 h-9 rounded-[10px] border grid place-items-center shrink-0"
+        style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}
+        aria-label="Menu de comando"
+        title="Menu de comando (Ctrl+/)"
+      >
+        <Command size={16} style={{ color: 'var(--text2)' }} />
+      </button>
 
       {state.w >= 900 && (
         <button

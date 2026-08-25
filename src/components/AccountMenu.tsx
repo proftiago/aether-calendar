@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Settings, RefreshCw, LogOut, Sparkles } from 'lucide-react';
+import { Settings, RefreshCw, LogOut, Sparkles, Command } from 'lucide-react';
 import { useStore } from '../store/store';
 import { isGoogleConfigured } from '../lib/googleApi';
 
@@ -43,6 +43,15 @@ export function AccountMenu() {
               {connected ? 'Google Calendar conectado' : 'Uso local'}
             </div>
           </div>
+
+          <MenuItem
+            icon={<Command size={14} />}
+            label="Menu de comando"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('aether:open-command-menu'));
+              setOpen(false);
+            }}
+          />
 
           <MenuItem
             icon={<Settings size={14} />}
