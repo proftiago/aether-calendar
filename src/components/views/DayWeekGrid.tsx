@@ -200,80 +200,86 @@ export function DayWeekGrid() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0" onClick={() => dispatch({ type: 'SET_SELECTED', id: null })}>
-      {/* Cabeçalho de colunas */}
-      <div className="flex border-b shrink-0" style={{ borderColor: 'var(--border)' }}>
-        <div style={{ width: GUTTER }} className="flex items-end justify-center pb-1">
-          <span className="text-[9px] font-mono-ae" style={{ color: 'var(--text3)' }}>
-            GMT-3
-          </span>
-        </div>
-        {days.map((dateKey) => {
-          const isToday = dateKey === today;
-          const allDayEvents = (eventsByDay.get(dateKey) ?? []).filter((ev) => ev.allDay);
-          const w = weatherOf(dateKey);
-          return (
-            <div
-              key={dateKey}
-              className="flex-1 min-w-0 border-r px-2 pt-2 pb-1.5"
-              style={{
-                borderColor: 'var(--border)',
-                background: isToday ? 'color-mix(in oklab, var(--accent) 6%, transparent)' : undefined,
-                boxShadow: isToday ? 'inset 0 -2px 0 0 var(--accent)' : undefined,
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className="text-[11px] font-semibold uppercase tracking-[0.08em]"
-                    style={{ color: 'var(--text3)' }}
-                  >
-                    {dowAbbr(dateKey)}
-                  </span>
-                  <span
-                    className="text-[16px] font-semibold rounded-[8px]"
-                    style={
-                      isToday
-                        ? { background: 'var(--accent)', color: 'var(--accentText)', padding: '0 6px' }
-                        : { color: 'var(--text)' }
-                    }
-                  >
-                    {dayNum(dateKey)}
-                  </span>
-                </div>
-                <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
-                  {w.icon} {w.temp}°
-                </span>
-              </div>
-              {allDayEvents.length > 0 && (
-                <div className="flex flex-col gap-1 mt-1.5">
-                  {allDayEvents.map((ev) => {
-                    const cal = calendarOf(state, ev.calId);
-                    return (
-                      <div
-                        key={ev.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          dispatch({ type: 'SET_SELECTED', id: ev.id });
-                        }}
-                        className="text-[11px] font-semibold rounded-[6px] px-[7px] py-[3px] truncate cursor-pointer"
-                        style={{
-                          background: eventBg(cal?.color ?? 'var(--accent)'),
-                          borderLeft: `3px solid ${cal?.color}`,
-                        }}
-                      >
-                        {ev.title}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Área rolável */}
+      {/* Área rolável — cabeçalho e grade ficam no MESMO container rolável
+          (cabeçalho com sticky) pra nunca desalinhar: se ficassem em
+          containers separados, a barra de rolagem vertical (que só existe
+          na grade) encolhe as colunas de baixo sem encolher as de cima,
+          e as linhas verticais vão desalinhando da esquerda pra direita. */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto relative">
+        <div
+          className="flex border-b sticky top-0 z-20"
+          style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
+        >
+          <div style={{ width: GUTTER }} className="flex items-end justify-center pb-1 shrink-0">
+            <span className="text-[9px] font-mono-ae" style={{ color: 'var(--text3)' }}>
+              GMT-3
+            </span>
+          </div>
+          {days.map((dateKey) => {
+            const isToday = dateKey === today;
+            const allDayEvents = (eventsByDay.get(dateKey) ?? []).filter((ev) => ev.allDay);
+            const w = weatherOf(dateKey);
+            return (
+              <div
+                key={dateKey}
+                className="flex-1 min-w-0 border-r px-2 pt-2 pb-1.5"
+                style={{
+                  borderColor: 'var(--border)',
+                  background: isToday ? 'color-mix(in oklab, var(--accent) 6%, var(--bg))' : undefined,
+                  boxShadow: isToday ? 'inset 0 -2px 0 0 var(--accent)' : undefined,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="text-[11px] font-semibold uppercase tracking-[0.08em]"
+                      style={{ color: 'var(--text3)' }}
+                    >
+                      {dowAbbr(dateKey)}
+                    </span>
+                    <span
+                      className="text-[16px] font-semibold rounded-[8px]"
+                      style={
+                        isToday
+                          ? { background: 'var(--accent)', color: 'var(--accentText)', padding: '0 6px' }
+                          : { color: 'var(--text)' }
+                      }
+                    >
+                      {dayNum(dateKey)}
+                    </span>
+                  </div>
+                  <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
+                    {w.icon} {w.temp}°
+                  </span>
+                </div>
+                {allDayEvents.length > 0 && (
+                  <div className="flex flex-col gap-1 mt-1.5">
+                    {allDayEvents.map((ev) => {
+                      const cal = calendarOf(state, ev.calId);
+                      return (
+                        <div
+                          key={ev.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            dispatch({ type: 'SET_SELECTED', id: ev.id });
+                          }}
+                          className="text-[11px] font-semibold rounded-[6px] px-[7px] py-[3px] truncate cursor-pointer"
+                          style={{
+                            background: eventBg(cal?.color ?? 'var(--accent)'),
+                            borderLeft: `3px solid ${cal?.color}`,
+                          }}
+                        >
+                          {ev.title}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
         {state.workOnly && (
           <button
             onClick={() => dispatch({ type: 'TOGGLE_WORK_ONLY' })}
