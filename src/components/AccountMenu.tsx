@@ -114,11 +114,11 @@ function MenuItem({
     <button
       onClick={onClick}
       className="w-full flex items-center gap-2.5 text-left px-2.5 py-2 rounded-[8px] text-[13px] font-medium"
-      style={{ color: danger ? 'var(--now-line)' : 'var(--text)' }}
+      style={{ color: danger ? 'var(--danger)' : 'var(--text)' }}
       onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface2)')}
       onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
     >
-      <span style={{ color: danger ? 'var(--now-line)' : 'var(--text3)' }}>{icon}</span>
+      <span style={{ color: danger ? 'var(--danger)' : 'var(--text3)' }}>{icon}</span>
       {label}
     </button>
   );

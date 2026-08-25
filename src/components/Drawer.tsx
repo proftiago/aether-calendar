@@ -161,7 +161,7 @@ export function Drawer() {
           <button
             onClick={remove}
             className="flex-1 rounded-[10px] py-2.5 text-[13px] font-semibold border"
-            style={{ borderColor: 'var(--now-line)', color: 'var(--now-line)' }}
+            style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}
           >
             {isRecurringInstance ? 'Excluir este' : 'Excluir'}
           </button>

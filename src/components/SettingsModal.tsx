@@ -308,7 +308,7 @@ function GoogleTab() {
             <button
               onClick={() => dispatch({ type: 'GOOGLE_TOGGLE' })}
               className="rounded-[9px] px-4 py-2 text-[13px] font-semibold border"
-              style={{ borderColor: 'var(--now-line)', color: 'var(--now-line)' }}
+              style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}
             >
               Desconectar
             </button>
@@ -383,7 +383,7 @@ function DataTab() {
             }
           }}
           className="rounded-[9px] px-4 py-2 text-[13px] font-semibold border"
-          style={{ borderColor: 'var(--now-line)', color: 'var(--now-line)' }}
+          style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}
         >
           Apagar todos os dados locais
         </button>

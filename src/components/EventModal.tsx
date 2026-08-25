@@ -247,7 +247,7 @@ export function EventModal() {
 
         <div className="flex items-center justify-between mt-5">
           {form.mode === 'edit' ? (
-            <button onClick={remove} className="text-[13px] font-semibold" style={{ color: 'var(--now-line)' }}>
+            <button onClick={remove} className="text-[13px] font-semibold" style={{ color: 'var(--danger)' }}>
               {form.editingSeries ? 'Excluir série' : 'Excluir'}
             </button>
           ) : (

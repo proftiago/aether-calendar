@@ -9,10 +9,9 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ['T'], label: 'Ir para hoje' },
   { keys: ['C'], label: 'Criar evento' },
   { keys: ['G'], label: 'Ir para busca' },
-  { keys: ['1'], label: 'Ver: Dia' },
-  { keys: ['2'], label: 'Ver: Semana' },
-  { keys: ['3'], label: 'Ver: Mês' },
-  { keys: ['4'], label: 'Ver: Agenda' },
+  { keys: ['D'], label: 'Ver: Dia' },
+  { keys: ['W'], label: 'Ver: Semana' },
+  { keys: ['1', '2', '3', '4'], label: 'Trocar view (dia/semana/mês/agenda)' },
   { keys: ['←', '→'], label: 'Navegar' },
   { keys: ['Esc'], label: 'Fechar' },
 ];

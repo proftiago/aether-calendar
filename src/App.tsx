@@ -66,6 +66,10 @@ function AppShell() {
       } else if (['1', '2', '3', '4'].includes(e.key)) {
         const map: Record<string, ViewKey> = { '1': 'day', '2': 'week', '3': 'month', '4': 'agenda' };
         dispatch({ type: 'SET_VIEW', view: map[e.key] });
+      } else if (e.key === 'd' || e.key === 'D') {
+        dispatch({ type: 'SET_VIEW', view: 'day' });
+      } else if (e.key === 'w' || e.key === 'W') {
+        dispatch({ type: 'SET_VIEW', view: 'week' });
       } else if (e.key === 'ArrowLeft') {
         dispatch({ type: 'NAV', dir: -1 });
       } else if (e.key === 'ArrowRight') {
