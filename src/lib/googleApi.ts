@@ -3,6 +3,8 @@
 // — só manda a AETHER_API_KEY (uma chave compartilhada, não o token real)
 // pra provar que é o Aether autorizado chamando.
 
+import { inferCalendar } from './nlParse';
+
 const FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL as string | undefined;
 const API_KEY = import.meta.env.VITE_AETHER_API_KEY as string | undefined;
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
@@ -45,21 +47,23 @@ export type GoogleListResult = {
   deletedIds: string[];
 };
 
-export function listGoogleEvents(): Promise<GoogleListResult> {
-  return callFn<GoogleListResult>('list');
+export function listGoogleEvents(forceFull = false): Promise<GoogleListResult> {
+  return callFn<GoogleListResult>('list', forceFull ? { forceFull: true } : {});
 }
 
 /** Converte o registro cru devolvido pela Edge Function num Event completo do Aether. */
 export function rawToAetherEvent(raw: Record<string, unknown>): import('./types').Event {
+  const title = String(raw.title ?? '(sem título)');
+  const location = raw.location ? String(raw.location) : undefined;
   return {
     id: `google-${raw.googleEventId}`,
-    title: String(raw.title ?? '(sem título)'),
-    calId: String(raw.calId ?? 'personal'),
+    title,
+    calId: inferCalendar(title, location),
     startsAt: String(raw.startsAt),
     endsAt: String(raw.endsAt),
     timeZone: String(raw.timeZone ?? 'America/Sao_Paulo'),
     allDay: !!raw.allDay,
-    location: raw.location ? String(raw.location) : undefined,
+    location,
     meet: raw.meet ? String(raw.meet) : undefined,
     notes: raw.notes ? String(raw.notes) : undefined,
     src: 'google',

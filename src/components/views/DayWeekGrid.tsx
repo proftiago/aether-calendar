@@ -215,7 +215,11 @@ export function DayWeekGrid() {
             <div
               key={dateKey}
               className="flex-1 min-w-0 border-r px-2 pt-2 pb-1.5"
-              style={{ borderColor: 'var(--border)' }}
+              style={{
+                borderColor: 'var(--border)',
+                background: isToday ? 'color-mix(in oklab, var(--accent) 6%, transparent)' : undefined,
+                boxShadow: isToday ? 'inset 0 -2px 0 0 var(--accent)' : undefined,
+              }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
@@ -306,7 +310,7 @@ export function DayWeekGrid() {
               <div
                 key={dateKey}
                 className="flex-1 min-w-0 border-r relative"
-                style={{ borderColor: 'var(--border)', background: isToday ? 'color-mix(in oklab, var(--accent) 4%, transparent)' : undefined }}
+                style={{ borderColor: 'var(--border)', background: isToday ? 'color-mix(in oklab, var(--accent) 9%, transparent)' : undefined }}
                 onDoubleClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const y = e.clientY - rect.top;

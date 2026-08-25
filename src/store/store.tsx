@@ -440,9 +440,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // --- Google Calendar real: detecta o retorno do OAuth e sincroniza -----
 
-  async function syncFromGoogle() {
+  async function syncFromGoogle(forceFull = false) {
     try {
-      const result = await listGoogleEvents();
+      const result = await listGoogleEvents(forceFull);
       const events = result.events.map(rawToAetherEvent);
       dispatch({ type: 'GOOGLE_SYNC_MERGE', events, deletedGoogleIds: result.deletedIds ?? [] });
     } catch (err) {
@@ -470,7 +470,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (!isGoogleConfigured() || state.google !== 'on') return;
     const id = setInterval(syncFromGoogle, 5 * 60_000);
     const onFocus = () => syncFromGoogle();
-    const onManualSync = () => syncFromGoogle();
+    const onManualSync = (e: globalThis.Event) => syncFromGoogle((e as CustomEvent).detail?.forceFull === true);
     window.addEventListener('focus', onFocus);
     window.addEventListener('aether:sync-now', onManualSync);
     return () => {

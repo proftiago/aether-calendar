@@ -30,8 +30,8 @@ const WEEKDAY_NAMES: Record<string, number> = {
 const WORK_KEYWORDS = ['reunião', 'reuniao', 'call', 'cliente', 'sprint', 'daily', 'standup', 'projeto', 'deploy', 'revisão', 'entrevista', 'aula', 'turma'];
 const FAMILY_KEYWORDS = ['família', 'familia', 'filho', 'filha', 'mãe', 'mae', 'pai', 'aniversário', 'aniversario', 'escola'];
 
-function inferCalendar(title: string): CalendarId {
-  const lower = title.toLowerCase();
+export function inferCalendar(title: string, location?: string): CalendarId {
+  const lower = `${title} ${location ?? ''}`.toLowerCase();
   if (FAMILY_KEYWORDS.some((k) => lower.includes(k))) return 'family';
   if (WORK_KEYWORDS.some((k) => lower.includes(k))) return 'work';
   return 'personal';

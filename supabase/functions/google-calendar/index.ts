@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
   try {
     switch (body.action) {
       case 'list':
-        return json(await listEvents(accessToken, supabase, body as { timeMin?: string; timeMax?: string }));
+        return json(await listEvents(accessToken, supabase, body as { timeMin?: string; timeMax?: string; forceFull?: boolean }));
       case 'create':
         return json(await createEvent(accessToken, body.event as Record<string, unknown>));
       case 'update':
@@ -117,11 +117,11 @@ async function getValidAccessToken(supabase: ReturnType<typeof createClient>): P
 
 // --- Google Calendar calls -------------------------------------------------
 
-async function listEvents(accessToken: string, supabase: ReturnType<typeof createClient>, opts: { timeMin?: string; timeMax?: string }) {
+async function listEvents(accessToken: string, supabase: ReturnType<typeof createClient>, opts: { timeMin?: string; timeMax?: string; forceFull?: boolean }) {
   const { data: tokenRow } = await supabase.from('google_tokens').select('sync_token').eq('id', 'default').maybeSingle();
   const params = new URLSearchParams({ singleEvents: 'true', maxResults: '250' });
 
-  if (tokenRow?.sync_token) {
+  if (tokenRow?.sync_token && !opts.forceFull) {
     params.set('syncToken', tokenRow.sync_token as string);
   } else {
     params.set('orderBy', 'startTime');

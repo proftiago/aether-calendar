@@ -231,6 +231,24 @@ function GoogleTab() {
           <li>Sincronização automática a cada 5 min, ou manual pelo botão acima</li>
         </ul>
       </div>
+
+      {connected && configured && (
+        <div>
+          <SectionHeading>Recategorizar eventos</SectionHeading>
+          <p className="text-[12.5px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
+            A sincronização automática só traz o que mudou desde a última vez. Se você quer
+            reclassificar eventos já importados (por exemplo, depois de eu ajustar as regras de
+            Trabalho/Pessoal/Família), força uma sincronização completa.
+          </p>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('aether:sync-now', { detail: { forceFull: true } }))}
+            className="rounded-[9px] px-4 py-2 text-[13px] font-semibold"
+            style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+          >
+            Forçar sincronização completa
+          </button>
+        </div>
+      )}
     </div>
   );
 }
