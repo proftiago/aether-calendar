@@ -20,11 +20,8 @@ export function Toolbar() {
   const [moreOpen, setMoreOpen] = useState(false);
   const compact = state.w < 640;
 
-  return (
-    <div
-      className="flex items-center gap-1.5 px-3 sm:px-4 py-2 border-b flex-wrap relative"
-      style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
-    >
+  const nav = (
+    <>
       <button
         onClick={() => dispatch({ type: 'GO_TODAY' })}
         className="h-8 px-2.5 rounded-[7px] text-[13px] font-medium shrink-0 hover:[background:var(--surface2)]"
@@ -60,18 +57,17 @@ export function Toolbar() {
       </div>
 
       {state.w >= 480 && (
-        <div className="flex items-center gap-1.5 text-[12px] shrink-0" style={{ color: 'var(--text3)' }}>
+        <div className="flex items-center gap-1.5 text-[12px] shrink-0 ml-auto sm:ml-0" style={{ color: 'var(--text3)' }}>
           <span>{weather.icon}</span>
           <span className="font-mono-ae">{weather.temp}°</span>
         </div>
       )}
+    </>
+  );
 
-      <div className="flex-1 basis-full sm:basis-0 order-3 sm:order-none" />
-
-      <div
-        className="flex items-center p-[2px] rounded-[9px] flex-1 sm:flex-initial min-w-0"
-        style={{ background: 'var(--surface2)' }}
-      >
+  const viewSwitcherAndMenu = (
+    <>
+      <div className="flex items-center p-[2px] rounded-[9px] flex-1 min-w-0" style={{ background: 'var(--surface2)' }}>
         {VIEWS.map((v) => {
           const active = state.view === v.key;
           return (
@@ -79,11 +75,7 @@ export function Toolbar() {
               key={v.key}
               onClick={() => dispatch({ type: 'SET_VIEW', view: v.key })}
               className="h-9 flex-1 sm:flex-initial sm:px-3 rounded-[7px] text-[12px] sm:text-[13px] font-medium"
-              style={
-                active
-                  ? { background: 'var(--surface)', color: 'var(--text)' }
-                  : { color: 'var(--text3)' }
-              }
+              style={active ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
             >
               {compact ? v.label.slice(0, 3) : v.label}
             </button>
@@ -140,6 +132,26 @@ export function Toolbar() {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (compact) {
+    return (
+      <div className="flex flex-col border-b" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+        <div className="flex items-center gap-1.5 px-3 pt-2 pb-1.5">{nav}</div>
+        <div className="flex items-center gap-1.5 px-3 pb-2">{viewSwitcherAndMenu}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex items-center gap-1.5 px-4 py-2 border-b"
+      style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
+    >
+      {nav}
+      <div className="flex-1" />
+      {viewSwitcherAndMenu}
     </div>
   );
 }

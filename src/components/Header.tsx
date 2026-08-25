@@ -54,12 +54,12 @@ export function Header() {
         aria-label="Abrir menu"
       >
         <span
-          className="w-[26px] h-[26px] rounded-[7px] grid place-items-center font-semibold text-[13px] sm:hidden-none"
+          className="hidden sm:grid w-[26px] h-[26px] rounded-[7px] place-items-center font-semibold text-[13px]"
           style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
         >
           A
         </span>
-        <Menu size={15} className="sm:hidden" style={{ color: 'var(--text2)' }} />
+        <Menu size={17} className="sm:hidden" style={{ color: 'var(--text2)' }} />
       </button>
 
       <div className="relative flex-1 min-w-[200px] basis-[300px]">
@@ -155,26 +155,28 @@ export function Header() {
         </button>
       )}
 
-      <button
-        onClick={() => {
-          if (state.google === 'off' && isGoogleConfigured()) {
-            window.location.href = buildGoogleAuthUrl();
-            return;
-          }
-          dispatch({ type: 'GOOGLE_TOGGLE' });
-        }}
-        className="h-8 flex items-center gap-1.5 rounded-[8px] px-2 text-[12px] font-medium shrink-0 hover:[background:var(--surface2)]"
-        style={{ color: 'var(--text2)' }}
-        aria-label={GOOGLE_LABEL[state.google]}
-      >
-        <span
-          className={`w-[7px] h-[7px] rounded-full shrink-0 ${state.google === 'sync' ? 'animate-ae-spin' : ''}`}
-          style={{
-            background: state.google === 'off' ? 'oklch(0.7 0.02 95)' : state.google === 'sync' ? 'var(--sync-progress)' : 'var(--sync-ok)',
+      {state.w >= 640 && (
+        <button
+          onClick={() => {
+            if (state.google === 'off' && isGoogleConfigured()) {
+              window.location.href = buildGoogleAuthUrl();
+              return;
+            }
+            dispatch({ type: 'GOOGLE_TOGGLE' });
           }}
-        />
-        {state.w >= 760 && GOOGLE_LABEL[state.google]}
-      </button>
+          className="h-8 flex items-center gap-1.5 rounded-[8px] px-2 text-[12px] font-medium shrink-0 hover:[background:var(--surface2)]"
+          style={{ color: 'var(--text2)' }}
+          aria-label={GOOGLE_LABEL[state.google]}
+        >
+          <span
+            className={`w-[7px] h-[7px] rounded-full shrink-0 ${state.google === 'sync' ? 'animate-ae-spin' : ''}`}
+            style={{
+              background: state.google === 'off' ? 'oklch(0.7 0.02 95)' : state.google === 'sync' ? 'var(--sync-progress)' : 'var(--sync-ok)',
+            }}
+          />
+          {state.w >= 760 && GOOGLE_LABEL[state.google]}
+        </button>
+      )}
 
       <button
         onClick={() => window.dispatchEvent(new CustomEvent('aether:open-command-menu'))}
@@ -185,15 +187,17 @@ export function Header() {
         <Command size={15} style={{ color: 'var(--text2)' }} />
       </button>
 
-      <button
-        onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
-        className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
-        style={{ background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent' }}
-        aria-label="Tarefas e atalhos"
-        title="Tarefas e atalhos"
-      >
-        <PanelRight size={15} style={{ color: 'var(--text2)' }} />
-      </button>
+      {state.w >= 640 && (
+        <button
+          onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
+          className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
+          style={{ background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent' }}
+          aria-label="Tarefas e atalhos"
+          title="Tarefas e atalhos"
+        >
+          <PanelRight size={15} style={{ color: 'var(--text2)' }} />
+        </button>
+      )}
 
       {state.w >= 640 && (
         <button
@@ -206,7 +210,7 @@ export function Header() {
         </button>
       )}
 
-      <AccountMenu />
+      {state.w >= 640 && <AccountMenu />}
     </header>
   );
 }
