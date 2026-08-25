@@ -229,8 +229,9 @@ export function CommandMenu() {
         </div>
         <div className="max-h-[320px] overflow-y-auto p-1.5 flex flex-col gap-0.5">
           {filtered.length === 0 && (
-            <div className="text-[13px] text-center py-6" style={{ color: 'var(--text3)' }}>
-              Nenhum comando encontrado
+            <div className="flex flex-col items-center gap-2 py-8" style={{ color: 'var(--text3)' }}>
+              <Search size={20} strokeWidth={1.5} />
+              <span className="text-[13px]">Nenhum comando encontrado</span>
             </div>
           )}
           {filtered.map((cmd, i) => (

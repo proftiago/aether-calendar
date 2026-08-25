@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, CalendarX } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { freeSlots } from '../lib/freeSlots';
@@ -44,9 +44,10 @@ export function UtilityPopovers() {
             </button>
           ))}
           {slots.length === 0 && (
-            <p className="text-[12px]" style={{ color: 'var(--text3)' }}>
-              Nenhum horário livre encontrado nos próximos 14 dias.
-            </p>
+            <div className="flex flex-col items-center gap-2 py-6" style={{ color: 'var(--text3)' }}>
+              <CalendarX size={22} strokeWidth={1.5} />
+              <p className="text-[12px] text-center">Nenhum horário livre nos próximos 14 dias</p>
+            </div>
           )}
         </div>
       </Popover>

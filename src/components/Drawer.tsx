@@ -112,7 +112,7 @@ export function Drawer() {
             style={{ background: 'var(--surface2)' }}
             aria-label="Fechar"
           >
-            <X size={14} style={{ color: 'var(--text2)' }} />
+            <X size={15} style={{ color: 'var(--text2)' }} />
           </button>
         </div>
 

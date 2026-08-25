@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkles, X, CalendarX } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { suggestBestTimes, type Suggestion } from '../lib/suggest';
@@ -66,7 +66,7 @@ export function AIAssistant() {
           }}
           aria-label="Assistente de horários"
         >
-          <Sparkles size={19} style={{ color: 'var(--accent)' }} />
+          <Sparkles size={15} style={{ color: 'var(--accent)' }} />
         </button>
       )}
 
@@ -157,9 +157,10 @@ export function AIAssistant() {
           {suggestions && (
             <div className="flex flex-col gap-1.5 pt-1 border-t" style={{ borderColor: 'var(--border)' }}>
               {suggestions.length === 0 && (
-                <p className="text-[12px] pt-2" style={{ color: 'var(--text3)' }}>
-                  Não achei horários livres nos próximos 14 dias. Tente uma duração menor.
-                </p>
+                <div className="flex flex-col items-center gap-2 py-4" style={{ color: 'var(--text3)' }}>
+                  <CalendarX size={20} strokeWidth={1.5} />
+                  <p className="text-[12px] text-center">Nenhum horário livre nos próximos 14 dias. Tente uma duração menor.</p>
+                </div>
               )}
               {suggestions.map((s, i) => (
                 <button

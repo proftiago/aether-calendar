@@ -63,7 +63,7 @@ export function SettingsModal() {
             className="absolute top-4 right-4 w-7 h-7 rounded-[8px] grid place-items-center"
             style={{ background: 'var(--surface2)' }}
           >
-            <X size={14} style={{ color: 'var(--text2)' }} />
+            <X size={15} style={{ color: 'var(--text2)' }} />
           </button>
 
           {/* seletor de abas mobile */}

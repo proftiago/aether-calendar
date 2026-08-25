@@ -95,7 +95,7 @@ export function Toolbar() {
           className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)]"
           aria-label="Mais opções"
         >
-          <MoreHorizontal size={16} style={{ color: 'var(--text2)' }} />
+          <MoreHorizontal size={15} style={{ color: 'var(--text2)' }} />
         </button>
         {moreOpen && (
           <div

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { CalendarX } from 'lucide-react';
 import { useStore } from '../../store/store';
 import { useAllEvents, useVisibleEvents, calendarOf } from '../../store/selectors';
 import { addDays, dateKeyOf, dayNum, hm, minutesOfDay, todayKey } from '../../lib/dates';
@@ -40,8 +41,9 @@ export function AgendaView() {
   return (
     <div className="flex-1 overflow-y-auto pb-10 pt-2">
       {groups.length === 0 && (
-        <div className="text-center py-16 text-[13px]" style={{ color: 'var(--text3)' }}>
-          Nenhum evento nos próximos 28 dias.
+        <div className="flex flex-col items-center gap-2.5 py-20" style={{ color: 'var(--text3)' }}>
+          <CalendarX size={28} strokeWidth={1.5} />
+          <span className="text-[13px]">Nenhum evento nos próximos 28 dias</span>
         </div>
       )}
       {groups.map(({ dateKey, events }) => {

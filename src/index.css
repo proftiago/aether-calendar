@@ -37,7 +37,7 @@
   --accent: oklch(0.68 0.17 264);
   --accentText: oklch(0.98 0.002 95);
   --shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.7);
-  --event-mix: 52%;
+  --event-mix: 44%;
 
   --cal-work: oklch(0.68 0.2 264);
   --cal-personal: oklch(0.72 0.19 158);
@@ -122,6 +122,11 @@ body {
   .animate-ae-spin {
     animation: none !important;
   }
+  button,
+  a,
+  [role='button'] {
+    transition: none !important;
+  }
 }
 
 input,
@@ -129,6 +134,12 @@ textarea,
 button {
   font-family: inherit;
   color: inherit;
+}
+
+button,
+a,
+[role='button'] {
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, opacity 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
 button {

@@ -59,7 +59,7 @@ export function Header() {
         >
           A
         </span>
-        <Menu size={17} className="sm:hidden" style={{ color: 'var(--text2)' }} />
+        <Menu size={15} className="sm:hidden" style={{ color: 'var(--text2)' }} />
       </button>
 
       <div className="relative flex-1 min-w-[200px] basis-[300px]">
@@ -67,7 +67,7 @@ export function Header() {
           className="h-9 flex items-center gap-2 rounded-[9px] px-2.5 transition-colors"
           style={{ background: focused ? 'var(--surface2)' : 'transparent' }}
         >
-          <Search size={13} style={{ color: 'var(--text3)' }} />
+          <Search size={12} style={{ color: 'var(--text3)' }} />
           <input
             ref={inputRef}
             id="quick-add-input"
@@ -121,7 +121,7 @@ export function Header() {
 
       {state.w >= 560 && (
         <div className="h-8 flex items-center gap-1.5 rounded-[8px] px-2" style={{ background: 'var(--surface2)' }}>
-          <Search size={13} style={{ color: 'var(--text3)' }} />
+          <Search size={12} style={{ color: 'var(--text3)' }} />
           <input
             value={state.search}
             onChange={(e) => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
@@ -133,7 +133,7 @@ export function Header() {
       )}
       {state.w < 560 && searchOpen && (
         <div className="h-8 flex items-center gap-1.5 rounded-[8px] px-2" style={{ background: 'var(--surface2)' }}>
-          <Search size={13} style={{ color: 'var(--text3)' }} />
+          <Search size={12} style={{ color: 'var(--text3)' }} />
           <input
             value={state.search}
             onChange={(e) => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
@@ -151,7 +151,7 @@ export function Header() {
           className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
           aria-label="Buscar"
         >
-          <Search size={14} style={{ color: 'var(--text2)' }} />
+          <Search size={15} style={{ color: 'var(--text2)' }} />
         </button>
       )}
 

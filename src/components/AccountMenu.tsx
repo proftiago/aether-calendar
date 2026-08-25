@@ -45,7 +45,7 @@ export function AccountMenu() {
           </div>
 
           <MenuItem
-            icon={<Command size={14} />}
+            icon={<Command size={15} />}
             label="Menu de comando"
             onClick={() => {
               window.dispatchEvent(new CustomEvent('aether:open-command-menu'));
@@ -54,7 +54,7 @@ export function AccountMenu() {
           />
 
           <MenuItem
-            icon={<Settings size={14} />}
+            icon={<Settings size={15} />}
             label="Configurações"
             onClick={() => {
               dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'general' });
@@ -64,7 +64,7 @@ export function AccountMenu() {
 
           {isGoogleConfigured() && connected && (
             <MenuItem
-              icon={<RefreshCw size={14} />}
+              icon={<RefreshCw size={15} />}
               label="Sincronizar agora"
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('aether:sync-now'));
@@ -74,7 +74,7 @@ export function AccountMenu() {
           )}
 
           <MenuItem
-            icon={<Sparkles size={14} />}
+            icon={<Sparkles size={15} />}
             label="Assistente de horários"
             onClick={() => {
               dispatch({ type: 'SET_AI_OPEN', open: true });
@@ -84,7 +84,7 @@ export function AccountMenu() {
 
           {connected && (
             <MenuItem
-              icon={<LogOut size={14} />}
+              icon={<LogOut size={15} />}
               label="Desconectar Google"
               danger
               onClick={() => {

@@ -159,7 +159,7 @@ export function EventModal() {
               className="w-4 h-4 rounded-[5px] grid place-items-center border"
               style={{ background: form.allDay ? 'var(--accent)' : 'transparent', borderColor: form.allDay ? 'var(--accent)' : 'var(--border)' }}
             >
-              {form.allDay && <Check size={10} strokeWidth={3.5} color="white" />}
+              {form.allDay && <Check size={12} strokeWidth={3.5} color="white" />}
             </span>
             Dia inteiro
           </button>
@@ -184,7 +184,7 @@ export function EventModal() {
                   className="w-4 h-4 rounded-[5px] grid place-items-center border"
                   style={{ background: form.repeat ? 'var(--accent)' : 'transparent', borderColor: form.repeat ? 'var(--accent)' : 'var(--border)' }}
                 >
-                  {form.repeat && <Check size={10} strokeWidth={3.5} color="white" />}
+                  {form.repeat && <Check size={12} strokeWidth={3.5} color="white" />}
                 </span>
                 Repetir semanalmente
               </button>

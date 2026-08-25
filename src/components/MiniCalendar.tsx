@@ -33,10 +33,10 @@ export function MiniCalendar() {
         </span>
         <div className="flex items-center gap-1">
           <button onClick={() => goMonth(-1)} className="w-6 h-6 rounded-[6px] grid place-items-center hover:[background:var(--surface2)]" aria-label="Mês anterior">
-            <ChevronLeft size={13} style={{ color: 'var(--text3)' }} />
+            <ChevronLeft size={12} style={{ color: 'var(--text3)' }} />
           </button>
           <button onClick={() => goMonth(1)} className="w-6 h-6 rounded-[6px] grid place-items-center hover:[background:var(--surface2)]" aria-label="Próximo mês">
-            <ChevronRight size={13} style={{ color: 'var(--text3)' }} />
+            <ChevronRight size={12} style={{ color: 'var(--text3)' }} />
           </button>
         </div>
       </div>

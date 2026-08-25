@@ -78,7 +78,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                       style={{ color: active ? 'var(--accentText)' : 'var(--text3)' }}
                       aria-label={`Excluir set ${s.name}`}
                     >
-                      <X size={11} strokeWidth={2.5} />
+                      <X size={12} strokeWidth={2.5} />
                     </button>
                   )}
                 </div>
@@ -134,7 +134,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                     background: c.visible ? c.color : 'transparent',
                   }}
                 >
-                  {c.visible && <Check size={10} strokeWidth={3.5} color="white" />}
+                  {c.visible && <Check size={12} strokeWidth={3.5} color="white" />}
                 </span>
                 <span className="text-[13px] font-medium flex-1" style={{ color: 'var(--text)' }}>
                   {c.name}
