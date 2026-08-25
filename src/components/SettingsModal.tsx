@@ -408,14 +408,21 @@ function ToggleRow({ label, checked, onChange }: { label: string; checked: boole
       </span>
       <button
         onClick={() => onChange(!checked)}
-        className="w-9 h-5 rounded-full relative transition-colors shrink-0"
-        style={{ background: checked ? 'var(--accent)' : 'var(--border)' }}
+        className="w-9 h-5 rounded-full relative shrink-0 transition-colors"
+        style={{
+          background: checked ? 'var(--accent)' : 'var(--surface2)',
+          border: checked ? 'none' : '1px solid var(--border)',
+        }}
         aria-pressed={checked}
         aria-label={label}
       >
         <span
-          className="absolute top-[2px] w-4 h-4 rounded-full bg-white transition-transform"
-          style={{ transform: checked ? 'translateX(18px)' : 'translateX(2px)' }}
+          className="absolute top-1/2 w-[14px] h-[14px] rounded-full transition-transform"
+          style={{
+            background: 'var(--surface)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.25), 0 1px 4px rgba(0,0,0,0.12)',
+            transform: checked ? 'translate(19px, -50%)' : 'translate(3px, -50%)',
+          }}
         />
       </button>
     </div>
