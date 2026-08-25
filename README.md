@@ -73,6 +73,17 @@ integração real.
   Acessível pelo menu "⋯" da toolbar ou `Cmd/Ctrl+K` → "Reorganizar
   conflitos de agenda". Só mexe em blocos derivados de tarefa — nunca em
   compromissos normais.
+- **Quick-add com sintaxe explícita** — além da linguagem natural
+  ("amanhã 14h", "sexta às 10h"), agora aceita `#trabalho`/`#pessoal`/`#familia`
+  pra forçar o calendário e `~60m`/`~1h` pra forçar a duração, ex:
+  `"Almoço com a equipe sexta às 12h no Leblon #trabalho ~60m"`.
+- **Layout de 3 colunas** — sidebar esquerda (mini-calendário, calendar
+  sets, calendários), grade central, painel direito com Tarefas (barra de
+  progresso do dia + lista arrastável) e atalhos (em abas). Painel direito
+  liga automaticamente em telas >=1100px, ou pelo icone no header.
+- **Paleta dark blue + gold** — fundo `#0d1117`, cartões `#161b22`, dourado
+  `#d9a036` de destaque, ciano `#38bdf8` marcando eventos com
+  videochamada.
 
 ## Rodando localmente
 

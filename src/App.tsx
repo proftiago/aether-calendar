@@ -13,7 +13,7 @@ import { EventModal } from './components/EventModal';
 import { SettingsModal } from './components/SettingsModal';
 import { UtilityPopovers } from './components/UtilityPopovers';
 import { AIAssistant } from './components/AIAssistant';
-import { ShortcutsPanel } from './components/ShortcutsPanel';
+import { RightPanel } from './components/RightPanel';
 import { FocusModeView } from './components/FocusModeView';
 import { CommandMenu } from './components/CommandMenu';
 import { Toast } from './components/Toast';
@@ -101,7 +101,7 @@ function AppShell() {
               )}
               <UtilityPopovers />
             </div>
-            {!drawerOpen && <ShortcutsPanel />}
+            {!drawerOpen && <RightPanel />}
             {drawerOpen && <Drawer />}
           </>
         )}

@@ -96,7 +96,11 @@ export function EventBlock({
       )}
       {height > 48 && showDetailLine && (event.location || event.meet || travel) && (
         <div className="flex items-center gap-1 text-[11px] truncate" style={{ color: 'var(--text2)' }}>
-          {event.meet ? <Video size={12} className="shrink-0" /> : event.location ? <MapPin size={12} className="shrink-0" /> : null}
+          {event.meet ? (
+            <Video size={12} className="shrink-0" style={{ color: 'var(--accent)' }} />
+          ) : event.location ? (
+            <MapPin size={12} className="shrink-0" />
+          ) : null}
           <span className="truncate">
             {event.meet ? 'Videochamada' : event.location}
             {travel ? ` · +${travel} min` : ''}

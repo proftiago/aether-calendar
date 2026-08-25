@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Check, Plus, X } from 'lucide-react';
 import { useStore } from '../store/store';
-import { prioColor } from '../lib/style';
 import { MiniCalendar } from './MiniCalendar';
 
 export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, number> }) {
@@ -143,43 +142,6 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                   {eventCountByCal[c.id] ?? 0}
                 </span>
               </button>
-            ))}
-          </div>
-        </section>
-
-        <SectionDivider />
-
-        <section>
-          <div className="flex items-center justify-between">
-            <SectionTitle>Tarefas</SectionTitle>
-            <span className="text-[10px]" style={{ color: 'var(--text3)' }}>
-              arraste p/ agendar
-            </span>
-          </div>
-          <div className="mt-1.5 flex flex-col gap-0.5">
-            {state.tasks.map((task) => (
-              <div
-                key={task.id}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('application/x-aether-task', task.id);
-                  e.dataTransfer.effectAllowed = 'copyMove';
-                }}
-                onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
-                className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] flex items-center gap-2"
-                style={{ opacity: task.done ? 0.45 : 1 }}
-              >
-                <span className="w-1 h-3.5 rounded-[2px] shrink-0" style={{ background: prioColor(task.prio) }} />
-                <span
-                  className="text-[12px] font-medium truncate flex-1"
-                  style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
-                >
-                  {task.title}
-                </span>
-                <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
-                  {task.dur}m
-                </span>
-              </div>
             ))}
           </div>
         </section>

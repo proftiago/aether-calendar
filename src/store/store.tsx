@@ -389,7 +389,7 @@ function initialState(): AppState {
     w,
     now: nowMinutesOfDay(),
     sidebarOpen: false,
-    shortcutsOpen: w >= 1400,
+    shortcutsOpen: w >= 1100,
     aiOpen: false,
     focusMode: false,
   };
