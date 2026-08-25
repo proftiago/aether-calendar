@@ -170,10 +170,7 @@ export function DayWeekGrid() {
     dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey, startMin) });
   }
 
-  function handleDrop(e: React.DragEvent, dateKey: string, startMin: number) {
-    e.preventDefault();
-    const taskId = e.dataTransfer.getData('application/x-aether-task');
-    if (!taskId) return;
+  function scheduleTaskAt(taskId: string, dateKey: string, startMin: number) {
     const task = state.tasks.find((t) => t.id === taskId);
     if (!task) return;
     const snapped = Math.round(startMin / 15) * 15;
@@ -194,6 +191,35 @@ export function DayWeekGrid() {
     dispatch({ type: 'SCHEDULE_TASK', taskId: task.id, event });
     pushCreate(event);
   }
+
+  function handleDrop(e: React.DragEvent, dateKey: string, startMin: number) {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('application/x-aether-task');
+    if (!taskId) return;
+    scheduleTaskAt(taskId, dateKey, startMin);
+  }
+
+  // Drag-and-drop nativo (HTML5) só funciona com mouse — em touch (tablet/
+  // celular) o navegador simplesmente ignora. RightPanel detecta toque e
+  // dispara este evento customizado com a posição do dedo; aqui a gente
+  // traduz pra data+horário do mesmo jeito que já fazíamos com o mouse.
+  useEffect(() => {
+    function onTouchDrop(e: globalThis.Event) {
+      const { taskId, clientX, clientY } = (e as CustomEvent).detail as { taskId: string; clientX: number; clientY: number };
+      if (!gridRef.current) return;
+      const rect = gridRef.current.getBoundingClientRect();
+      if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return;
+      const colIndex = colIndexFromClientX(clientX);
+      const dateKey = days[colIndex];
+      if (!dateKey) return;
+      const y = clientY - rect.top;
+      const min = H0 + Math.round(y / PX_PER_MIN / 15) * 15;
+      scheduleTaskAt(taskId, dateKey, min);
+    }
+    window.addEventListener('aether:touch-drop-task', onTouchDrop);
+    return () => window.removeEventListener('aether:touch-drop-task', onTouchDrop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [days, state.tasks, H0]);
 
   const today = todayKey();
   const now = state.now;

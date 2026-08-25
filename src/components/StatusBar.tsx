@@ -3,6 +3,7 @@ import { useAllEvents, useVisibleEvents } from '../store/selectors';
 
 export function StatusBar() {
   const { state } = useStore();
+  if (state.w < 640) return null; // atalhos de teclado não fazem sentido em touch — vira BottomNav
   const allEvents = useAllEvents(state);
   const visibleEvents = useVisibleEvents(state, allEvents);
 

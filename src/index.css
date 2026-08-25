@@ -110,6 +110,14 @@ body {
     transform: rotate(360deg);
   }
 }
+@keyframes aeSheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
 
 .animate-ae-in {
   animation: aeIn 0.16s ease;
@@ -120,11 +128,15 @@ body {
 .animate-ae-spin {
   animation: aeSpin 1s linear infinite;
 }
+.animate-ae-sheet {
+  animation: aeSheetUp 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .animate-ae-in,
   .animate-ae-pop,
-  .animate-ae-spin {
+  .animate-ae-spin,
+  .animate-ae-sheet {
     animation: none !important;
   }
   button,

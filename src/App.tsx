@@ -18,6 +18,7 @@ import { FocusModeView } from './components/FocusModeView';
 import { CommandMenu } from './components/CommandMenu';
 import { Toast } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
+import { BottomNav } from './components/BottomNav';
 import type { ViewKey } from './lib/types';
 
 function AppShell() {
@@ -111,12 +112,13 @@ function AppShell() {
         )}
       </div>
       <StatusBar />
+      <BottomNav />
       <EventModal />
       <SettingsModal />
       <Toast />
       <AIAssistant />
       <CommandMenu />
-      {!state.form && !drawerOpen && !state.focusMode && !(state.shortcutsOpen && state.w < 1024) && (
+      {!state.form && !drawerOpen && !state.focusMode && !(state.shortcutsOpen && state.w < 1024) && state.w >= 640 && (
         <button
           onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
           className="fixed z-40 w-12 h-12 rounded-full grid place-items-center"

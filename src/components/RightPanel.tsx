@@ -18,6 +18,50 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
 
 const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
 
+function startTouchDrag(e: React.PointerEvent, taskId: string, title: string) {
+  const ghost = document.createElement('div');
+  ghost.textContent = title;
+  Object.assign(ghost.style, {
+    position: 'fixed',
+    zIndex: '200',
+    pointerEvents: 'none',
+    left: `${e.clientX + 14}px`,
+    top: `${e.clientY + 14}px`,
+    padding: '6px 10px',
+    borderRadius: '8px',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    boxShadow: 'var(--shadow)',
+    fontSize: '12px',
+    fontWeight: '600',
+    color: 'var(--text)',
+    maxWidth: '160px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  });
+  document.body.appendChild(ghost);
+
+  function onMove(ev: PointerEvent) {
+    ghost.style.left = `${ev.clientX + 14}px`;
+    ghost.style.top = `${ev.clientY + 14}px`;
+  }
+  function onUp(ev: PointerEvent) {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onUp);
+    ghost.remove();
+    window.dispatchEvent(
+      new CustomEvent('aether:touch-drop-task', {
+        detail: { taskId, clientX: ev.clientX, clientY: ev.clientY },
+      }),
+    );
+  }
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+}
+
 export function RightPanel() {
   const { state, dispatch } = useStore();
   const [tab, setTab] = useState<'tasks' | 'shortcuts'>('tasks');
@@ -37,6 +81,14 @@ export function RightPanel() {
     window.addEventListener('aether:add-task', onRequestAdd);
     return () => window.removeEventListener('aether:add-task', onRequestAdd);
   }, [dispatch]);
+
+  useEffect(() => {
+    function onOpenTasks() {
+      setTab('tasks');
+    }
+    window.addEventListener('aether:open-tasks', onOpenTasks);
+    return () => window.removeEventListener('aether:open-tasks', onOpenTasks);
+  }, []);
 
   if (!state.shortcutsOpen) return null;
   const overlayMode = state.w < 1024;
@@ -238,8 +290,11 @@ export function RightPanel() {
                   e.dataTransfer.setData('application/x-aether-task', task.id);
                   e.dataTransfer.effectAllowed = 'copyMove';
                 }}
+                onPointerDown={(e) => {
+                  if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
+                }}
                 className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] flex items-center gap-2 group"
-                style={{ opacity: task.done ? 0.45 : 1 }}
+                style={{ opacity: task.done ? 0.45 : 1, touchAction: 'none' }}
               >
                 <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: prioColor(task.prio) }} />
                 <span

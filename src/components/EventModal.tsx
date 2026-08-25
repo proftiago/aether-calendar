@@ -70,18 +70,31 @@ export function EventModal() {
   }
 
   const showRepeat = form.mode === 'create' || form.editingSeries;
+  const sheet = state.w < 640;
 
   return (
     <div
-      className="fixed inset-0 z-[60] grid place-items-center p-5 animate-ae-in"
+      className={`fixed inset-0 z-[60] flex ${sheet ? 'items-end' : 'items-center'} justify-center ${sheet ? 'p-0' : 'p-5'} animate-ae-in`}
       style={{ background: 'color-mix(in oklab, #000 42%, transparent)' }}
       onClick={close}
     >
       <div
-        className="w-full rounded-[16px] p-5 animate-ae-pop overflow-y-auto"
-        style={{ maxWidth: 460, maxHeight: '90vh', background: 'var(--surface)', boxShadow: '0 30px 70px -20px rgba(0,0,0,0.45)' }}
+        className={`w-full overflow-y-auto ${sheet ? 'rounded-t-[18px] animate-ae-sheet' : 'rounded-[16px] animate-ae-pop'}`}
+        style={{
+          maxWidth: sheet ? '100%' : 460,
+          maxHeight: sheet ? '88vh' : '90vh',
+          padding: sheet ? '10px 20px 24px' : 20,
+          paddingBottom: sheet ? 'calc(24px + env(safe-area-inset-bottom))' : 20,
+          background: 'var(--surface)',
+          boxShadow: '0 30px 70px -20px rgba(0,0,0,0.45)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
+        {sheet && (
+          <div className="flex justify-center pb-3">
+            <span className="w-9 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+          </div>
+        )}
         <h2 className="text-[18px] font-semibold tracking-[-0.02em] mb-4" style={{ color: 'var(--text)' }}>
           {form.mode === 'create' ? 'Novo evento' : form.editingSeries ? 'Editar série' : 'Editar evento'}
         </h2>
