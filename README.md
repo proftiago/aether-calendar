@@ -119,8 +119,14 @@ src/
   enquanto; só a parte do Google já sincroniza de verdade)
 - Recorrência empurrada pro Google (RRULE completo na escrita)
 - Sincronizar mais de um calendário do Google (hoje só o "primary")
-- Botão de "sincronizar agora" manual, além do automático a cada 5 min
 - Recorrência mais completa no Aether (mensal, `count`) — a base (`rrule`)
   já suporta, falta expor na UI
 - Acessibilidade: navegação por teclado na grade, `role`/`label` nos
   eventos, focus trap no modal
+
+## Fluxo de atualização
+
+Desde 25/08/2026, o deploy é automático: todo push na branch `main` do
+GitHub (`proftiago/aether-calendar`) já dispara um build e publica sozinho
+no Netlify — sem precisar baixar zip, rodar build local nem arrastar pasta.
+Pra pegar as mudanças no seu PC (uso local/dev), basta `git pull`.
