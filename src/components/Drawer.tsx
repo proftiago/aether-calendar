@@ -103,7 +103,7 @@ export function Drawer() {
       <div className="p-4 flex flex-col gap-3.5">
         <div className="flex items-start gap-2.5">
           <span className="w-2.5 h-2.5 rounded-sm mt-1.5 shrink-0" style={{ background: cal?.color }} />
-          <h2 className="text-[19px] font-bold flex-1 leading-tight" style={{ color: 'var(--text)' }}>
+          <h2 className="text-[18px] font-semibold flex-1 leading-tight" style={{ color: 'var(--text)' }}>
             {event.title}
           </h2>
           <button
@@ -134,7 +134,7 @@ export function Drawer() {
             href={event.meet}
             target="_blank"
             rel="noreferrer"
-            className="w-full text-center rounded-[10px] py-2.5 text-[13px] font-bold"
+            className="w-full text-center rounded-[10px] py-2.5 text-[13px] font-semibold"
             style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
           >
             Entrar na reunião

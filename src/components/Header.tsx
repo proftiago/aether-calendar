@@ -54,7 +54,7 @@ export function Header() {
         aria-label="Abrir menu"
       >
         <span
-          className="w-[26px] h-[26px] rounded-[7px] grid place-items-center font-extrabold text-[13px] sm:hidden-none"
+          className="w-[26px] h-[26px] rounded-[7px] grid place-items-center font-semibold text-[13px] sm:hidden-none"
           style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
         >
           A
@@ -79,7 +79,7 @@ export function Header() {
               if (e.key === 'Enter') createFromQuick();
             }}
             placeholder="Reunião com João amanhã 14h no Zoom"
-            className="flex-1 bg-transparent outline-none text-[13.5px] min-w-0"
+            className="flex-1 bg-transparent outline-none text-[14px] min-w-0"
             style={{ color: 'var(--text)' }}
           />
           {state.quick.trim() && (
@@ -100,7 +100,7 @@ export function Header() {
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="w-2 h-2 rounded-sm" style={{ background: cal?.color }} />
-              <span className="text-[14px] font-bold" style={{ color: 'var(--text)' }}>
+              <span className="text-[14px] font-semibold" style={{ color: 'var(--text)' }}>
                 {parsed.title}
               </span>
             </div>
@@ -126,7 +126,7 @@ export function Header() {
             value={state.search}
             onChange={(e) => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
             placeholder="Buscar"
-            className="bg-transparent outline-none text-[12.5px] w-20 sm:w-24"
+            className="bg-transparent outline-none text-[13px] w-20 sm:w-24"
             style={{ color: 'var(--text)' }}
           />
         </div>
@@ -140,7 +140,7 @@ export function Header() {
             onBlur={() => !state.search && setSearchOpen(false)}
             autoFocus
             placeholder="Buscar"
-            className="bg-transparent outline-none text-[12.5px] w-20"
+            className="bg-transparent outline-none text-[13px] w-20"
             style={{ color: 'var(--text)' }}
           />
         </div>
@@ -204,7 +204,7 @@ export function Header() {
 function Chip({ children, mono }: { children: React.ReactNode; mono?: boolean }) {
   return (
     <span
-      className={`text-[11.5px] rounded-[6px] px-2 py-[3px] ${mono ? 'font-mono-ae' : ''}`}
+      className={`text-[12px] rounded-[6px] px-2 py-[3px] ${mono ? 'font-mono-ae' : ''}`}
       style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
     >
       {children}

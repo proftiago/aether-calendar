@@ -38,7 +38,7 @@ export function SettingsModal() {
           className="w-[190px] shrink-0 border-r p-3 hidden sm:block"
           style={{ borderColor: 'var(--border)', background: 'var(--surface2)' }}
         >
-          <div className="text-[10px] font-bold uppercase tracking-[0.1em] px-2 mb-1.5" style={{ color: 'var(--text3)' }}>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 mb-1.5" style={{ color: 'var(--text3)' }}>
             Configurações
           </div>
           {TABS.map((t) => (
@@ -196,7 +196,7 @@ function GoogleTab() {
               if (configured) window.location.href = buildGoogleAuthUrl();
               else dispatch({ type: 'GOOGLE_TOGGLE' });
             }}
-            className="rounded-[9px] px-4 py-2 text-[13px] font-bold"
+            className="rounded-[9px] px-4 py-2 text-[13px] font-semibold"
             style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
           >
             Conectar Google Calendar
@@ -225,7 +225,7 @@ function GoogleTab() {
 
       <div>
         <SectionHeading>Limitações desta versão</SectionHeading>
-        <ul className="text-[12.5px] leading-[1.7] list-disc pl-4" style={{ color: 'var(--text2)' }}>
+        <ul className="text-[13px] leading-[1.7] list-disc pl-4" style={{ color: 'var(--text2)' }}>
           <li>Sincroniza só o calendário principal (primary) da conta Google</li>
           <li>Eventos recorrentes criados no Aether não são enviados ao Google ainda</li>
           <li>Sincronização automática a cada 5 min, ou manual pelo botão acima</li>
@@ -235,7 +235,7 @@ function GoogleTab() {
       {connected && configured && (
         <div>
           <SectionHeading>Recategorizar eventos</SectionHeading>
-          <p className="text-[12.5px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
+          <p className="text-[13px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
             A sincronização automática só traz o que mudou desde a última vez. Se você quer
             reclassificar eventos já importados (por exemplo, depois de eu ajustar as regras de
             Trabalho/Pessoal/Família), força uma sincronização completa.
@@ -260,7 +260,7 @@ function DataTab() {
     <div className="flex flex-col gap-5 max-w-[420px]">
       <div>
         <SectionHeading>Dados de exemplo</SectionHeading>
-        <p className="text-[12.5px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
+        <p className="text-[13px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
           Na primeira vez que o app abre, ele carrega alguns eventos e tarefas de exemplo pra não ficar vazio. Se algum
           ainda estiver na sua agenda, remove aqui.
         </p>
@@ -279,7 +279,7 @@ function DataTab() {
 
       <div>
         <SectionHeading>Zona de risco</SectionHeading>
-        <p className="text-[12.5px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
+        <p className="text-[13px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
           Apaga todos os eventos, tarefas e calendar sets salvos neste navegador. Eventos importados do Google
           continuam lá (não afeta sua conta Google), mas somem da sua agenda no Aether até uma nova sincronização.
         </p>
@@ -301,7 +301,7 @@ function DataTab() {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[13px] font-bold mb-2.5" style={{ color: 'var(--text)' }}>
+    <h3 className="text-[13px] font-semibold mb-2.5" style={{ color: 'var(--text)' }}>
       {children}
     </h3>
   );
@@ -353,7 +353,7 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="text-[12.5px] rounded-[8px] px-2.5 py-1.5 border outline-none"
+      className="text-[13px] rounded-[8px] px-2.5 py-1.5 border outline-none"
       style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text)' }}
     >
       {options.map((o) => (

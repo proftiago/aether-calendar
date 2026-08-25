@@ -80,17 +80,17 @@ export function EventBlock({
     >
       <div className="flex items-center gap-1 min-w-0">
         {!!event.seriesId && <Repeat size={10} className="shrink-0" style={{ color: 'var(--text2)' }} />}
-        <div className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+        <div className="text-[13px] font-semibold truncate" style={{ color: 'var(--text)' }}>
           {event.title}
         </div>
       </div>
       {height > 34 && (
-        <div className="text-[10.5px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>
+        <div className="text-[11px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>
           {hm(s, state.settings.timeFormat)} – {hm(e, state.settings.timeFormat)}
         </div>
       )}
       {height > 48 && (event.location || event.meet || travel) && (
-        <div className="flex items-center gap-1 text-[10.5px] truncate" style={{ color: 'var(--text2)' }}>
+        <div className="flex items-center gap-1 text-[11px] truncate" style={{ color: 'var(--text2)' }}>
           {event.meet ? <Video size={10} className="shrink-0" /> : event.location ? <MapPin size={10} className="shrink-0" /> : null}
           <span className="truncate">
             {event.meet ? 'Videochamada' : event.location}
@@ -122,11 +122,11 @@ export function EventBlock({
         >
           <div className="flex items-start gap-1.5 mb-1.5">
             <span className="w-2 h-2 rounded-sm mt-1 shrink-0" style={{ background: color }} />
-            <span className="text-[13px] font-bold leading-tight" style={{ color: 'var(--text)' }}>
+            <span className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--text)' }}>
               {event.title}
             </span>
           </div>
-          <div className="text-[11.5px] font-mono-ae mb-0.5" style={{ color: 'var(--text2)' }}>
+          <div className="text-[12px] font-mono-ae mb-0.5" style={{ color: 'var(--text2)' }}>
             {event.allDay ? 'Dia inteiro' : `${hm(s, state.settings.timeFormat)} – ${hm(e, state.settings.timeFormat)}`}
           </div>
           <div className="text-[11px] capitalize mb-1" style={{ color: 'var(--text3)' }}>

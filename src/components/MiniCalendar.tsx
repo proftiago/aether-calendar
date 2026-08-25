@@ -28,7 +28,7 @@ export function MiniCalendar() {
   return (
     <div className="select-none">
       <div className="flex items-center justify-between mb-1.5 px-0.5">
-        <span className="text-[12px] font-bold capitalize" style={{ color: 'var(--text)' }}>
+        <span className="text-[12px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
           {monthLabel}
         </span>
         <div className="flex items-center gap-0.5">
@@ -44,7 +44,7 @@ export function MiniCalendar() {
       <div className="grid text-center" style={{ gridTemplateColumns: state.settings.showWeekNumbers ? '20px repeat(7, 1fr)' : 'repeat(7, 1fr)' }}>
         {state.settings.showWeekNumbers && <span />}
         {labels.map((l, i) => (
-          <span key={i} className="text-[9.5px] font-semibold pb-1" style={{ color: 'var(--text3)' }}>
+          <span key={i} className="text-[10px] font-semibold pb-1" style={{ color: 'var(--text3)' }}>
             {l}
           </span>
         ))}
@@ -64,7 +64,7 @@ export function MiniCalendar() {
                 <button
                   key={dateKey}
                   onClick={() => pick(dateKey)}
-                  className="text-[10.5px] rounded-full w-6 h-6 mx-auto my-[1px] grid place-items-center"
+                  className="text-[11px] rounded-full w-6 h-6 mx-auto my-[1px] grid place-items-center"
                   style={{
                     opacity: inMonth ? 1 : 0.32,
                     background: isSelected ? 'var(--accent)' : isToday ? 'var(--surface2)' : 'transparent',

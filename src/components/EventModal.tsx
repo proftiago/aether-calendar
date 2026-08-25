@@ -82,7 +82,7 @@ export function EventModal() {
         style={{ maxWidth: 460, maxHeight: '90vh', background: 'var(--surface)', boxShadow: '0 30px 70px -20px rgba(0,0,0,0.45)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-[18px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--text)' }}>
+        <h2 className="text-[18px] font-semibold tracking-[-0.02em] mb-4" style={{ color: 'var(--text)' }}>
           {form.mode === 'create' ? 'Novo evento' : form.editingSeries ? 'Editar série' : 'Editar evento'}
         </h2>
 
@@ -92,7 +92,7 @@ export function EventModal() {
             value={form.title}
             onChange={(e) => dispatch({ type: 'UPDATE_FORM', changes: { title: e.target.value } })}
             placeholder="Título do evento"
-            className="rounded-[10px] px-3 py-[11px] text-[15px] font-semibold outline-none border"
+            className="rounded-[10px] px-3 py-[11px] text-[16px] font-semibold outline-none border"
             style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text)' }}
           />
 
@@ -103,7 +103,7 @@ export function EventModal() {
                 <button
                   key={c.id}
                   onClick={() => dispatch({ type: 'UPDATE_FORM', changes: { calId: String(c.id) } })}
-                  className="flex-1 flex items-center gap-1.5 rounded-[9px] px-2 py-2 text-[12.5px] font-semibold border justify-center"
+                  className="flex-1 flex items-center gap-1.5 rounded-[9px] px-2 py-2 text-[13px] font-semibold border justify-center"
                   style={{
                     background: active ? `color-mix(in oklab, ${c.color} 15%, var(--surface2))` : 'var(--surface2)',
                     borderColor: active ? c.color : 'var(--border)',
@@ -201,7 +201,7 @@ export function EventModal() {
                             const repeatDows = active ? form.repeatDows.filter((d) => d !== dow) : [...form.repeatDows, dow].sort();
                             dispatch({ type: 'UPDATE_FORM', changes: { repeatDows } });
                           }}
-                          className="w-7 h-7 rounded-full text-[11px] font-bold shrink-0"
+                          className="w-7 h-7 rounded-full text-[11px] font-semibold shrink-0"
                           style={
                             active
                               ? { background: 'var(--accent)', color: 'var(--accentText)' }
@@ -263,7 +263,7 @@ export function EventModal() {
             </button>
             <button
               onClick={save}
-              className="rounded-[10px] px-5 py-[11px] text-[13px] font-bold"
+              className="rounded-[10px] px-5 py-[11px] text-[13px] font-semibold"
               style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
             >
               Salvar

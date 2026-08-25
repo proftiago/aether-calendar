@@ -18,7 +18,7 @@ export function StatusBar() {
 
   return (
     <div
-      className="flex items-center gap-4 px-4 py-1.5 border-t text-[10.5px] flex-wrap shrink-0"
+      className="flex items-center gap-4 px-4 py-1.5 border-t text-[11px] flex-wrap shrink-0"
       style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text3)' }}
     >
       <div className="flex items-center gap-3 flex-wrap">
@@ -37,7 +37,7 @@ export function StatusBar() {
 function Shortcut({ k, children }: { k: string; children: React.ReactNode }) {
   return (
     <span>
-      <span className="font-mono-ae font-bold">{k}</span> {children}
+      <span className="font-mono-ae font-semibold">{k}</span> {children}
     </span>
   );
 }

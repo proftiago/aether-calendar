@@ -25,7 +25,7 @@ export function Toolbar() {
     >
       <button
         onClick={() => dispatch({ type: 'GO_TODAY' })}
-        className="h-8 px-2.5 rounded-[7px] text-[12.5px] font-medium shrink-0 hover:[background:var(--surface2)]"
+        className="h-8 px-2.5 rounded-[7px] text-[13px] font-medium shrink-0 hover:[background:var(--surface2)]"
         style={{ color: 'var(--text2)' }}
       >
         Hoje
@@ -48,7 +48,7 @@ export function Toolbar() {
         </button>
       </div>
 
-      <div className="text-[14px] sm:text-[16px] font-bold tracking-[-0.02em] capitalize truncate min-w-0 ml-0.5" style={{ color: 'var(--text)' }}>
+      <div className="text-[14px] sm:text-[16px] font-semibold tracking-[-0.02em] capitalize truncate min-w-0 ml-0.5" style={{ color: 'var(--text)' }}>
         {formatPeriodLabel(state.view, state.cursor, state.settings.weekStartsOn)}
         {state.settings.showWeekNumbers && state.view === 'week' && state.w >= 560 && (
           <span className="ml-2 text-[12px] font-medium normal-case" style={{ color: 'var(--text3)' }}>
@@ -76,7 +76,7 @@ export function Toolbar() {
             <button
               key={v.key}
               onClick={() => dispatch({ type: 'SET_VIEW', view: v.key })}
-              className="h-7 flex-1 sm:flex-initial sm:px-3 rounded-[7px] text-[12px] sm:text-[12.5px] font-medium"
+              className="h-7 flex-1 sm:flex-initial sm:px-3 rounded-[7px] text-[12px] sm:text-[13px] font-medium"
               style={
                 active
                   ? { background: 'var(--surface)', color: 'var(--text)' }

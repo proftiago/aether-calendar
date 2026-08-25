@@ -55,15 +55,15 @@ export function AgendaView() {
           >
             <div className="w-[92px] shrink-0">
               <div
-                className="text-[22px] font-bold tracking-[-0.03em]"
+                className="text-[22px] font-semibold tracking-[-0.03em]"
                 style={{ color: isToday ? 'var(--accent)' : 'var(--text)' }}
               >
                 {dayNum(dateKey)}
               </div>
-              <div className="text-[11.5px] capitalize" style={{ color: 'var(--text2)' }}>
+              <div className="text-[12px] capitalize" style={{ color: 'var(--text2)' }}>
                 {format(keyToDate(dateKey), 'EEE · MMM', { locale: ptBR })}
               </div>
-              <div className="text-[10.5px]" style={{ color: 'var(--text3)' }}>
+              <div className="text-[11px]" style={{ color: 'var(--text3)' }}>
                 {w.icon} {w.temp}°
               </div>
             </div>
@@ -78,15 +78,15 @@ export function AgendaView() {
                     className="flex items-center gap-3 rounded-[10px] px-3 py-[9px] border cursor-pointer hover:[box-shadow:var(--shadow)]"
                     style={{ background: 'var(--surface)', borderColor: 'var(--border)', borderLeft: `3px solid ${cal?.color}` }}
                   >
-                    <div className="w-[92px] shrink-0 text-[11.5px] font-mono-ae" style={{ color: 'var(--text2)' }}>
+                    <div className="w-[92px] shrink-0 text-[12px] font-mono-ae" style={{ color: 'var(--text2)' }}>
                       {ev.allDay ? 'dia inteiro' : hm(minutesOfDay(ev.startsAt), state.settings.timeFormat)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-[13.5px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+                      <div className="text-[14px] font-semibold truncate" style={{ color: 'var(--text)' }}>
                         {ev.title}
                       </div>
                       <div
-                        className="text-[11.5px] truncate max-w-[220px]"
+                        className="text-[12px] truncate max-w-[220px]"
                         style={{ color: 'var(--text3)' }}
                       >
                         {ev.location || cal?.name}

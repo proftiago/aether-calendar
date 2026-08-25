@@ -224,13 +224,13 @@ export function DayWeekGrid() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <span
-                    className="text-[10.5px] font-bold uppercase tracking-[0.08em]"
+                    className="text-[11px] font-semibold uppercase tracking-[0.08em]"
                     style={{ color: 'var(--text3)' }}
                   >
                     {dowAbbr(dateKey)}
                   </span>
                   <span
-                    className="text-[17px] font-bold rounded-[8px]"
+                    className="text-[16px] font-semibold rounded-[8px]"
                     style={
                       isToday
                         ? { background: 'var(--accent)', color: 'var(--accentText)', padding: '0 6px' }
@@ -240,7 +240,7 @@ export function DayWeekGrid() {
                     {dayNum(dateKey)}
                   </span>
                 </div>
-                <span className="text-[10.5px]" style={{ color: 'var(--text3)' }}>
+                <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
                   {w.icon} {w.temp}°
                 </span>
               </div>
@@ -289,7 +289,7 @@ export function DayWeekGrid() {
             {visibleHours.map((h) => (
               <div key={h} className="relative" style={{ height: ROW_H }}>
                 <span
-                  className="absolute font-mono-ae text-[10.5px]"
+                  className="absolute font-mono-ae text-[11px]"
                   style={{ top: -7, right: 8, color: 'var(--text3)' }}
                 >
                   {hm(h * 60, state.settings.timeFormat)}

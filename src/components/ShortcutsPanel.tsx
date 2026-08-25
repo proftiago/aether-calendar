@@ -22,20 +22,20 @@ export function ShortcutsPanel() {
       className="w-[220px] shrink-0 border-l p-4 hidden lg:block overflow-y-auto"
       style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
     >
-      <div className="text-[11px] font-bold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--text3)' }}>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--text3)' }}>
         Atalhos úteis
       </div>
       <div className="flex flex-col gap-[13px]">
         {SHORTCUTS.map((s, i) => (
           <div key={i} className="flex items-center justify-between gap-3">
-            <span className="text-[12.5px]" style={{ color: 'var(--text2)' }}>
+            <span className="text-[13px]" style={{ color: 'var(--text2)' }}>
               {s.label}
             </span>
             <span className="flex gap-1 shrink-0">
               {s.keys.map((k, j) => (
                 <kbd
                   key={j}
-                  className="text-[10.5px] font-mono-ae font-semibold rounded-[5px] px-[6px] py-[1px] border"
+                  className="text-[11px] font-mono-ae font-semibold rounded-[5px] px-[6px] py-[1px] border"
                   style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text2)' }}
                 >
                   {k}

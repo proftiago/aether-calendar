@@ -88,7 +88,7 @@ export function AIAssistant() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Sparkles size={15} style={{ color: 'var(--accent)' }} />
-              <h3 className="text-[14px] font-bold" style={{ color: 'var(--text)' }}>
+              <h3 className="text-[14px] font-semibold" style={{ color: 'var(--text)' }}>
                 Melhor horário
               </h3>
             </div>
@@ -97,13 +97,13 @@ export function AIAssistant() {
             </button>
           </div>
 
-          <p className="text-[11.5px] leading-[1.5]" style={{ color: 'var(--text3)' }}>
+          <p className="text-[12px] leading-[1.5]" style={{ color: 'var(--text3)' }}>
             Sugestões calculadas a partir da sua agenda real (não é uma IA externa — roda tudo aqui no navegador).
           </p>
 
           {pendingTasks.length > 0 && (
             <div>
-              <div className="text-[10.5px] font-semibold mb-1.5" style={{ color: 'var(--text3)' }}>
+              <div className="text-[11px] font-semibold mb-1.5" style={{ color: 'var(--text3)' }}>
                 A partir de uma tarefa
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -134,7 +134,7 @@ export function AIAssistant() {
               <button
                 key={d.value}
                 onClick={() => setDuration(d.value)}
-                className="text-[11.5px] font-semibold rounded-[7px] px-2.5 py-1 border"
+                className="text-[12px] font-semibold rounded-[7px] px-2.5 py-1 border"
                 style={
                   duration === d.value
                     ? { background: 'var(--accent)', color: 'var(--accentText)', borderColor: 'var(--accent)' }
@@ -148,7 +148,7 @@ export function AIAssistant() {
 
           <button
             onClick={runSuggest}
-            className="rounded-[10px] py-2 text-[13px] font-bold"
+            className="rounded-[10px] py-2 text-[13px] font-semibold"
             style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
           >
             Sugerir horários
@@ -169,7 +169,7 @@ export function AIAssistant() {
                   style={{ borderColor: i === 0 ? 'var(--accent)' : 'var(--border)', background: 'var(--surface2)' }}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="text-[12.5px] font-bold capitalize" style={{ color: 'var(--text)' }}>
+                    <span className="text-[13px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
                       {formatDayLabel(s.dateKey)}
                     </span>
                     <span className="text-[12px] font-mono-ae" style={{ color: 'var(--text2)' }}>

@@ -127,7 +127,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                 >
                   {c.visible && <Check size={10} strokeWidth={3.5} color="white" />}
                 </span>
-                <span className="text-[13.5px] font-medium flex-1" style={{ color: 'var(--text)' }}>
+                <span className="text-[14px] font-medium flex-1" style={{ color: 'var(--text)' }}>
                   {c.name}
                 </span>
                 <span className="text-[11px] font-mono-ae" style={{ color: 'var(--text3)' }}>
@@ -141,7 +141,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         <section>
           <div className="flex items-center justify-between">
             <SectionTitle>Tarefas</SectionTitle>
-            <span className="text-[10.5px]" style={{ color: 'var(--text3)' }}>
+            <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
               arraste p/ agendar
             </span>
           </div>
@@ -172,7 +172,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                     {task.title}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 mt-1 pl-[14px] text-[10.5px]">
+                <div className="flex items-center gap-2 mt-1 pl-[14px] text-[11px]">
                   <span className="font-semibold uppercase" style={{ color: prioColor(task.prio) }}>
                     {task.prio}
                   </span>
@@ -192,7 +192,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         </section>
 
         <div className="mt-auto rounded-[10px] p-3" style={{ background: 'var(--surface2)' }}>
-          <div className="text-[11.5px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
+          <div className="text-[12px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
             Horário de trabalho
           </div>
           <div className="text-[11px] font-mono-ae mb-2" style={{ color: 'var(--text3)' }}>
@@ -217,7 +217,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
+    <div className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
       {children}
     </div>
   );

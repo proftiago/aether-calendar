@@ -248,7 +248,7 @@ export function CommandMenu() {
               <span className="flex-1">{cmd.label}</span>
               {cmd.hint && (
                 <kbd
-                  className="text-[10.5px] font-mono-ae rounded-[5px] px-[6px] py-[1px] border"
+                  className="text-[11px] font-mono-ae rounded-[5px] px-[6px] py-[1px] border"
                   style={{ borderColor: 'var(--border)', color: 'var(--text3)' }}
                 >
                   {cmd.hint}

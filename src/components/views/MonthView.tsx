@@ -68,7 +68,7 @@ export function MonthView() {
         {visibleDowLabels.map((d) => (
           <div
             key={d}
-            className="text-[10.5px] font-bold uppercase tracking-wide px-2.5 py-1.5"
+            className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1.5"
             style={{ color: 'var(--text3)' }}
           >
             {d}
@@ -97,7 +97,7 @@ export function MonthView() {
               }}
             >
               <span
-                className="text-[13px] font-bold w-fit rounded-[6px] px-1"
+                className="text-[13px] font-semibold w-fit rounded-[6px] px-1"
                 style={isToday ? { background: 'var(--accent)', color: 'var(--accentText)' } : { color: 'var(--text)' }}
               >
                 {dayNum(dateKey)}
@@ -120,7 +120,7 @@ export function MonthView() {
                       style={{ background: eventBg(cal?.color ?? 'var(--accent)') }}
                     >
                       <span className="w-[5px] h-[5px] rounded-full shrink-0" style={{ background: cal?.color }} />
-                      <span className="font-mono-ae text-[9.5px]" style={{ color: 'var(--text2)' }}>
+                      <span className="font-mono-ae text-[10px]" style={{ color: 'var(--text2)' }}>
                         {ev.allDay ? 'dia' : hm(minutesOfDay(ev.startsAt), timeFormat)}
                       </span>
                       <span className="font-semibold truncate" style={{ color: 'var(--text)' }}>
@@ -135,7 +135,7 @@ export function MonthView() {
                       dispatch({ type: 'SET_CURSOR', cursor: dateKey });
                       dispatch({ type: 'SET_VIEW', view: 'day' });
                     }}
-                    className="text-[10.5px] font-semibold text-left"
+                    className="text-[11px] font-semibold text-left"
                     style={{ color: 'var(--text3)' }}
                   >
                     +{overflow} eventos

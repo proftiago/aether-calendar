@@ -35,7 +35,7 @@ export function UtilityPopovers() {
               onClick={() => openSlotInModal(slot.dateKey, slot.startMin, 60)}
               className="flex items-center justify-between rounded-[9px] px-[11px] py-[9px] text-left hover:[background:var(--surface2)]"
             >
-              <span className="text-[12.5px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
+              <span className="text-[13px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
                 {formatDayLabel(slot.dateKey)}
               </span>
               <span className="text-[12px] font-mono-ae" style={{ color: 'var(--text2)' }}>
@@ -88,7 +88,7 @@ function BookingLinkPanel({
         className="flex items-center gap-2 rounded-[9px] px-2.5 py-2 mb-3"
         style={{ background: 'var(--surface2)' }}
       >
-        <span className="font-mono-ae text-[11.5px] flex-1 truncate" style={{ color: 'var(--text2)' }}>
+        <span className="font-mono-ae text-[12px] flex-1 truncate" style={{ color: 'var(--text2)' }}>
           {link}
         </span>
         <button
@@ -106,7 +106,7 @@ function BookingLinkPanel({
             onClick={() => onPick(slot.dateKey, slot.startMin, 30)}
             className="flex items-center justify-between rounded-[9px] px-[11px] py-[9px] text-left hover:[background:var(--surface2)]"
           >
-            <span className="text-[12.5px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
+            <span className="text-[13px] font-semibold capitalize" style={{ color: 'var(--text)' }}>
               {formatDayLabel(slot.dateKey)}
             </span>
             <span className="text-[12px] font-mono-ae" style={{ color: 'var(--text2)' }}>
@@ -126,7 +126,7 @@ function Popover({ title, onClose, children }: { title: string; onClose: () => v
       style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
     >
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-[14px] font-bold" style={{ color: 'var(--text)' }}>
+        <h3 className="text-[14px] font-semibold" style={{ color: 'var(--text)' }}>
           {title}
         </h3>
         <button onClick={onClose} className="w-6 h-6 rounded-[7px] grid place-items-center" style={{ background: 'var(--surface2)' }}>
