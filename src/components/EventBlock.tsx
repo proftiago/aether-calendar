@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { MapPin, Video, Repeat } from 'lucide-react';
 import { eventBg } from '../lib/style';
-import { hm, minutesOfDay, formatDayLabel, dateKeyOf } from '../lib/dates';
+import { hmRange, minutesOfDay, formatDayLabel, dateKeyOf } from '../lib/dates';
 import { travelOf } from '../lib/estimates';
 import { useStore } from '../store/store';
 import type { Event } from '../lib/types';
@@ -14,6 +14,7 @@ export function EventBlock({
   width,
   color,
   calendarName,
+  lanes,
   selected,
   dragging,
   onSelect,
@@ -27,6 +28,7 @@ export function EventBlock({
   width: string;
   color: string;
   calendarName?: string;
+  lanes: number;
   selected: boolean;
   dragging: boolean;
   onSelect: () => void;
@@ -40,6 +42,9 @@ export function EventBlock({
   const [hovered, setHovered] = useState(false);
   const hoverTimer = useRef<number | null>(null);
   const showHoverPreview = state.w >= 900 && !dragging;
+  // colunas estreitas (2+ eventos sobrepostos) não têm espaço pra terceira
+  // linha de detalhe sem truncar feio — some com ela nesse caso
+  const showDetailLine = lanes <= 1 || height > 84;
 
   function onMouseEnter() {
     if (!showHoverPreview) return;
@@ -86,10 +91,10 @@ export function EventBlock({
       </div>
       {height > 34 && (
         <div className="text-[11px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>
-          {hm(s, state.settings.timeFormat)} – {hm(e, state.settings.timeFormat)}
+          {hmRange(s, e, state.settings.timeFormat)}
         </div>
       )}
-      {height > 48 && (event.location || event.meet || travel) && (
+      {height > 48 && showDetailLine && (event.location || event.meet || travel) && (
         <div className="flex items-center gap-1 text-[11px] truncate" style={{ color: 'var(--text2)' }}>
           {event.meet ? <Video size={12} className="shrink-0" /> : event.location ? <MapPin size={12} className="shrink-0" /> : null}
           <span className="truncate">
@@ -127,7 +132,7 @@ export function EventBlock({
             </span>
           </div>
           <div className="text-[12px] font-mono-ae mb-0.5" style={{ color: 'var(--text2)' }}>
-            {event.allDay ? 'Dia inteiro' : `${hm(s, state.settings.timeFormat)} – ${hm(e, state.settings.timeFormat)}`}
+            {event.allDay ? 'Dia inteiro' : hmRange(s, e, state.settings.timeFormat)}
           </div>
           <div className="text-[11px] capitalize mb-1" style={{ color: 'var(--text3)' }}>
             {formatDayLabel(dateKeyOf(event.startsAt))}

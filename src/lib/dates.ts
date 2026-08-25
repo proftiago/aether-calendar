@@ -143,6 +143,24 @@ export function hm(minutes: number, format: '12h' | '24h' = '24h'): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
+/**
+ * Intervalo de horário compacto — no formato 12h, se início e fim caem no
+ * mesmo período (AM/PM), omite o sufixo do início ("8:00 – 9:00 AM" em vez
+ * de "8:00 AM – 9:00 AM"). Evita truncar o texto em blocos estreitos
+ * (eventos sobrepostos dividindo a largura da coluna).
+ */
+export function hmRange(startMin: number, endMin: number, format: '12h' | '24h' = '24h'): string {
+  if (format === '24h') return `${hm(startMin, '24h')} – ${hm(endMin, '24h')}`;
+  const startPeriod = Math.floor(((startMin % 1440) + 1440) % 1440 / 60) < 12 ? 'AM' : 'PM';
+  const endPeriod = Math.floor(((endMin % 1440) + 1440) % 1440 / 60) < 12 ? 'AM' : 'PM';
+  if (startPeriod === endPeriod) {
+    const full = hm(startMin, '12h');
+    const short = full.replace(/ (AM|PM)$/, '');
+    return `${short} – ${hm(endMin, '12h')}`;
+  }
+  return `${hm(startMin, '12h')} – ${hm(endMin, '12h')}`;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return fnsIsSameDay(a, b);
 }

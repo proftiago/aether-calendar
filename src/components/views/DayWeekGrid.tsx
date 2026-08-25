@@ -365,6 +365,7 @@ export function DayWeekGrid() {
                       width={`${100 / b.lanes - 1.5}%`}
                       color={cal?.color ?? 'var(--accent)'}
                       calendarName={cal?.name}
+                      lanes={b.lanes}
                       selected={state.selected === b.event.id}
                       dragging={isDragging}
                       onSelect={() => dispatch({ type: 'SET_SELECTED', id: b.event.id })}
