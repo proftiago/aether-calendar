@@ -1,7 +1,7 @@
 import { useStore } from '../store/store';
 
 const SHORTCUTS: { keys: string[]; label: string }[] = [
-  { keys: ['/'], label: 'Menu de comando' },
+  { keys: ['Ctrl', '/'], label: 'Menu de comando' },
   { keys: ['T'], label: 'Ir para hoje' },
   { keys: ['C'], label: 'Criar evento' },
   { keys: ['G'], label: 'Ir para busca' },

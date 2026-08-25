@@ -43,7 +43,14 @@ export function CommandMenu() {
         // aba normal — só funciona aqui quando o app está instalado como PWA
         // (sem barra de endereço) ou em navegadores que não reservam essa
         // combinação. Ainda assim tentamos: se o navegador ignorar o
-        // preventDefault, o atalho "/" abaixo cobre o caso.
+        // preventDefault, Ctrl+/ e "/" abaixo cobrem o caso.
+        e.preventDefault();
+        setOpen((o) => !o);
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        // Não checa inField de propósito: Ctrl+/ raramente é digitado dentro
+        // de um campo de texto, então vale abrir o menu mesmo com foco ativo.
         e.preventDefault();
         setOpen((o) => !o);
         return;
@@ -55,6 +62,12 @@ export function CommandMenu() {
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const onOpenRequest = () => setOpen(true);
+    window.addEventListener('aether:open-command-menu', onOpenRequest);
+    return () => window.removeEventListener('aether:open-command-menu', onOpenRequest);
   }, []);
 
   useEffect(() => {
@@ -209,7 +222,7 @@ export function CommandMenu() {
               setSelected(0);
             }}
             onKeyDown={onKeyDown}
-            placeholder="Buscar um comando… ( / pra abrir )"
+            placeholder="Buscar um comando…"
             className="flex-1 h-12 bg-transparent outline-none text-[14px]"
             style={{ color: 'var(--text)' }}
           />
