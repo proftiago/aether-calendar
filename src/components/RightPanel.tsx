@@ -39,8 +39,8 @@ export function RightPanel() {
     return () => window.removeEventListener('aether:add-task', onRequestAdd);
   }, [dispatch]);
 
-  if (!state.shortcutsOpen || state.w < 900) return null;
-
+  if (!state.shortcutsOpen) return null;
+  const overlayMode = state.w < 1024;
 
   const doneCount = state.tasks.filter((t) => t.done).length;
   const totalCount = state.tasks.length;
@@ -70,26 +70,43 @@ export function RightPanel() {
   }
 
   return (
-    <aside
-      className="w-[240px] shrink-0 border-l p-4 hidden lg:flex flex-col overflow-y-auto"
-      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
-    >
-      <div className="flex items-center gap-1 mb-4 p-[2px] rounded-[9px]" style={{ background: 'var(--surface2)' }}>
-        <button
-          onClick={() => setTab('tasks')}
-          className="flex-1 h-7 rounded-[7px] text-[12px] font-medium"
-          style={tab === 'tasks' ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
-        >
-          Tarefas
-        </button>
-        <button
-          onClick={() => setTab('shortcuts')}
-          className="flex-1 h-7 rounded-[7px] text-[12px] font-medium"
-          style={tab === 'shortcuts' ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
-        >
-          Atalhos
-        </button>
-      </div>
+    <>
+      {overlayMode && (
+        <div
+          className="fixed inset-0 z-30"
+          style={{ background: 'rgba(0,0,0,0.35)' }}
+          onClick={() => dispatch({ type: 'SET_SHORTCUTS_OPEN', open: false })}
+        />
+      )}
+      <aside
+        className={`w-[260px] shrink-0 border-l p-4 flex flex-col overflow-y-auto ${overlayMode ? 'fixed inset-y-0 right-0 z-40' : 'relative'}`}
+        style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: overlayMode ? 'var(--shadow)' : undefined }}
+      >
+        <div className="flex items-center gap-1 mb-4 p-[2px] rounded-[9px]" style={{ background: 'var(--surface2)' }}>
+          <button
+            onClick={() => setTab('tasks')}
+            className="flex-1 h-7 rounded-[7px] text-[12px] font-medium"
+            style={tab === 'tasks' ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+          >
+            Tarefas
+          </button>
+          <button
+            onClick={() => setTab('shortcuts')}
+            className="flex-1 h-7 rounded-[7px] text-[12px] font-medium"
+            style={tab === 'shortcuts' ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+          >
+            Atalhos
+          </button>
+          {overlayMode && (
+            <button
+              onClick={() => dispatch({ type: 'SET_SHORTCUTS_OPEN', open: false })}
+              className="w-7 h-7 rounded-[7px] grid place-items-center shrink-0"
+              aria-label="Fechar"
+            >
+              <X size={14} style={{ color: 'var(--text3)' }} />
+            </button>
+          )}
+        </div>
 
       {tab === 'tasks' ? (
         <>
@@ -281,6 +298,7 @@ export function RightPanel() {
           ))}
         </div>
       )}
-    </aside>
+      </aside>
+    </>
   );
 }

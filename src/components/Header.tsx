@@ -185,16 +185,15 @@ export function Header() {
         <Command size={15} style={{ color: 'var(--text2)' }} />
       </button>
 
-      {state.w >= 900 && (
-        <button
-          onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
-          className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
-          style={{ background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent' }}
-          aria-label="Mostrar/ocultar atalhos"
-        >
-          <PanelRight size={15} style={{ color: 'var(--text2)' }} />
-        </button>
-      )}
+      <button
+        onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
+        className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
+        style={{ background: state.shortcutsOpen ? 'var(--surface2)' : 'transparent' }}
+        aria-label="Tarefas e atalhos"
+        title="Tarefas e atalhos"
+      >
+        <PanelRight size={15} style={{ color: 'var(--text2)' }} />
+      </button>
 
       {state.w >= 640 && (
         <button

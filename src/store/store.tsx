@@ -398,7 +398,7 @@ function initialState(): AppState {
     w,
     now: nowMinutesOfDay(),
     sidebarOpen: false,
-    shortcutsOpen: w >= 1100,
+    shortcutsOpen: w >= 1024,
     aiOpen: false,
     focusMode: false,
   };

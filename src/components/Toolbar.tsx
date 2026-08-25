@@ -78,7 +78,7 @@ export function Toolbar() {
             <button
               key={v.key}
               onClick={() => dispatch({ type: 'SET_VIEW', view: v.key })}
-              className="h-7 flex-1 sm:flex-initial sm:px-3 rounded-[7px] text-[12px] sm:text-[13px] font-medium"
+              className="h-9 flex-1 sm:flex-initial sm:px-3 rounded-[7px] text-[12px] sm:text-[13px] font-medium"
               style={
                 active
                   ? { background: 'var(--surface)', color: 'var(--text)' }

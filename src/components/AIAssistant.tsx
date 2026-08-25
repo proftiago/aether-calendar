@@ -23,7 +23,7 @@ export function AIAssistant() {
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
 
   const pendingTasks = state.tasks.filter((t) => !t.done);
-  const hidden = !!state.form || !!state.selected || state.focusMode;
+  const hidden = !!state.form || !!state.selected || state.focusMode || (state.shortcutsOpen && state.w < 1024);
 
   function close() {
     dispatch({ type: 'SET_AI_OPEN', open: false });
