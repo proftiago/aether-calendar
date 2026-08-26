@@ -41,7 +41,11 @@ function AppShell() {
 
     function onDown(e: PointerEvent) {
       if (e.pointerType !== 'touch') return;
-      fromEdge = !state.sidebarOpen && e.clientX < 24;
+      // Na visão Dia, "puxar perto da borda esquerda pra direita" já é o
+      // gesto de voltar um dia — não pode competir com abrir a sidebar.
+      // Deixa essa faixa livre pro DayWeekGrid nessa visão específica.
+      const edgeGestureAvailable = state.view !== 'day';
+      fromEdge = edgeGestureAvailable && !state.sidebarOpen && e.clientX < 24;
       if (!fromEdge && !state.sidebarOpen) return;
       startX = e.clientX;
       startY = e.clientY;
@@ -77,7 +81,7 @@ function AppShell() {
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [state.w, state.sidebarOpen, dispatch]);
+  }, [state.w, state.sidebarOpen, state.view, dispatch]);
 
 
   const eventCountByCal = useMemo(() => {

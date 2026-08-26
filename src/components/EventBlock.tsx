@@ -64,7 +64,14 @@ export function EventBlock({
   // (editar/duplicar/excluir) em vez de começar a arrastar. Só decide isso
   // depois de confirmar que não houve movimento — se a pessoa já começou a
   // arrastar de verdade, o gesto normal de mover assume, sem o timer disparar.
+  //
+  // stopPropagation em ambos os casos (mouse e touch): o pointerdown nunca
+  // deveria "vazar" pra um clique-e-arrasta de criar evento na coluna por
+  // baixo — mesmo que a checagem de role="button" lá devesse bastar sozinha,
+  // isso garante que um evento nunca fica inacessível por causa de outro
+  // gesto competindo no mesmo pixel.
   function handlePointerDown(ev: React.PointerEvent) {
+    ev.stopPropagation();
     if (ev.pointerType !== 'touch' || !onLongPress) {
       onPointerDownMove(ev);
       return;
