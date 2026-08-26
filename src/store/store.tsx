@@ -424,7 +424,7 @@ function initialState(): AppState {
     theme: resolveTheme(settings.themeMode),
     settingsOpen: false,
     settingsTab: 'general',
-    view: w < 640 ? 'day' : 'week',
+    view: w < 900 ? 'agenda' : 'week',
     cursor: todayKey(),
     events: storedEvents ?? seedEvents(),
     tasks: storedTasks ?? seedTasks(),

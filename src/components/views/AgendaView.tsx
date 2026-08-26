@@ -15,6 +15,7 @@ export function AgendaView() {
   const allEvents = useAllEvents(state);
   const visibleEvents = useVisibleEvents(state, allEvents);
   const today = todayKey();
+  const mobile = state.w < 900;
 
   const groups = useMemo(() => {
     const byDay = new Map<string, Event[]>();
@@ -38,14 +39,77 @@ export function AgendaView() {
     return days;
   }, [visibleEvents, state.cursor]);
 
-  return (
-    <div className="flex-1 overflow-y-auto pb-10 pt-2">
-      {groups.length === 0 && (
+  if (groups.length === 0) {
+    return (
+      <div className="flex-1 overflow-y-auto pb-10 pt-2">
         <div className="flex flex-col items-center gap-2.5 py-20" style={{ color: 'var(--text3)' }}>
           <CalendarX size={28} strokeWidth={1.5} />
           <span className="text-[13px]">Nenhum evento nos próximos 28 dias</span>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // Celular/tablet: lista vertical estilo Google Agenda — cabeçalho de data
+  // ocupa a largura toda, cada evento é uma linha com uma bolinha colorida,
+  // sem a coluna lateral de data (que fica apertada demais em tela estreita).
+  if (mobile) {
+    return (
+      <div className="flex-1 overflow-y-auto pb-10">
+        {groups.map(({ dateKey, events }) => {
+          const isToday = dateKey === today;
+          return (
+            <div key={dateKey}>
+              <div
+                className="sticky top-0 z-10 px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.06em] border-b"
+                style={{
+                  background: 'var(--bg)',
+                  borderColor: 'var(--border)',
+                  color: isToday ? 'var(--accent)' : 'var(--text2)',
+                }}
+              >
+                {isToday ? 'Hoje · ' : ''}
+                {format(keyToDate(dateKey), "EEEE, d 'de' MMMM", { locale: ptBR })}
+              </div>
+              <div className="flex flex-col">
+                {events.map((ev) => {
+                  const cal = calendarOf(state, ev.calId);
+                  const travel = travelOf(ev);
+                  return (
+                    <button
+                      key={ev.id}
+                      onClick={() => dispatch({ type: 'SET_SELECTED', id: ev.id })}
+                      className="flex items-start gap-3 px-4 py-3 text-left border-b active:[background:var(--surface2)]"
+                      style={{ borderColor: 'var(--border)' }}
+                    >
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-[3px]" style={{ background: cal?.color }} />
+                      <span className="w-[62px] shrink-0 text-[12.5px] font-mono-ae" style={{ color: 'var(--text2)' }}>
+                        {ev.allDay ? 'dia todo' : hm(minutesOfDay(ev.startsAt), state.settings.timeFormat)}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[14.5px] font-medium truncate" style={{ color: 'var(--text)' }}>
+                          {ev.title}
+                        </span>
+                        {(ev.location || travel) && (
+                          <span className="block text-[12px] truncate" style={{ color: 'var(--text3)' }}>
+                            {ev.location}
+                            {travel ? ` · +${travel} min` : ''}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto pb-10 pt-2">
       {groups.map(({ dateKey, events }) => {
         const isToday = dateKey === today;
         const w = weatherOf(dateKey);
