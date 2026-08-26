@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMemo } from 'react';
 import { useStore } from '../store/store';
-import { addDays, addMonthsKey, dayNum, isSameMonth, keyToDate, startOfMonthGridKey, todayKey, weekNumberOf } from '../lib/dates';
+import { useAllEvents, useVisibleEvents, calendarOf } from '../store/selectors';
+import { addDays, addMonthsKey, dateKeyOf, dayNum, isSameMonth, keyToDate, startOfMonthGridKey, todayKey, weekNumberOf } from '../lib/dates';
 
 const DOW_LABELS_SUN = ['Do', 'Se', 'Te', 'Qu', 'Qu', 'Se', 'Sa'];
 const DOW_LABELS_MON = ['Se', 'Te', 'Qu', 'Qu', 'Se', 'Sa', 'Do'];
@@ -16,6 +18,23 @@ export function MiniCalendar() {
   }
   const labels = weekStartsOn === 0 ? DOW_LABELS_SUN : DOW_LABELS_MON;
   const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(keyToDate(state.cursor));
+
+  const allEvents = useAllEvents(state);
+  const visibleEvents = useVisibleEvents(state, allEvents);
+  // cor do primeiro evento do dia (por horário) — indicador simples, não
+  // tenta mostrar todas as cores quando o dia tem eventos de calendários
+  // diferentes, só sinaliza "tem algo aqui"
+  const dotColorByDay = useMemo(() => {
+    const map = new Map<string, string>();
+    const sorted = [...visibleEvents].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+    for (const ev of sorted) {
+      const key = dateKeyOf(ev.startsAt);
+      if (map.has(key)) continue;
+      const cal = calendarOf(state, ev.calId);
+      map.set(key, cal?.color ?? 'var(--accent)');
+    }
+    return map;
+  }, [visibleEvents, state]);
 
   function goMonth(dir: 1 | -1) {
     dispatch({ type: 'SET_CURSOR', cursor: addMonthsKey(state.cursor, dir) });
@@ -60,11 +79,12 @@ export function MiniCalendar() {
               const inMonth = isSameMonth(dateKey, state.cursor);
               const isToday = dateKey === today;
               const isSelected = dateKey === state.cursor;
+              const dotColor = dotColorByDay.get(dateKey);
               return (
                 <button
                   key={dateKey}
                   onClick={() => pick(dateKey)}
-                  className="text-[12px] rounded-full w-7 h-7 mx-auto my-[2px] grid place-items-center"
+                  className="relative text-[12px] rounded-full w-7 h-7 mx-auto my-[2px] grid place-items-center"
                   style={{
                     opacity: inMonth ? 1 : 0.32,
                     background: isSelected ? 'var(--accent)' : isToday ? 'var(--surface2)' : 'transparent',
@@ -73,6 +93,12 @@ export function MiniCalendar() {
                   }}
                 >
                   {dayNum(dateKey)}
+                  {dotColor && (
+                    <span
+                      className="absolute bottom-[2px] left-1/2 -translate-x-1/2 w-[3.5px] h-[3.5px] rounded-full"
+                      style={{ background: isSelected ? 'var(--accentText)' : dotColor }}
+                    />
+                  )}
                 </button>
               );
             })}

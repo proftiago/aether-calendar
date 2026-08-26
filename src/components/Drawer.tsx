@@ -1,4 +1,4 @@
-import { X, Share2, Copy } from 'lucide-react';
+import { X, Share2, Copy, Check } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
 import { useAllEvents, calendarOf } from '../store/selectors';
@@ -15,7 +15,7 @@ const SOURCE_LABEL: Record<string, string> = {
 
 export function Drawer() {
   const { state, dispatch } = useStore();
-  const { pushDelete, pushCreate } = useGoogleSync();
+  const { pushDelete, pushCreate, pushUpdate } = useGoogleSync();
   const allEvents = useAllEvents(state);
   const event = allEvents.find((e) => e.id === state.selected);
   const overlay = state.w < 1240;
@@ -106,6 +106,11 @@ export function Drawer() {
     pushCreate(copy);
   }
 
+  function toggleDone() {
+    dispatch({ type: 'PATCH_EVENT', id: event!.id, changes: { done: !event!.done } });
+    pushUpdate({ ...event!, done: !event!.done });
+  }
+
   function removeSeries() {
     if (!originalSeries) return;
     dispatch({ type: 'REMOVE_EVENT', id: originalSeries.id, toast: 'Série excluída' });
@@ -163,6 +168,19 @@ export function Drawer() {
           </a>
         )}
 
+        {event.location && (
+          <div className="rounded-[10px] overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
+            <iframe
+              title={`Mapa de ${event.location}`}
+              className="w-full h-[130px] block"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(event.location)}&output=embed`}
+            />
+          </div>
+        )}
+
         {event.notes && (
           <p
             className="text-[13px] leading-[1.55] rounded-[10px] p-3"
@@ -173,6 +191,18 @@ export function Drawer() {
         )}
 
         <div className="flex gap-2 mt-1">
+          <button
+            onClick={toggleDone}
+            className="w-11 shrink-0 rounded-[10px] py-2.5 grid place-items-center"
+            style={{
+              background: event.done ? 'var(--sync-ok)' : 'var(--surface2)',
+              color: event.done ? '#ffffff' : 'var(--text)',
+            }}
+            aria-label={event.done ? 'Marcar como não concluído' : 'Marcar como concluído'}
+            title={event.done ? 'Concluído' : 'Marcar como concluído'}
+          >
+            <Check size={15} />
+          </button>
           <button
             onClick={edit}
             className="flex-1 rounded-[10px] py-2.5 text-[13px] font-semibold"

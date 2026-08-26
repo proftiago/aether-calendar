@@ -45,6 +45,8 @@ export type Event = {
   fromTaskId?: string;
   /** presente apenas em instâncias virtuais expandidas em memória */
   seriesId?: string;
+  /** marcado manualmente como concluído (independe do horário já ter passado) */
+  done?: boolean;
 };
 
 export type TaskPriority = 'alta' | 'média' | 'baixa';

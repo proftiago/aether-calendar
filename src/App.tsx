@@ -20,11 +20,14 @@ import { Toast } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
 import { BottomNav } from './components/BottomNav';
 import { InstallPrompt } from './components/InstallPrompt';
+import { ReminderService } from './components/ReminderService';
+import { useDeviceSync } from './hooks/useDeviceSync';
 import type { ViewKey } from './lib/types';
 
 function AppShell() {
   const { state, dispatch } = useStore();
   const allEvents = useAllEvents(state);
+  useDeviceSync();
 
   // Deslizar a partir da borda esquerda da tela abre a sidebar (mobile/
   // tablet); deslizar pra esquerda com ela já aberta fecha. Só uma faixa
@@ -149,6 +152,7 @@ function AppShell() {
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg)', height: '100dvh' }}>
       <Header />
       <InstallPrompt />
+      <ReminderService />
       <div className="flex-1 flex min-h-0 relative">
         {state.focusMode ? (
           <FocusModeView />

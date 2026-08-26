@@ -35,6 +35,10 @@ export type AppSettings = {
   density: 'compact' | 'comfortable';
   accentColor: string | null; // null = usa o padrão do tema (--accent original)
   eventOpacity: number | null; // null = usa o padrão do tema (--event-mix original), 5-70
+  remindersEnabled: boolean;
+  reminderMinutes: number;
+  syncEnabled: boolean;
+  syncId: string | null;
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -46,6 +50,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   density: 'comfortable',
   accentColor: null,
   eventOpacity: null,
+  remindersEnabled: false,
+  reminderMinutes: 10,
+  syncEnabled: false,
+  syncId: null,
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {
@@ -115,6 +123,7 @@ type Action =
   | { type: 'ARCHIVE_OLD_TASKS' }
   | { type: 'ADD_PENDING_SYNC'; id: string }
   | { type: 'REMOVE_PENDING_SYNC'; id: string }
+  | { type: 'APPLY_REMOTE_SYNC'; tasks: Task[]; calendars: Calendar[]; calendarSets: CalendarSet[]; settings: Partial<AppSettings> }
   | { type: 'SCHEDULE_TASK'; taskId: string; event: Event }
   | { type: 'SET_SELECTED'; id: string | null }
   | { type: 'OPEN_FORM'; form: FormState }
@@ -194,6 +203,9 @@ function reducer(state: AppState, action: Action): AppState {
         events: state.events.filter((ev) => ev.src === 'google'),
         tasks: [],
         calendarSets: DEFAULT_CALENDAR_SETS,
+        // desliga a sincronização também — senão ela puxava os dados
+        // "apagados" de volta do Supabase na próxima vez que rodasse
+        settings: { ...state.settings, syncEnabled: false, syncId: null },
         toast: 'Dados locais apagados',
       };
     }
@@ -314,6 +326,18 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, pendingSyncIds: [...state.pendingSyncIds, action.id] };
     case 'REMOVE_PENDING_SYNC':
       return { ...state, pendingSyncIds: state.pendingSyncIds.filter((id) => id !== action.id) };
+    case 'APPLY_REMOTE_SYNC': {
+      // syncEnabled/syncId nunca vêm do remoto — são identidade do
+      // dispositivo local, não "conteúdo" pra sincronizar
+      const { syncEnabled: _se, syncId: _si, ...remoteSettings } = action.settings;
+      return {
+        ...state,
+        tasks: action.tasks,
+        calendars: action.calendars,
+        calendarSets: action.calendarSets,
+        settings: { ...state.settings, ...remoteSettings },
+      };
+    }
     case 'SCHEDULE_TASK': {
       const tasks = state.tasks.filter((t) => t.id !== action.taskId);
       return {

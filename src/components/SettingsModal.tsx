@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
+import { isSyncConfigured } from '../lib/supabaseClient';
 import { weeklyTimeBreakdown, focusHeatmap, dailyTotalsSparkline, formatMinutes } from '../lib/analytics';
 import { Sparkline } from './Sparkline';
 import type { SettingsTab } from '../store/store';
@@ -225,6 +227,34 @@ function GeneralTab() {
       </div>
 
       <div>
+        <SectionHeading>Lembretes</SectionHeading>
+        <ToggleRow
+          label="Notificar antes do evento"
+          checked={s.remindersEnabled}
+          onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { remindersEnabled: v } })}
+        />
+        {s.remindersEnabled && (
+          <>
+            <FieldRow label="Avisar com">
+              <Select
+                value={String(s.reminderMinutes)}
+                onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { reminderMinutes: Number(v) } })}
+                options={[
+                  { value: '5', label: '5 min de antecedência' },
+                  { value: '10', label: '10 min de antecedência' },
+                  { value: '15', label: '15 min de antecedência' },
+                  { value: '30', label: '30 min de antecedência' },
+                ]}
+              />
+            </FieldRow>
+            <p className="text-[11.5px] leading-[1.6] mt-1" style={{ color: 'var(--text3)' }}>
+              Só funciona com o Aether aberto numa aba — não é uma notificação push de verdade, então não chega se o navegador estiver fechado.
+            </p>
+          </>
+        )}
+      </div>
+
+      <div>
         <SectionHeading>Hora</SectionHeading>
         <FieldRow label="Formato">
           <Select
@@ -412,10 +442,83 @@ function GoogleTab() {
 }
 
 function DataTab() {
-  const { dispatch } = useStore();
+  const { state, dispatch } = useStore();
+  const [pasteCode, setPasteCode] = useState('');
 
   return (
     <div className="flex flex-col gap-5 max-w-[420px]">
+      <div>
+        <SectionHeading>Sincronizar entre dispositivos</SectionHeading>
+        {!isSyncConfigured() ? (
+          <p className="text-[13px] leading-[1.6]" style={{ color: 'var(--text3)' }}>
+            Essa função ainda não está configurada nesse deploy (falta a chave do Supabase). Se você configurou
+            recentemente, precisa rebuildar o app.
+          </p>
+        ) : (
+          <>
+            <ToggleRow
+              label="Sincronizar tarefas e configurações"
+              checked={state.settings.syncEnabled}
+              onChange={(v) => {
+                if (v && !state.settings.syncId) {
+                  dispatch({ type: 'UPDATE_SETTINGS', changes: { syncEnabled: true, syncId: crypto.randomUUID() } });
+                } else {
+                  dispatch({ type: 'UPDATE_SETTINGS', changes: { syncEnabled: v } });
+                }
+              }}
+            />
+            {state.settings.syncEnabled && state.settings.syncId && (
+              <div className="mt-2.5 flex flex-col gap-2">
+                <p className="text-[12.5px] leading-[1.6]" style={{ color: 'var(--text2)' }}>
+                  Use esse código nos seus outros dispositivos (Configurações → Dados → cole o código abaixo) pra
+                  ligar todos na mesma sincronização.
+                </p>
+                <div className="flex gap-1.5">
+                  <code
+                    className="flex-1 text-[11px] font-mono-ae rounded-[7px] px-2.5 py-2 truncate"
+                    style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+                  >
+                    {state.settings.syncId}
+                  </code>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(state.settings.syncId ?? '')}
+                    className="rounded-[7px] px-3 text-[12px] font-semibold"
+                    style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+                  >
+                    Copiar
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="mt-3 flex gap-1.5">
+              <input
+                value={pasteCode}
+                onChange={(e) => setPasteCode(e.target.value)}
+                placeholder="Colar código de outro dispositivo"
+                className="flex-1 text-[12px] rounded-[7px] px-2.5 py-2 outline-none"
+                style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+              />
+              <button
+                onClick={() => {
+                  if (!pasteCode.trim()) return;
+                  dispatch({ type: 'UPDATE_SETTINGS', changes: { syncEnabled: true, syncId: pasteCode.trim() } });
+                  setPasteCode('');
+                }}
+                className="rounded-[7px] px-3 text-[12px] font-semibold"
+                style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
+              >
+                Ligar
+              </button>
+            </div>
+            <p className="text-[11.5px] leading-[1.6] mt-2" style={{ color: 'var(--text3)' }}>
+              Sincroniza tarefas, calendários e configurações — não sincroniza eventos locais (esses vêm do Google
+              Calendar em cada dispositivo). É "o último que salvar vence": editar ao mesmo tempo em dois lugares
+              pode sobrescrever uma mudança sem avisar.
+            </p>
+          </>
+        )}
+      </div>
+
       <div>
         <SectionHeading>Dados de exemplo</SectionHeading>
         <p className="text-[13px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>

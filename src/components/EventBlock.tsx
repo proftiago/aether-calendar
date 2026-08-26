@@ -136,7 +136,10 @@ export function EventBlock({
     >
       <div className="flex items-center gap-1 min-w-0">
         {!!event.seriesId && <Repeat size={11} className="shrink-0" style={{ color: 'var(--text2)' }} />}
-        <div className="text-[12px] font-semibold truncate min-w-0" style={{ color: 'var(--text)' }}>
+        <div
+          className="text-[12px] font-semibold truncate min-w-0"
+          style={{ color: 'var(--text)', textDecoration: event.done ? 'line-through' : 'none', opacity: event.done ? 0.6 : 1 }}
+        >
           {event.title}
         </div>
         {syncPending && (
