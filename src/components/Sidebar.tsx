@@ -3,10 +3,22 @@ import { Check, Plus, X } from 'lucide-react';
 import { useStore } from '../store/store';
 import { MiniCalendar } from './MiniCalendar';
 
+const CALENDAR_COLOR_PRESETS = [
+  '#0284c7', // azul
+  '#4f46e5', // índigo
+  '#7c3aed', // violeta
+  '#db2777', // rosa
+  '#e11d48', // vermelho
+  '#ea580c', // laranja
+  '#16a34a', // verde
+  '#0d9488', // teal
+];
+
 export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, number> }) {
   const { state, dispatch } = useStore();
   const [addingSet, setAddingSet] = useState(false);
   const [newSetName, setNewSetName] = useState('');
+  const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
 
   const overlayMode = state.w < 980;
 
@@ -120,28 +132,61 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
           <SectionTitle>Calendários</SectionTitle>
           <div className="mt-2 flex flex-col">
             {state.calendars.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => dispatch({ type: 'TOGGLE_CAL', id: c.id })}
-                className="flex items-center gap-2.5 rounded-[7px] px-1.5 py-[7px] text-left hover:[background:var(--surface2)]"
-                style={{ opacity: c.visible ? 1 : 0.5 }}
-              >
-                <span
-                  className="w-4 h-4 rounded-[5px] grid place-items-center shrink-0"
-                  style={{
-                    border: `1.5px solid ${c.color}`,
-                    background: c.visible ? c.color : 'transparent',
-                  }}
+              <div key={c.id} className="relative flex items-center gap-2.5 rounded-[7px] px-1.5 py-[7px] hover:[background:var(--surface2)]">
+                <button
+                  onClick={() => dispatch({ type: 'TOGGLE_CAL', id: c.id })}
+                  className="flex items-center gap-2.5 flex-1 min-w-0 text-left"
+                  style={{ opacity: c.visible ? 1 : 0.5 }}
                 >
-                  {c.visible && <Check size={12} strokeWidth={3.5} color="white" />}
-                </span>
-                <span className="text-[13px] font-medium flex-1" style={{ color: 'var(--text)' }}>
-                  {c.name}
-                </span>
-                <span className="text-[11px] font-mono-ae" style={{ color: 'var(--text3)' }}>
+                  <span
+                    className="w-4 h-4 rounded-[5px] grid place-items-center shrink-0"
+                    style={{
+                      border: `1.5px solid ${c.color}`,
+                      background: c.visible ? c.color : 'transparent',
+                    }}
+                  >
+                    {c.visible && <Check size={12} strokeWidth={3.5} color="white" />}
+                  </span>
+                  <span className="text-[13px] font-medium flex-1 truncate" style={{ color: 'var(--text)' }}>
+                    {c.name}
+                  </span>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setColorPickerFor(colorPickerFor === c.id ? null : c.id);
+                  }}
+                  className="w-4 h-4 rounded-full shrink-0"
+                  style={{ background: c.color, boxShadow: '0 0 0 2px var(--surface)' }}
+                  aria-label={`Trocar cor de ${c.name}`}
+                  title="Trocar cor"
+                />
+                <span className="text-[11px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
                   {eventCountByCal[c.id] ?? 0}
                 </span>
-              </button>
+
+                {colorPickerFor === c.id && (
+                  <div
+                    className="absolute right-0 top-full mt-1 z-30 rounded-[10px] border p-2 grid grid-cols-4 gap-1.5"
+                    style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+                  >
+                    {CALENDAR_COLOR_PRESETS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => {
+                          dispatch({ type: 'UPDATE_CALENDAR_COLOR', id: c.id, color });
+                          setColorPickerFor(null);
+                        }}
+                        className="w-6 h-6 rounded-full grid place-items-center"
+                        style={{ background: color }}
+                        aria-label={color}
+                      >
+                        {c.color === color && <Check size={12} strokeWidth={3.5} color="white" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </section>

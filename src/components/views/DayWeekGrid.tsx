@@ -221,6 +221,63 @@ export function DayWeekGrid() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days, state.tasks, H0]);
 
+  // Deslizar horizontal pra trocar de dia (só na visão diária, mobile/tablet
+  // — na semana teria colunas demais pra fazer sentido um swipe simples).
+  // Só intercepta se o gesto for claramente mais horizontal que vertical, e
+  // só decide isso depois de um pouco de movimento — senão atrapalharia a
+  // rolagem vertical normal da grade, que é o gesto mais comum ali.
+  useEffect(() => {
+    if (state.view !== 'day' || state.w >= 900) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    let decided = false;
+    let horizontal = false;
+
+    function onDown(e: PointerEvent) {
+      if (e.pointerType !== 'touch') return;
+      if (e.clientX < 24) return; // essa faixa é reservada pro gesto de abrir a sidebar (ver App.tsx)
+      if ((e.target as HTMLElement).closest('[role="button"]')) return; // não intercepta toque num evento
+      startX = e.clientX;
+      startY = e.clientY;
+      tracking = true;
+      decided = false;
+      horizontal = false;
+    }
+    function onMove(e: PointerEvent) {
+      if (!tracking) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!decided && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
+        decided = true;
+        horizontal = Math.abs(dx) > Math.abs(dy) * 1.3;
+      }
+      if (decided && horizontal && e.cancelable) e.preventDefault();
+    }
+    function onUp(e: PointerEvent) {
+      if (!tracking) return;
+      tracking = false;
+      if (!decided || !horizontal) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 60) {
+        dispatch({ type: 'NAV', dir: dx < 0 ? 1 : -1 });
+      }
+    }
+    el.addEventListener('pointerdown', onDown, { passive: true });
+    el.addEventListener('pointermove', onMove, { passive: false });
+    el.addEventListener('pointerup', onUp, { passive: true });
+    el.addEventListener('pointercancel', onUp, { passive: true });
+    return () => {
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('pointercancel', onUp);
+    };
+  }, [state.view, state.w, dispatch]);
+
   const today = todayKey();
   const now = state.now;
 

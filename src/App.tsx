@@ -25,6 +25,60 @@ function AppShell() {
   const { state, dispatch } = useStore();
   const allEvents = useAllEvents(state);
 
+  // Deslizar a partir da borda esquerda da tela abre a sidebar (mobile/
+  // tablet); deslizar pra esquerda com ela já aberta fecha. Só uma faixa
+  // bem fina (24px) na borda conta como "início do gesto de abrir", pra
+  // não brigar com outros gestos de arrastar dentro do app.
+  useEffect(() => {
+    if (state.w >= 980) return;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    let decided = false;
+    let horizontal = false;
+    let fromEdge = false;
+
+    function onDown(e: PointerEvent) {
+      if (e.pointerType !== 'touch') return;
+      fromEdge = !state.sidebarOpen && e.clientX < 24;
+      if (!fromEdge && !state.sidebarOpen) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      tracking = true;
+      decided = false;
+      horizontal = false;
+    }
+    function onMove(e: PointerEvent) {
+      if (!tracking) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!decided && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
+        decided = true;
+        horizontal = Math.abs(dx) > Math.abs(dy) * 1.3;
+      }
+      if (decided && horizontal && e.cancelable) e.preventDefault();
+    }
+    function onUp(e: PointerEvent) {
+      if (!tracking) return;
+      tracking = false;
+      if (!decided || !horizontal) return;
+      const dx = e.clientX - startX;
+      if (fromEdge && dx > 60) dispatch({ type: 'SET_SIDEBAR', open: true });
+      else if (state.sidebarOpen && dx < -60) dispatch({ type: 'SET_SIDEBAR', open: false });
+    }
+    window.addEventListener('pointerdown', onDown, { passive: true });
+    window.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', onUp, { passive: true });
+    window.addEventListener('pointercancel', onUp, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [state.w, state.sidebarOpen, dispatch]);
+
+
   const eventCountByCal = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const c of state.calendars) counts[String(c.id)] = 0;
