@@ -98,6 +98,9 @@ export function EventBlock({
       window.clearTimeout(timer);
       window.removeEventListener('pointermove', onMoveCheck);
       window.removeEventListener('pointerup', onUpCheck);
+      // toque rápido, sem virar arrasto nem long-press — seleciona direto
+      // em vez de confiar só no 'click' sintético do navegador
+      if (!settled) onSelect();
     }
     window.addEventListener('pointermove', onMoveCheck);
     window.addEventListener('pointerup', onUpCheck);

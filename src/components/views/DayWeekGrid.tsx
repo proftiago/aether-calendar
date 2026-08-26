@@ -125,10 +125,16 @@ export function DayWeekGrid() {
       setDrag((prev) => {
         if (prev && prev.type === 'move') {
           const newDateKey = days[prev.colIndex] ?? origDateKey;
-          // sem movimento real (toque parado, ex: um long-press que virou
-          // menu rápido) — não faz sentido disparar PATCH_EVENT nem toast
-          // pra um "reagendamento" que não mudou nada
-          if (prev.s === origS && newDateKey === origDateKey) return null;
+          // sem movimento real — é um clique/toque simples, não um arrasto.
+          // Seleciona o evento diretamente aqui em vez de confiar no 'click'
+          // nativo do navegador disparar depois do pointerdown: chamar
+          // preventDefault() no pointerdown (necessário pra poder arrastar)
+          // pode suprimir o click sintético subsequente em alguns navegadores,
+          // o que deixava o evento "inclicável" via mouse.
+          if (prev.s === origS && newDateKey === origDateKey) {
+            dispatch({ type: 'SET_SELECTED', id: ev.id });
+            return null;
+          }
           const startsAt = toUtcIso(newDateKey, prev.s);
           const endsAt = toUtcIso(newDateKey, prev.e);
           const dateChanged = newDateKey !== origDateKey;
