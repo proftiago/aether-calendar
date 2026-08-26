@@ -19,6 +19,7 @@ import { eventBg } from '../../lib/style';
 import { weatherOf } from '../../lib/estimates';
 import { hapticTick } from '../../lib/haptics';
 import { isGoogleConfigured } from '../../lib/googleApi';
+import { duplicateEvent } from '../../lib/duplicateEvent';
 import { EventBlock } from '../EventBlock';
 import type { Event } from '../../lib/types';
 
@@ -30,7 +31,7 @@ type DragState =
 
 export function DayWeekGrid() {
   const { state, dispatch } = useStore();
-  const { pushUpdate, pushCreate } = useGoogleSync();
+  const { pushUpdate, pushCreate, pushDelete } = useGoogleSync();
   const allEvents = useAllEvents(state);
   const visibleEvents = useVisibleEvents(state, allEvents);
   const ROW_H = state.settings.density === 'compact' ? 40 : 56;
@@ -76,6 +77,7 @@ export function DayWeekGrid() {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [selectDrag, setSelectDrag] = useState<{ colIndex: number; startMin: number; endMin: number } | null>(null);
   const [pullDist, setPullDist] = useState(0);
+  const [quickMenu, setQuickMenu] = useState<{ event: Event; x: number; y: number } | null>(null);
   const scrolledOnce = useRef(false);
 
   useEffect(() => {
@@ -123,6 +125,10 @@ export function DayWeekGrid() {
       setDrag((prev) => {
         if (prev && prev.type === 'move') {
           const newDateKey = days[prev.colIndex] ?? origDateKey;
+          // sem movimento real (toque parado, ex: um long-press que virou
+          // menu rápido) — não faz sentido disparar PATCH_EVENT nem toast
+          // pra um "reagendamento" que não mudou nada
+          if (prev.s === origS && newDateKey === origDateKey) return null;
           const startsAt = toUtcIso(newDateKey, prev.s);
           const endsAt = toUtcIso(newDateKey, prev.e);
           const dateChanged = newDateKey !== origDateKey;
@@ -161,6 +167,7 @@ export function DayWeekGrid() {
       window.removeEventListener('pointerup', onUp);
       setDrag((prev) => {
         if (prev && prev.type === 'resize') {
+          if (prev.e === origE) return null; // sem alteração real, não faz nada
           const dateKey = dateKeyOf(ev.startsAt);
           const endsAt = toUtcIso(dateKey, prev.e);
           dispatch({ type: 'PATCH_EVENT', id: ev.id, changes: { endsAt }, toast: 'Duração ajustada' });
@@ -600,9 +607,11 @@ export function DayWeekGrid() {
                         lanes={b.lanes}
                         selected={state.selected === b.event.id}
                         dragging={false}
+                        syncPending={state.pendingSyncIds.includes(b.event.id)}
                         onSelect={() => dispatch({ type: 'SET_SELECTED', id: b.event.id })}
                         onPointerDownMove={(e) => startMove(e, b.event, colIndex)}
                         onPointerDownResize={(e) => startResize(e, b.event, colIndex)}
+                        onLongPress={(x, y) => setQuickMenu({ event: b.event, x, y })}
                       />
                     );
                   })}
@@ -645,6 +654,69 @@ export function DayWeekGrid() {
           </button>
         )}
       </div>
+
+      {quickMenu && (
+        <>
+          <div className="fixed inset-0 z-[70]" onClick={() => setQuickMenu(null)} onPointerDown={() => setQuickMenu(null)} />
+          <div
+            className="fixed z-[71] rounded-[12px] border p-1.5 w-[168px] animate-ae-pop"
+            style={{
+              left: Math.min(quickMenu.x, window.innerWidth - 180),
+              top: Math.min(quickMenu.y, window.innerHeight - 160),
+              background: 'var(--surface)',
+              borderColor: 'var(--border)',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            <button
+              onClick={() => {
+                const startMin = minutesOfDay(quickMenu.event.startsAt);
+                const durationMin = minutesOfDay(quickMenu.event.endsAt) - startMin;
+                dispatch({
+                  type: 'OPEN_FORM',
+                  form: {
+                    ...emptyCreateForm(dateKeyOf(quickMenu.event.startsAt), startMin, durationMin, String(quickMenu.event.calId)),
+                    mode: 'edit',
+                    id: quickMenu.event.id,
+                    title: quickMenu.event.title,
+                    allDay: quickMenu.event.allDay,
+                    location: quickMenu.event.location ?? '',
+                    notes: quickMenu.event.notes ?? '',
+                  },
+                });
+                setQuickMenu(null);
+              }}
+              className="w-full text-left px-2.5 py-2 rounded-[8px] text-[13px] font-medium hover:[background:var(--surface2)]"
+              style={{ color: 'var(--text)' }}
+            >
+              Editar
+            </button>
+            <button
+              onClick={() => {
+                const copy = duplicateEvent(quickMenu.event);
+                dispatch({ type: 'ADD_EVENT', event: copy, toast: 'Evento duplicado' });
+                pushCreate(copy);
+                setQuickMenu(null);
+              }}
+              className="w-full text-left px-2.5 py-2 rounded-[8px] text-[13px] font-medium hover:[background:var(--surface2)]"
+              style={{ color: 'var(--text)' }}
+            >
+              Duplicar
+            </button>
+            <button
+              onClick={() => {
+                dispatch({ type: 'REMOVE_EVENT', id: quickMenu.event.id, toast: 'Evento excluído' });
+                pushDelete(quickMenu.event);
+                setQuickMenu(null);
+              }}
+              className="w-full text-left px-2.5 py-2 rounded-[8px] text-[13px] font-medium hover:[background:var(--surface2)]"
+              style={{ color: 'var(--danger)' }}
+            >
+              Excluir
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -286,6 +286,33 @@ function GeneralTab() {
           ))}
         </div>
       </div>
+
+      <div>
+        <SectionHeading>Preenchimento dos eventos</SectionHeading>
+        <div className="flex items-center gap-3">
+          <input
+            type="range"
+            min={5}
+            max={70}
+            step={1}
+            value={s.eventOpacity ?? (state.theme === 'dark' ? 16 : 7)}
+            onChange={(e) => dispatch({ type: 'UPDATE_SETTINGS', changes: { eventOpacity: Number(e.target.value) } })}
+            className="flex-1"
+          />
+          <span className="text-[12px] font-mono-ae w-10 text-right" style={{ color: 'var(--text2)' }}>
+            {s.eventOpacity ?? (state.theme === 'dark' ? 16 : 7)}%
+          </span>
+        </div>
+        {s.eventOpacity != null && (
+          <button
+            onClick={() => dispatch({ type: 'UPDATE_SETTINGS', changes: { eventOpacity: null } })}
+            className="text-[11.5px] mt-1.5"
+            style={{ color: 'var(--text3)' }}
+          >
+            Voltar ao padrão
+          </button>
+        )}
+      </div>
     </div>
   );
 }

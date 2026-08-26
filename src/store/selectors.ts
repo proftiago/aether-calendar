@@ -24,7 +24,7 @@ export function useVisibleEvents(state: AppState, allEvents: Event[]): Event[] {
     return allEvents.filter((ev) => {
       if (!visibleCalIds.has(ev.calId)) return false;
       if (!q) return true;
-      const hay = `${ev.title} ${ev.location ?? ''}`.toLowerCase();
+      const hay = `${ev.title} ${ev.location ?? ''} ${ev.notes ?? ''}`.toLowerCase();
       return hay.includes(q);
     });
   }, [allEvents, state.calendars, state.search]);

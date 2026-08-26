@@ -1,10 +1,11 @@
-import { X, Share2 } from 'lucide-react';
+import { X, Share2, Copy } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
 import { useAllEvents, calendarOf } from '../store/selectors';
 import { formatDayLabel, hm, minutesOfDay, dateKeyOf } from '../lib/dates';
 import { travelOf } from '../lib/estimates';
 import { weekdayLabelsPtBR } from '../lib/recurrence';
+import { duplicateEvent } from '../lib/duplicateEvent';
 
 const SOURCE_LABEL: Record<string, string> = {
   google: 'Google Calendar',
@@ -14,7 +15,7 @@ const SOURCE_LABEL: Record<string, string> = {
 
 export function Drawer() {
   const { state, dispatch } = useStore();
-  const { pushDelete } = useGoogleSync();
+  const { pushDelete, pushCreate } = useGoogleSync();
   const allEvents = useAllEvents(state);
   const event = allEvents.find((e) => e.id === state.selected);
   const overlay = state.w < 1240;
@@ -98,6 +99,13 @@ export function Drawer() {
     }
   }
 
+  function duplicate() {
+    const copy = duplicateEvent(event!);
+    dispatch({ type: 'ADD_EVENT', event: copy, toast: 'Evento duplicado' });
+    dispatch({ type: 'SET_SELECTED', id: copy.id });
+    pushCreate(copy);
+  }
+
   function removeSeries() {
     if (!originalSeries) return;
     dispatch({ type: 'REMOVE_EVENT', id: originalSeries.id, toast: 'Série excluída' });
@@ -171,6 +179,15 @@ export function Drawer() {
             style={{ background: 'var(--surface2)', color: 'var(--text)' }}
           >
             {isRecurringInstance ? 'Editar este' : 'Editar'}
+          </button>
+          <button
+            onClick={duplicate}
+            className="w-11 shrink-0 rounded-[10px] py-2.5 grid place-items-center"
+            style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+            aria-label="Duplicar evento"
+            title="Duplicar"
+          >
+            <Copy size={15} />
           </button>
           {typeof navigator !== 'undefined' && !!navigator.share && (
             <button

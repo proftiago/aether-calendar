@@ -3,6 +3,7 @@ import { MapPin, Video, Repeat } from 'lucide-react';
 import { eventBg } from '../lib/style';
 import { hmRange, minutesOfDay, formatDayLabel, dateKeyOf } from '../lib/dates';
 import { travelOf } from '../lib/estimates';
+import { hapticTick } from '../lib/haptics';
 import { useStore } from '../store/store';
 import type { Event } from '../lib/types';
 
@@ -17,9 +18,11 @@ export function EventBlock({
   lanes,
   selected,
   dragging,
+  syncPending,
   onSelect,
   onPointerDownMove,
   onPointerDownResize,
+  onLongPress,
 }: {
   event: Event;
   top: number;
@@ -31,9 +34,11 @@ export function EventBlock({
   lanes: number;
   selected: boolean;
   dragging: boolean;
+  syncPending?: boolean;
   onSelect: () => void;
   onPointerDownMove: (e: React.PointerEvent) => void;
   onPointerDownResize: (e: React.PointerEvent) => void;
+  onLongPress?: (clientX: number, clientY: number) => void;
 }) {
   const { state } = useStore();
   const s = minutesOfDay(event.startsAt);
@@ -55,6 +60,42 @@ export function EventBlock({
     setHovered(false);
   }
 
+  // Em touch, segurar o dedo parado por um instante abre o menu rápido
+  // (editar/duplicar/excluir) em vez de começar a arrastar. Só decide isso
+  // depois de confirmar que não houve movimento — se a pessoa já começou a
+  // arrastar de verdade, o gesto normal de mover assume, sem o timer disparar.
+  function handlePointerDown(ev: React.PointerEvent) {
+    if (ev.pointerType !== 'touch' || !onLongPress) {
+      onPointerDownMove(ev);
+      return;
+    }
+    const startX = ev.clientX;
+    const startY = ev.clientY;
+    let settled = false;
+    const timer = window.setTimeout(() => {
+      settled = true;
+      window.removeEventListener('pointermove', onMoveCheck);
+      window.removeEventListener('pointerup', onUpCheck);
+      hapticTick(18);
+      onLongPress(startX, startY);
+    }, 420);
+    function onMoveCheck(pe: PointerEvent) {
+      if (Math.abs(pe.clientX - startX) > 8 || Math.abs(pe.clientY - startY) > 8) {
+        window.clearTimeout(timer);
+        window.removeEventListener('pointermove', onMoveCheck);
+        window.removeEventListener('pointerup', onUpCheck);
+        if (!settled) onPointerDownMove(ev);
+      }
+    }
+    function onUpCheck() {
+      window.clearTimeout(timer);
+      window.removeEventListener('pointermove', onMoveCheck);
+      window.removeEventListener('pointerup', onUpCheck);
+    }
+    window.addEventListener('pointermove', onMoveCheck);
+    window.addEventListener('pointerup', onUpCheck);
+  }
+
   return (
     <div
       role="button"
@@ -66,7 +107,7 @@ export function EventBlock({
       onKeyDown={(ev) => {
         if (ev.key === 'Enter') onSelect();
       }}
-      onPointerDown={onPointerDownMove}
+      onPointerDown={handlePointerDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className="absolute rounded-[8px] px-[9px] py-[7px] overflow-hidden cursor-grab select-none transition-shadow"
@@ -88,6 +129,13 @@ export function EventBlock({
         <div className="text-[12px] font-semibold truncate min-w-0" style={{ color: 'var(--text)' }}>
           {event.title}
         </div>
+        {syncPending && (
+          <span
+            className="w-[5px] h-[5px] rounded-full shrink-0 animate-ae-pulse"
+            style={{ background: 'var(--sync-progress)' }}
+            title="Sincronizando com o Google…"
+          />
+        )}
       </div>
       {height > 34 && (
         <div className="text-[10px] font-mono-ae truncate" style={{ color: 'var(--text2)' }}>

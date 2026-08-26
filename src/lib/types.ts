@@ -65,6 +65,8 @@ export type Task = {
   recurring?: number[];
   /** última data (YYYY-MM-DD) em que foi marcada concluída — usado pra resetar tarefas recorrentes */
   lastDoneKey?: string;
+  /** true quando arquivada automaticamente (concluída há muito tempo) — some da lista, mas continua salva */
+  archived?: boolean;
 };
 
 export type CalendarSetKey = string; // id de um CalendarSet, ou 'custom'

@@ -97,8 +97,9 @@ export function RightPanel() {
   if (!state.shortcutsOpen) return null;
   const overlayMode = state.w < 1024;
 
-  const doneCount = state.tasks.filter((t) => t.done).length;
-  const totalCount = state.tasks.length;
+  const visibleTasks = state.tasks.filter((t) => !t.archived);
+  const doneCount = visibleTasks.filter((t) => t.done).length;
+  const totalCount = visibleTasks.length;
   const progressPct = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
 
   function resetForm() {
@@ -338,12 +339,12 @@ export function RightPanel() {
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            {state.tasks.length === 0 && (
+            {visibleTasks.length === 0 && (
               <p className="text-[12px] py-4 text-center" style={{ color: 'var(--text3)' }}>
                 Nenhuma tarefa pendente
               </p>
             )}
-            {state.tasks.map((task) => (
+            {visibleTasks.map((task) => (
               <div
                 key={task.id}
                 draggable

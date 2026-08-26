@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey } from '../lib/types';
 import { CALENDARS, seedEvents, seedTasks } from '../lib/mockData';
-import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf } from '../lib/dates';
+import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf, daysBetween } from '../lib/dates';
 import { loadJSON, saveJSON } from '../lib/persistence';
 import { isGoogleConfigured, listGoogleEvents, rawToAetherEvent } from '../lib/googleApi';
 
@@ -34,6 +34,7 @@ export type AppSettings = {
   timeFormat: '12h' | '24h';
   density: 'compact' | 'comfortable';
   accentColor: string | null; // null = usa o padrão do tema (--accent original)
+  eventOpacity: number | null; // null = usa o padrão do tema (--event-mix original), 5-70
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -44,6 +45,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   timeFormat: '24h',
   density: 'comfortable',
   accentColor: null,
+  eventOpacity: null,
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {
@@ -83,6 +85,7 @@ export type AppState = {
   shortcutsOpen: boolean;
   aiOpen: boolean;
   focusMode: boolean;
+  pendingSyncIds: string[];
 };
 
 type Action =
@@ -109,6 +112,9 @@ type Action =
   | { type: 'UPDATE_CALENDAR_ICON'; id: string; icon: string | undefined }
   | { type: 'TOGGLE_TASK'; id: string }
   | { type: 'RESET_RECURRING_TASKS' }
+  | { type: 'ARCHIVE_OLD_TASKS' }
+  | { type: 'ADD_PENDING_SYNC'; id: string }
+  | { type: 'REMOVE_PENDING_SYNC'; id: string }
   | { type: 'SCHEDULE_TASK'; taskId: string; event: Event }
   | { type: 'SET_SELECTED'; id: string | null }
   | { type: 'OPEN_FORM'; form: FormState }
@@ -295,6 +301,19 @@ function reducer(state: AppState, action: Action): AppState {
       });
       return { ...state, tasks };
     }
+    case 'ARCHIVE_OLD_TASKS': {
+      const today = todayKey();
+      const tasks = state.tasks.map((t) => {
+        if (t.archived || !t.done || !t.lastDoneKey || t.recurring) return t;
+        const daysSince = daysBetween(t.lastDoneKey, today);
+        return daysSince >= 5 ? { ...t, archived: true } : t;
+      });
+      return { ...state, tasks };
+    }
+    case 'ADD_PENDING_SYNC':
+      return { ...state, pendingSyncIds: [...state.pendingSyncIds, action.id] };
+    case 'REMOVE_PENDING_SYNC':
+      return { ...state, pendingSyncIds: state.pendingSyncIds.filter((id) => id !== action.id) };
     case 'SCHEDULE_TASK': {
       const tasks = state.tasks.filter((t) => t.id !== action.taskId);
       return {
@@ -428,6 +447,7 @@ function initialState(): AppState {
     shortcutsOpen: w >= 1024,
     aiOpen: false,
     focusMode: false,
+    pendingSyncIds: [],
   };
 }
 
@@ -455,7 +475,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [state.settings.accentColor]);
 
   useEffect(() => {
+    if (state.settings.eventOpacity != null) {
+      document.documentElement.style.setProperty('--event-mix', `${state.settings.eventOpacity}%`);
+    } else {
+      document.documentElement.style.removeProperty('--event-mix');
+    }
+  }, [state.settings.eventOpacity]);
+
+  useEffect(() => {
     dispatch({ type: 'RESET_RECURRING_TASKS' });
+    dispatch({ type: 'ARCHIVE_OLD_TASKS' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

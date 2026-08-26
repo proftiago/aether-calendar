@@ -20,22 +20,28 @@ export function useGoogleSync() {
 
   async function pushCreate(event: Event) {
     if (!active || event.rrule) return;
+    dispatch({ type: 'ADD_PENDING_SYNC', id: event.id });
     try {
       const { googleEventId } = await createGoogleEvent(event as unknown as Record<string, unknown>);
       dispatch({ type: 'PATCH_EVENT', id: event.id, changes: { googleEventId, src: 'google' } });
     } catch (err) {
       console.error(err);
       dispatch({ type: 'TOAST', message: 'Salvo no Aether, mas não consegui enviar ao Google Calendar' });
+    } finally {
+      dispatch({ type: 'REMOVE_PENDING_SYNC', id: event.id });
     }
   }
 
   async function pushUpdate(event: Event) {
     if (!active || !event.googleEventId) return;
+    dispatch({ type: 'ADD_PENDING_SYNC', id: event.id });
     try {
       await updateGoogleEvent(event.googleEventId, event as unknown as Record<string, unknown>);
     } catch (err) {
       console.error(err);
       dispatch({ type: 'TOAST', message: 'Atualizado no Aether, mas não consegui atualizar no Google Calendar' });
+    } finally {
+      dispatch({ type: 'REMOVE_PENDING_SYNC', id: event.id });
     }
   }
 
