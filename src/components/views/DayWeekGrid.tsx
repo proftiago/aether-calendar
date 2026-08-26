@@ -18,6 +18,7 @@ import { layout, clipToWindow } from '../../lib/layout';
 import { eventBg } from '../../lib/style';
 import { weatherOf } from '../../lib/estimates';
 import { hapticTick } from '../../lib/haptics';
+import { isGoogleConfigured } from '../../lib/googleApi';
 import { EventBlock } from '../EventBlock';
 import type { Event } from '../../lib/types';
 
@@ -73,6 +74,8 @@ export function DayWeekGrid() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
+  const [selectDrag, setSelectDrag] = useState<{ colIndex: number; startMin: number; endMin: number } | null>(null);
+  const [pullDist, setPullDist] = useState(0);
   const scrolledOnce = useRef(false);
 
   useEffect(() => {
@@ -284,8 +287,72 @@ export function DayWeekGrid() {
     };
   }, [state.view, state.w, dispatch]);
 
+  // Puxar pra atualizar (pull-to-refresh): só faz sentido com o Google
+  // conectado (é o que existe pra "atualizar"), e só inicia se o puxão
+  // começar com a grade já no topo — senão brigaria com a rolagem normal.
+  useEffect(() => {
+    if (!isGoogleConfigured() || state.google !== 'on' || state.w >= 900) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let startY = 0;
+    let tracking = false;
+    let decided = false;
+    let pulling = false;
+
+    function onDown(e: PointerEvent) {
+      if (e.pointerType !== 'touch') return;
+      if (el!.scrollTop > 4) return;
+      startY = e.clientY;
+      tracking = true;
+      decided = false;
+      pulling = false;
+    }
+    function onMove(e: PointerEvent) {
+      if (!tracking) return;
+      const dy = e.clientY - startY;
+      if (!decided && Math.abs(dy) > 10) {
+        decided = true;
+        pulling = dy > 0 && el!.scrollTop <= 4;
+      }
+      if (decided && pulling) {
+        if (e.cancelable) e.preventDefault();
+        setPullDist(Math.min(80, dy * 0.5));
+      }
+    }
+    function onUp() {
+      if (!tracking) return;
+      tracking = false;
+      if (!pulling) return;
+      setPullDist((d) => {
+        if (d > 44) {
+          window.dispatchEvent(new CustomEvent('aether:sync-now'));
+          hapticTick();
+        }
+        return 0;
+      });
+    }
+    el.addEventListener('pointerdown', onDown, { passive: true });
+    el.addEventListener('pointermove', onMove, { passive: false });
+    el.addEventListener('pointerup', onUp, { passive: true });
+    el.addEventListener('pointercancel', onUp, { passive: true });
+    return () => {
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('pointercancel', onUp);
+    };
+  }, [state.google, state.w]);
+
   const today = todayKey();
   const now = state.now;
+
+  const nextEvent = useMemo(() => {
+    const todaysTimed = visibleEvents
+      .filter((ev) => !ev.allDay && dateKeyOf(ev.startsAt) === today && minutesOfDay(ev.startsAt) > now)
+      .sort((a, b) => minutesOfDay(a.startsAt) - minutesOfDay(b.startsAt));
+    return todaysTimed[0] ?? null;
+  }, [visibleEvents, today, now]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0" onClick={() => dispatch({ type: 'SET_SELECTED', id: null })}>
@@ -295,6 +362,21 @@ export function DayWeekGrid() {
           na grade) encolhe as colunas de baixo sem encolher as de cima,
           e as linhas verticais vão desalinhando da esquerda pra direita. */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto relative">
+        {pullDist > 0 && (
+          <div
+            className="absolute left-1/2 z-30 rounded-full px-3 py-1.5 text-[11px] font-medium animate-ae-in"
+            style={{
+              top: 8,
+              transform: `translateX(-50%) scale(${Math.min(1, 0.7 + pullDist / 100)})`,
+              opacity: Math.min(1, pullDist / 44),
+              background: 'var(--surface)',
+              color: pullDist > 44 ? 'var(--accent)' : 'var(--text3)',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            {pullDist > 44 ? 'Solte para sincronizar' : 'Puxe para sincronizar'}
+          </div>
+        )}
         <div
           className="flex border-b sticky top-0 z-20"
           style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
@@ -364,6 +446,15 @@ export function DayWeekGrid() {
                     })}
                   </div>
                 )}
+                {isToday && nextEvent && (
+                  <div
+                    className="mt-1.5 text-[10.5px] font-medium truncate rounded-[6px] px-1.5 py-[3px] w-fit max-w-full"
+                    style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+                    title={`Próximo: ${nextEvent.title} às ${hm(minutesOfDay(nextEvent.startsAt), state.settings.timeFormat)}`}
+                  >
+                    Próximo: {nextEvent.title} · {hm(minutesOfDay(nextEvent.startsAt), state.settings.timeFormat)}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -412,6 +503,39 @@ export function DayWeekGrid() {
                   const min = H0 + Math.round(y / PX_PER_MIN / 15) * 15;
                   openCreateAt(dateKey, min);
                 }}
+                onPointerDown={(e) => {
+                  // Clicar e arrastar pra desenhar o horário direto na grade —
+                  // só no mouse: em touch, o mesmo gesto já é usado pra rolar a
+                  // grade verticalmente, então criar por arrasto ali causaria
+                  // um evento fantasma toda vez que o usuário só quisesse rolar.
+                  if (e.pointerType !== 'mouse') return;
+                  if ((e.target as HTMLElement).closest('[role="button"]')) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const startMin = H0 + Math.round(((e.clientY - rect.top) / PX_PER_MIN) / 15) * 15;
+                  let moved = false;
+                  setSelectDrag({ colIndex, startMin, endMin: startMin + 15 });
+
+                  function onMove(pe: PointerEvent) {
+                    if (Math.abs(pe.clientY - e.clientY) > 6) moved = true;
+                    const min = H0 + Math.round(((pe.clientY - rect.top) / PX_PER_MIN) / 15) * 15;
+                    setSelectDrag((prev) => (prev ? { ...prev, endMin: Math.max(prev.startMin + 15, min) } : prev));
+                  }
+                  function onUp() {
+                    window.removeEventListener('pointermove', onMove);
+                    window.removeEventListener('pointerup', onUp);
+                    setSelectDrag((prev) => {
+                      if (prev && moved && prev.endMin - prev.startMin >= 15) {
+                        dispatch({
+                          type: 'OPEN_FORM',
+                          form: emptyCreateForm(dateKey, prev.startMin, prev.endMin - prev.startMin),
+                        });
+                      }
+                      return null;
+                    });
+                  }
+                  window.addEventListener('pointermove', onMove);
+                  window.addEventListener('pointerup', onUp);
+                }}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
@@ -430,6 +554,22 @@ export function DayWeekGrid() {
                     }}
                   />
                 ))}
+
+                {selectDrag && selectDrag.colIndex === colIndex && (
+                  <div
+                    className="absolute left-[2%] right-[2%] rounded-[7px] pointer-events-none flex items-start px-2 pt-1"
+                    style={{
+                      top: (selectDrag.startMin - H0) * PX_PER_MIN,
+                      height: Math.max(4, (selectDrag.endMin - selectDrag.startMin) * PX_PER_MIN),
+                      background: 'color-mix(in oklab, var(--accent) 22%, transparent)',
+                      border: '1.5px dashed var(--accent)',
+                    }}
+                  >
+                    <span className="text-[10px] font-mono-ae" style={{ color: 'var(--accent)' }}>
+                      {hm(selectDrag.startMin)} – {hm(selectDrag.endMin)}
+                    </span>
+                  </div>
+                )}
 
                 {isToday && now >= H0 && now < H1 && (
                   <div

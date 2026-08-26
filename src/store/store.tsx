@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey } from '../lib/types';
 import { CALENDARS, seedEvents, seedTasks } from '../lib/mockData';
-import { todayKey, nowMinutesOfDay, addDays, dateKeyOf } from '../lib/dates';
+import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf } from '../lib/dates';
 import { loadJSON, saveJSON } from '../lib/persistence';
 import { isGoogleConfigured, listGoogleEvents, rawToAetherEvent } from '../lib/googleApi';
 
@@ -33,6 +33,7 @@ export type AppSettings = {
   weekStartsOn: 0 | 1;
   timeFormat: '12h' | '24h';
   density: 'compact' | 'comfortable';
+  accentColor: string | null; // null = usa o padrão do tema (--accent original)
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -42,6 +43,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   weekStartsOn: 1,
   timeFormat: '24h',
   density: 'comfortable',
+  accentColor: null,
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {
@@ -106,6 +108,7 @@ type Action =
   | { type: 'UPDATE_CALENDAR_COLOR'; id: string; color: string }
   | { type: 'UPDATE_CALENDAR_ICON'; id: string; icon: string | undefined }
   | { type: 'TOGGLE_TASK'; id: string }
+  | { type: 'RESET_RECURRING_TASKS' }
   | { type: 'SCHEDULE_TASK'; taskId: string; event: Event }
   | { type: 'SET_SELECTED'; id: string | null }
   | { type: 'OPEN_FORM'; form: FormState }
@@ -275,7 +278,23 @@ function reducer(state: AppState, action: Action): AppState {
     case 'UPDATE_CALENDAR_ICON':
       return { ...state, calendars: state.calendars.map((c) => (c.id === action.id ? { ...c, icon: action.icon } : c)) };
     case 'TOGGLE_TASK':
-      return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, done: !t.done } : t)) };
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.id ? { ...t, done: !t.done, lastDoneKey: !t.done ? todayKey() : t.lastDoneKey } : t,
+        ),
+      };
+    case 'RESET_RECURRING_TASKS': {
+      const today = todayKey();
+      const dow = dowOf(today);
+      const tasks = state.tasks.map((t) => {
+        if (!t.recurring || !t.done) return t;
+        if (t.lastDoneKey === today) return t; // já resetou hoje
+        if (!t.recurring.includes(dow)) return t;
+        return { ...t, done: false };
+      });
+      return { ...state, tasks };
+    }
     case 'SCHEDULE_TASK': {
       const tasks = state.tasks.filter((t) => t.id !== action.taskId);
       return {
@@ -420,6 +439,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.theme === 'dark');
   }, [state.theme]);
+
+  useEffect(() => {
+    if (state.settings.accentColor) {
+      document.documentElement.style.setProperty('--accent', state.settings.accentColor);
+      // as cores da paleta (ACCENT_COLOR_PRESETS) são todas saturadas/escuras
+      // o bastante pra precisar de texto branco em cima — força isso,
+      // porque o --accentText padrão do tema escuro assume um azul claro
+      // (--accent original ali é bem mais claro que as opções da paleta).
+      document.documentElement.style.setProperty('--accentText', '#ffffff');
+    } else {
+      document.documentElement.style.removeProperty('--accent');
+      document.documentElement.style.removeProperty('--accentText');
+    }
+  }, [state.settings.accentColor]);
+
+  useEffect(() => {
+    dispatch({ type: 'RESET_RECURRING_TASKS' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (state.settings.themeMode !== 'auto' || typeof window === 'undefined') return;

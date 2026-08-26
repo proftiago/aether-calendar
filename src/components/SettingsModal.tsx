@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
@@ -12,6 +12,8 @@ const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'google', label: 'Google Calendar' },
   { key: 'data', label: 'Dados' },
 ];
+
+const ACCENT_COLOR_PRESETS = ['#0284c7', '#4f46e5', '#7c3aed', '#db2777', '#e11d48', '#ea580c', '#16a34a', '#0d9488'];
 
 export function SettingsModal() {
   const { state, dispatch } = useStore();
@@ -254,6 +256,32 @@ function GeneralTab() {
               <span className="text-[13px]" style={{ color: 'var(--text)' }}>
                 {mode === 'auto' ? 'Automático (segue o sistema)' : mode === 'light' ? 'Claro' : 'Escuro'}
               </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <SectionHeading>Cor de destaque</SectionHeading>
+        <div className="grid grid-cols-8 gap-1.5">
+          <button
+            onClick={() => dispatch({ type: 'UPDATE_SETTINGS', changes: { accentColor: null } })}
+            className="w-6 h-6 rounded-full grid place-items-center border-2"
+            style={{ borderColor: !s.accentColor ? 'var(--text)' : 'transparent', background: 'var(--surface2)' }}
+            aria-label="Padrão do tema"
+            title="Padrão"
+          >
+            {!s.accentColor && <Check size={11} strokeWidth={3.5} style={{ color: 'var(--text)' }} />}
+          </button>
+          {ACCENT_COLOR_PRESETS.map((color) => (
+            <button
+              key={color}
+              onClick={() => dispatch({ type: 'UPDATE_SETTINGS', changes: { accentColor: color } })}
+              className="w-6 h-6 rounded-full grid place-items-center"
+              style={{ background: color }}
+              aria-label={color}
+            >
+              {s.accentColor === color && <Check size={11} strokeWidth={3.5} color="white" />}
             </button>
           ))}
         </div>

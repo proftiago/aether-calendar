@@ -19,6 +19,7 @@ import { CommandMenu } from './components/CommandMenu';
 import { Toast } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
 import { BottomNav } from './components/BottomNav';
+import { InstallPrompt } from './components/InstallPrompt';
 import type { ViewKey } from './lib/types';
 
 function AppShell() {
@@ -143,6 +144,7 @@ function AppShell() {
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg)', height: '100dvh' }}>
       <Header />
+      <InstallPrompt />
       <div className="flex-1 flex min-h-0 relative">
         {state.focusMode ? (
           <FocusModeView />

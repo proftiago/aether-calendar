@@ -59,6 +59,12 @@ export type Task = {
   done: boolean;
   /** id do evento gerado ao agendar, se já agendada */
   scheduledEventId?: string;
+  /** data de vencimento opcional, formato YYYY-MM-DD */
+  dueDate?: string;
+  /** dias da semana em que a tarefa "reaparece" (0=dom...6=sáb), se recorrente */
+  recurring?: number[];
+  /** última data (YYYY-MM-DD) em que foi marcada concluída — usado pra resetar tarefas recorrentes */
+  lastDoneKey?: string;
 };
 
 export type CalendarSetKey = string; // id de um CalendarSet, ou 'custom'

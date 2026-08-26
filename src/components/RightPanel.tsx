@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Check, Repeat } from 'lucide-react';
 import { useStore } from '../store/store';
 import { prioColor } from '../lib/style';
+import { todayKey } from '../lib/dates';
 import type { Task, TaskPriority } from '../lib/types';
 
 const SHORTCUTS: { keys: string[]; label: string }[] = [
@@ -71,6 +72,9 @@ export function RightPanel() {
   const [dur, setDur] = useState(30);
   const [tag, setTag] = useState('');
   const [calId, setCalId] = useState('work');
+  const [dueDate, setDueDate] = useState('');
+  const [recurring, setRecurring] = useState(false);
+  const [recurDows, setRecurDows] = useState<number[]>([]);
 
   useEffect(() => {
     function onRequestAdd() {
@@ -102,6 +106,9 @@ export function RightPanel() {
     setPrio('média');
     setDur(30);
     setTag('');
+    setDueDate('');
+    setRecurring(false);
+    setRecurDows([]);
     setAdding(false);
   }
 
@@ -115,6 +122,8 @@ export function RightPanel() {
       tag: tag.trim() || 'Geral',
       calId,
       done: false,
+      dueDate: dueDate || undefined,
+      recurring: recurring && recurDows.length > 0 ? recurDows : undefined,
     };
     dispatch({ type: 'ADD_TASK', task });
     resetForm();
@@ -252,6 +261,58 @@ export function RightPanel() {
                   </option>
                 ))}
               </select>
+
+              <div>
+                <div className="text-[10px] font-semibold mb-1" style={{ color: 'var(--text3)' }}>
+                  Vencimento (opcional)
+                </div>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full rounded-[7px] px-2 py-[6px] text-[12px] outline-none"
+                  style={{ background: 'var(--surface)', color: 'var(--text)' }}
+                />
+              </div>
+
+              <button
+                onClick={() => setRecurring((v) => !v)}
+                className="flex items-center gap-2 text-[12px] w-fit"
+                style={{ color: 'var(--text)' }}
+              >
+                <span
+                  className="w-3.5 h-3.5 rounded-[4px] grid place-items-center border"
+                  style={{ background: recurring ? 'var(--accent)' : 'transparent', borderColor: recurring ? 'var(--accent)' : 'var(--border)' }}
+                >
+                  {recurring && <Check size={9} strokeWidth={3.5} color="white" />}
+                </span>
+                Repete toda semana
+              </button>
+
+              {recurring && (
+                <div className="flex gap-1">
+                  {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((label, dow) => {
+                    const active = recurDows.includes(dow);
+                    return (
+                      <button
+                        key={dow}
+                        onClick={() =>
+                          setRecurDows((prev) => (active ? prev.filter((d) => d !== dow) : [...prev, dow].sort()))
+                        }
+                        className="w-6 h-6 rounded-full text-[10px] font-semibold shrink-0"
+                        style={
+                          active
+                            ? { background: 'var(--accent)', color: 'var(--accentText)' }
+                            : { background: 'var(--surface)', color: 'var(--text3)', border: '1px solid var(--border)' }
+                        }
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <div className="flex gap-1.5">
                 <button
                   onClick={resetForm}
@@ -297,6 +358,7 @@ export function RightPanel() {
                 style={{ opacity: task.done ? 0.45 : 1, touchAction: 'none' }}
               >
                 <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: prioColor(task.prio) }} />
+                {!!task.recurring && <Repeat size={10} className="shrink-0" style={{ color: 'var(--text3)' }} />}
                 <span
                   onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
                   className="text-[12px] font-medium truncate flex-1"
@@ -304,6 +366,15 @@ export function RightPanel() {
                 >
                   {task.title}
                 </span>
+                {task.dueDate && (
+                  <span
+                    className="text-[10px] font-mono-ae shrink-0"
+                    style={{ color: task.dueDate < todayKey() && !task.done ? 'var(--danger)' : 'var(--text3)' }}
+                    title={`Vence ${task.dueDate}`}
+                  >
+                    {task.dueDate.slice(5)}
+                  </span>
+                )}
                 <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
                   {task.dur}m
                 </span>
