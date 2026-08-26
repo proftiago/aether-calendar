@@ -210,6 +210,16 @@ function GeneralTab() {
             ]}
           />
         </FieldRow>
+        <FieldRow label="Densidade da grade">
+          <Select
+            value={s.density}
+            onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { density: v as 'compact' | 'comfortable' } })}
+            options={[
+              { value: 'comfortable', label: 'Confortável' },
+              { value: 'compact', label: 'Compacta' },
+            ]}
+          />
+        </FieldRow>
       </div>
 
       <div>

@@ -32,6 +32,7 @@ export type AppSettings = {
   showWeekNumbers: boolean;
   weekStartsOn: 0 | 1;
   timeFormat: '12h' | '24h';
+  density: 'compact' | 'comfortable';
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -40,6 +41,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showWeekNumbers: true,
   weekStartsOn: 1,
   timeFormat: '24h',
+  density: 'comfortable',
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {
@@ -102,6 +104,7 @@ type Action =
   | { type: 'ADD_TASK'; task: Task }
   | { type: 'REMOVE_TASK'; id: string }
   | { type: 'UPDATE_CALENDAR_COLOR'; id: string; color: string }
+  | { type: 'UPDATE_CALENDAR_ICON'; id: string; icon: string | undefined }
   | { type: 'TOGGLE_TASK'; id: string }
   | { type: 'SCHEDULE_TASK'; taskId: string; event: Event }
   | { type: 'SET_SELECTED'; id: string | null }
@@ -269,6 +272,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, tasks: state.tasks.filter((t) => t.id !== action.id) };
     case 'UPDATE_CALENDAR_COLOR':
       return { ...state, calendars: state.calendars.map((c) => (c.id === action.id ? { ...c, color: action.color } : c)) };
+    case 'UPDATE_CALENDAR_ICON':
+      return { ...state, calendars: state.calendars.map((c) => (c.id === action.id ? { ...c, icon: action.icon } : c)) };
     case 'TOGGLE_TASK':
       return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, done: !t.done } : t)) };
     case 'SCHEDULE_TASK': {

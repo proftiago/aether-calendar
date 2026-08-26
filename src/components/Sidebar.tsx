@@ -14,6 +14,8 @@ const CALENDAR_COLOR_PRESETS = [
   '#0d9488', // teal
 ];
 
+const CALENDAR_ICON_PRESETS = ['💼', '🏠', '👨‍👩‍👧', '❤️', '🎓', '✈️', '🏋️', '🎯', '📚', '🎉', '💰', '🐾'];
+
 export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, number> }) {
   const { state, dispatch } = useStore();
   const [addingSet, setAddingSet] = useState(false);
@@ -147,7 +149,8 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                   >
                     {c.visible && <Check size={12} strokeWidth={3.5} color="white" />}
                   </span>
-                  <span className="text-[13px] font-medium flex-1 truncate" style={{ color: 'var(--text)' }}>
+                  <span className="text-[13px] font-medium flex-1 truncate flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
+                    {c.icon && <span aria-hidden="true">{c.icon}</span>}
                     {c.name}
                   </span>
                 </button>
@@ -158,8 +161,8 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                   }}
                   className="w-4 h-4 rounded-full shrink-0"
                   style={{ background: c.color, boxShadow: '0 0 0 2px var(--surface)' }}
-                  aria-label={`Trocar cor de ${c.name}`}
-                  title="Trocar cor"
+                  aria-label={`Personalizar ${c.name}`}
+                  title="Cor e ícone"
                 />
                 <span className="text-[11px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
                   {eventCountByCal[c.id] ?? 0}
@@ -167,23 +170,50 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
 
                 {colorPickerFor === c.id && (
                   <div
-                    className="absolute right-0 top-full mt-1 z-30 rounded-[10px] border p-2 grid grid-cols-4 gap-1.5"
+                    className="absolute right-0 top-full mt-1 z-30 rounded-[10px] border p-2.5 w-[192px]"
                     style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
                   >
-                    {CALENDAR_COLOR_PRESETS.map((color) => (
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text3)' }}>
+                      Cor
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5 mb-3">
+                      {CALENDAR_COLOR_PRESETS.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => dispatch({ type: 'UPDATE_CALENDAR_COLOR', id: c.id, color })}
+                          className="w-6 h-6 rounded-full grid place-items-center"
+                          style={{ background: color }}
+                          aria-label={color}
+                        >
+                          {c.color === color && <Check size={12} strokeWidth={3.5} color="white" />}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text3)' }}>
+                      Ícone
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
                       <button
-                        key={color}
-                        onClick={() => {
-                          dispatch({ type: 'UPDATE_CALENDAR_COLOR', id: c.id, color });
-                          setColorPickerFor(null);
-                        }}
-                        className="w-6 h-6 rounded-full grid place-items-center"
-                        style={{ background: color }}
-                        aria-label={color}
+                        onClick={() => dispatch({ type: 'UPDATE_CALENDAR_ICON', id: c.id, icon: undefined })}
+                        className="w-6 h-6 rounded-[6px] grid place-items-center text-[11px]"
+                        style={{ background: !c.icon ? 'var(--surface2)' : 'transparent', color: 'var(--text3)' }}
+                        aria-label="Nenhum ícone"
+                        title="Nenhum"
                       >
-                        {c.color === color && <Check size={12} strokeWidth={3.5} color="white" />}
+                        <X size={12} />
                       </button>
-                    ))}
+                      {CALENDAR_ICON_PRESETS.map((icon) => (
+                        <button
+                          key={icon}
+                          onClick={() => dispatch({ type: 'UPDATE_CALENDAR_ICON', id: c.id, icon })}
+                          className="w-6 h-6 rounded-[6px] grid place-items-center text-[13px]"
+                          style={{ background: c.icon === icon ? 'var(--surface2)' : 'transparent' }}
+                          aria-label={icon}
+                        >
+                          {icon}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

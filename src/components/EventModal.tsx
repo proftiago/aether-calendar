@@ -2,6 +2,7 @@ import { Check } from 'lucide-react';
 import { useStore, buildRRuleFromForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
 import { toUtcIso } from '../lib/dates';
+import { hapticTick } from '../lib/haptics';
 import type { Event } from '../lib/types';
 
 const DOW_LABELS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
@@ -37,6 +38,7 @@ export function EventModal() {
       };
       dispatch({ type: 'ADD_EVENT', event, toast: `Evento criado: ${event.title}` });
       pushCreate(event);
+      hapticTick();
     } else if (form.id) {
       const existing = state.events.find((ev) => ev.id === form.id);
       const changes = {

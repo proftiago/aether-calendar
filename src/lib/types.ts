@@ -8,7 +8,8 @@ export type CalendarId = 'work' | 'personal' | 'family' | (string & {});
 export type Calendar = {
   id: CalendarId;
   name: string;
-  color: string; // referencia uma CSS var, ex: 'var(--cal-work)'
+  color: string; // referencia uma CSS var, ex: 'var(--cal-work)', ou hex literal
+  icon?: string; // emoji opcional
   visible: boolean;
 };
 

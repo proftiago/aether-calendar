@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, Share2 } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
 import { useAllEvents, calendarOf } from '../store/selectors';
@@ -84,6 +84,20 @@ export function Drawer() {
     pushDelete(event!);
   }
 
+  async function share() {
+    const lines = [
+      event!.title,
+      event!.allDay ? `Dia inteiro · ${formatDayLabel(dateKey)}` : `${hm(s)} – ${hm(e)} · ${formatDayLabel(dateKey)}`,
+      event!.location ? `Local: ${event!.location}` : null,
+      event!.meet ? event!.meet : null,
+    ].filter(Boolean);
+    try {
+      await navigator.share({ title: event!.title, text: lines.join('\n') });
+    } catch {
+      // usuário cancelou o compartilhamento, ou o navegador recusou — sem toast de erro, é comportamento normal
+    }
+  }
+
   function removeSeries() {
     if (!originalSeries) return;
     dispatch({ type: 'REMOVE_EVENT', id: originalSeries.id, toast: 'Série excluída' });
@@ -158,6 +172,17 @@ export function Drawer() {
           >
             {isRecurringInstance ? 'Editar este' : 'Editar'}
           </button>
+          {typeof navigator !== 'undefined' && !!navigator.share && (
+            <button
+              onClick={share}
+              className="w-11 shrink-0 rounded-[10px] py-2.5 grid place-items-center"
+              style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+              aria-label="Compartilhar evento"
+              title="Compartilhar"
+            >
+              <Share2 size={15} />
+            </button>
+          )}
           <button
             onClick={remove}
             className="flex-1 rounded-[10px] py-2.5 text-[13px] font-semibold border"

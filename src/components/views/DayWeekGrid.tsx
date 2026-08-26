@@ -17,11 +17,10 @@ import {
 import { layout, clipToWindow } from '../../lib/layout';
 import { eventBg } from '../../lib/style';
 import { weatherOf } from '../../lib/estimates';
+import { hapticTick } from '../../lib/haptics';
 import { EventBlock } from '../EventBlock';
 import type { Event } from '../../lib/types';
 
-const ROW_H = 56;
-const PX_PER_MIN = ROW_H / 60;
 const GUTTER = 60;
 
 type DragState =
@@ -33,6 +32,8 @@ export function DayWeekGrid() {
   const { pushUpdate, pushCreate } = useGoogleSync();
   const allEvents = useAllEvents(state);
   const visibleEvents = useVisibleEvents(state, allEvents);
+  const ROW_H = state.settings.density === 'compact' ? 40 : 56;
+  const PX_PER_MIN = ROW_H / 60;
 
   const days = useMemo(() => {
     if (state.view === 'day') return [state.cursor];
@@ -97,6 +98,7 @@ export function DayWeekGrid() {
 
   function startMove(e: React.PointerEvent, ev: Event, colIndex: number) {
     e.preventDefault();
+    const isTouch = e.pointerType === 'touch';
     const startY = e.clientY;
     const origS = minutesOfDay(ev.startsAt);
     const origE = minutesOfDay(ev.endsAt);
@@ -128,6 +130,7 @@ export function DayWeekGrid() {
             toast: dateChanged ? 'Evento movido' : 'Evento reagendado',
           });
           pushUpdate({ ...ev, startsAt, endsAt });
+          if (isTouch) hapticTick();
         }
         return null;
       });
@@ -138,6 +141,7 @@ export function DayWeekGrid() {
 
   function startResize(e: React.PointerEvent, ev: Event, colIndex: number) {
     e.preventDefault();
+    const isTouch = e.pointerType === 'touch';
     const startY = e.clientY;
     const origS = minutesOfDay(ev.startsAt);
     const origE = minutesOfDay(ev.endsAt);
@@ -158,6 +162,7 @@ export function DayWeekGrid() {
           const endsAt = toUtcIso(dateKey, prev.e);
           dispatch({ type: 'PATCH_EVENT', id: ev.id, changes: { endsAt }, toast: 'Duração ajustada' });
           pushUpdate({ ...ev, endsAt });
+          if (isTouch) hapticTick();
         }
         return null;
       });
@@ -215,11 +220,12 @@ export function DayWeekGrid() {
       const y = clientY - rect.top;
       const min = H0 + Math.round(y / PX_PER_MIN / 15) * 15;
       scheduleTaskAt(taskId, dateKey, min);
+      hapticTick();
     }
     window.addEventListener('aether:touch-drop-task', onTouchDrop);
     return () => window.removeEventListener('aether:touch-drop-task', onTouchDrop);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days, state.tasks, H0]);
+  }, [days, state.tasks, H0, PX_PER_MIN]);
 
   // Deslizar horizontal pra trocar de dia (só na visão diária, mobile/tablet
   // — na semana teria colunas demais pra fazer sentido um swipe simples).
