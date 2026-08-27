@@ -6,6 +6,7 @@ import { formatDayLabel, hm, minutesOfDay, dateKeyOf } from '../lib/dates';
 import { travelOf } from '../lib/estimates';
 import { weekdayLabelsPtBR } from '../lib/recurrence';
 import { duplicateEvent } from '../lib/duplicateEvent';
+import { splitTextAndLinks } from '../lib/linkify';
 
 const SOURCE_LABEL: Record<string, string> = {
   google: 'Google Calendar',
@@ -183,10 +184,26 @@ export function Drawer() {
 
         {event.notes && (
           <p
-            className="text-[13px] leading-[1.55] rounded-[10px] p-3"
+            className="text-[13px] leading-[1.55] rounded-[10px] p-3 break-words"
             style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
           >
-            {event.notes}
+            {splitTextAndLinks(event.notes).map((part, i) =>
+              typeof part === 'string' ? (
+                <span key={i}>{part}</span>
+              ) : (
+                <a
+                  key={i}
+                  href={part.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  onClick={(e) => e.stopPropagation()}
+                  className="underline font-medium"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  {part.url}
+                </a>
+              ),
+            )}
           </p>
         )}
 

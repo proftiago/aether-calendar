@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
-import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
+import { isGoogleConfigured, buildGoogleAuthUrl, listGoogleCalendars } from '../lib/googleApi';
+import type { GoogleCalendarOption } from '../lib/googleApi';
 import { isSyncConfigured } from '../lib/supabaseClient';
 import { weeklyTimeBreakdown, focusHeatmap, dailyTotalsSparkline, formatMinutes } from '../lib/analytics';
 import { Sparkline } from './Sparkline';
@@ -347,6 +348,85 @@ function GeneralTab() {
   );
 }
 
+function CalendarPicker() {
+  const { state, dispatch } = useStore();
+  const [calendars, setCalendars] = useState<GoogleCalendarOption[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    listGoogleCalendars()
+      .then((res) => {
+        if (!cancelled) setCalendars(res.calendars);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function toggle(id: string) {
+    const current = state.settings.selectedGoogleCalendarIds;
+    const next = current.includes(id) ? current.filter((c) => c !== id) : [...current, id];
+    if (next.length === 0) return; // sempre precisa de pelo menos um
+    dispatch({ type: 'UPDATE_SETTINGS', changes: { selectedGoogleCalendarIds: next } });
+    window.dispatchEvent(new CustomEvent('aether:sync-now', { detail: { forceFull: true } }));
+  }
+
+  return (
+    <div>
+      <SectionHeading>Calendários sincronizados</SectionHeading>
+      {loading && (
+        <p className="text-[13px]" style={{ color: 'var(--text3)' }}>
+          Carregando calendários…
+        </p>
+      )}
+      {error && (
+        <p className="text-[13px]" style={{ color: 'var(--danger)' }}>
+          Não consegui buscar seus calendários agora. Se você acabou de configurar isso no
+          backend, pode ser que a Edge Function ainda não tenha o endpoint novo publicado.
+        </p>
+      )}
+      {calendars && (
+        <div className="flex flex-col gap-1">
+          {calendars.map((cal) => {
+            const checked = state.settings.selectedGoogleCalendarIds.includes(cal.id);
+            return (
+              <label
+                key={cal.id}
+                className="flex items-center gap-2.5 rounded-[8px] px-2 py-[7px] cursor-pointer hover:[background:var(--surface2)]"
+              >
+                <input type="checkbox" checked={checked} onChange={() => toggle(cal.id)} className="shrink-0" />
+                {cal.color && <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: cal.color }} />}
+                <span className="text-[13px] flex-1 truncate" style={{ color: 'var(--text)' }}>
+                  {cal.name}
+                </span>
+                {cal.primary && (
+                  <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--text3)' }}>
+                    principal
+                  </span>
+                )}
+              </label>
+            );
+          })}
+          <p className="text-[11.5px] leading-[1.6] mt-1.5" style={{ color: 'var(--text3)' }}>
+            Marcar/desmarcar já dispara uma sincronização completa. Desmarcar um calendário não
+            apaga os eventos dele que já foram importados — só para de trazer atualizações novas.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GoogleTab() {
   const { state, dispatch } = useStore();
   const configured = isGoogleConfigured();
@@ -414,11 +494,12 @@ function GoogleTab() {
       <div>
         <SectionHeading>Limitações desta versão</SectionHeading>
         <ul className="text-[13px] leading-[1.7] list-disc pl-4" style={{ color: 'var(--text2)' }}>
-          <li>Sincroniza só o calendário principal (primary) da conta Google</li>
-          <li>Eventos recorrentes criados no Aether não são enviados ao Google ainda</li>
+          <li>Eventos novos criados no Aether são sempre enviados pro calendário principal (primary), mesmo se você sincronizar outros calendários pra leitura</li>
           <li>Sincronização automática a cada 5 min, ou manual pelo botão acima</li>
         </ul>
       </div>
+
+      {connected && configured && <CalendarPicker />}
 
       {connected && configured && (
         <div>

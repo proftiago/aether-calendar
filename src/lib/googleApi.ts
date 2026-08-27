@@ -47,8 +47,14 @@ export type GoogleListResult = {
   deletedIds: string[];
 };
 
-export function listGoogleEvents(forceFull = false): Promise<GoogleListResult> {
-  return callFn<GoogleListResult>('list', forceFull ? { forceFull: true } : {});
+export function listGoogleEvents(forceFull = false, calendarIds?: string[]): Promise<GoogleListResult> {
+  return callFn<GoogleListResult>('list', { ...(forceFull ? { forceFull: true } : {}), ...(calendarIds ? { calendarIds } : {}) });
+}
+
+export type GoogleCalendarOption = { id: string; name: string; color?: string; primary: boolean };
+
+export function listGoogleCalendars(): Promise<{ calendars: GoogleCalendarOption[] }> {
+  return callFn('list-calendars');
 }
 
 /** Converte o registro cru devolvido pela Edge Function num Event completo do Aether. */

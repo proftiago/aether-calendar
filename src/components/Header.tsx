@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Menu, Search, PanelRight, Command, Sparkles } from 'lucide-react';
+import { Menu, Search, PanelRight, Command, Sparkles, RefreshCw } from 'lucide-react';
 import { useStore } from '../store/store';
 import { parseQuickAdd } from '../lib/nlParse';
 import { calendarOf } from '../store/selectors';
@@ -159,6 +159,16 @@ export function Header() {
           <Search size={15} style={{ color: 'var(--text2)' }} />
         </button>
       )}
+
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('aether:sync-now'))}
+        className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
+        style={{ opacity: state.google === 'on' ? 1 : 0.4 }}
+        aria-label="Sincronizar agora"
+        title={state.google === 'on' ? 'Sincronizar agora' : 'Conecte o Google Calendar pra sincronizar'}
+      >
+        <RefreshCw size={14} className={state.google === 'sync' ? 'animate-ae-spin' : ''} style={{ color: 'var(--text2)' }} />
+      </button>
 
       {state.w >= 640 && (
         <button

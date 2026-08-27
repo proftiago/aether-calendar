@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
 import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey } from '../lib/types';
 import { CALENDARS, seedEvents, seedTasks } from '../lib/mockData';
 import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf, daysBetween } from '../lib/dates';
@@ -42,6 +42,7 @@ export type AppSettings = {
   workStart: number; // minutos desde 00:00
   workEnd: number;
   workDays: number[]; // 0=dom...6=sáb
+  selectedGoogleCalendarIds: string[];
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -60,6 +61,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   workStart: 8 * 60,
   workEnd: 19 * 60,
   workDays: [1, 2, 3, 4, 5],
+  selectedGoogleCalendarIds: ['primary'],
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {
@@ -485,6 +487,13 @@ const StoreContext = createContext<{ state: AppState; dispatch: React.Dispatch<A
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
+  // syncFromGoogle é chamado de dentro de efeitos com dependências
+  // estreitas (ex: só [state.google]) — sem essa ref, ele enxergaria uma
+  // foto antiga de state.events sempre que rodasse via intervalo/foco/
+  // sincronização manual, o que reintroduziria a duplicação de série
+  // recorrente que o filtro abaixo existe pra evitar.
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.theme === 'dark');
@@ -561,8 +570,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   async function syncFromGoogle(forceFull = false) {
     try {
-      const result = await listGoogleEvents(forceFull);
-      const events = result.events.map(rawToAetherEvent);
+      const result = await listGoogleEvents(forceFull, stateRef.current.settings.selectedGoogleCalendarIds);
+      // instâncias de série cujo "mestre" já é um evento nativo do Aether
+      // (rrule + o mesmo googleEventId) não entram — o Aether já expande
+      // essa série localmente; importar as instâncias de novo duplicaria
+      // visualmente cada ocorrência
+      const nativeSeriesGoogleIds = new Set(
+        stateRef.current.events.filter((ev) => ev.rrule && ev.googleEventId).map((ev) => ev.googleEventId),
+      );
+      const filtered = result.events.filter((raw) => {
+        const recurringEventId = raw.recurringEventId as string | undefined;
+        return !recurringEventId || !nativeSeriesGoogleIds.has(recurringEventId);
+      });
+      const events = filtered.map(rawToAetherEvent);
       dispatch({ type: 'GOOGLE_SYNC_MERGE', events, deletedGoogleIds: result.deletedIds ?? [] });
     } catch (err) {
       console.error('Falha ao sincronizar com o Google:', err);

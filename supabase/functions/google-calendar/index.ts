@@ -18,10 +18,22 @@
 // recorrentes que já existem no Google chegam expandidos em instâncias
 // (via singleEvents=true), então aparecem certinho no Aether, só não é
 // possível editar a série inteira por aqui ainda.
+//
+// Atualização: eventos recorrentes do Aether agora SÃO enviados pro Google
+// (ver toGoogleRRule). E o 'list' agora aceita varrer mais de um calendário
+// (não só 'primary') — cada calendário tem seu próprio syncToken, guardado
+// no JSON da coluna sync_tokens.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const GOOGLE_API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+function googleEventsUrl(calendarId: string) {
+  return `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
+}
+const GOOGLE_CALENDAR_LIST_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
+// eventos criados/editados pelo Aether sempre vão pro primary — escolher o
+// calendário de destino na criação fica pra uma v2, esse recurso aqui é só
+// de LEITURA de calendários extras
+const GOOGLE_API = googleEventsUrl('primary');
 
 // CORS: esta função é chamada via fetch() direto do navegador (o app roda
 // num domínio, a função em outro), então precisa responder ao preflight
@@ -63,8 +75,12 @@ Deno.serve(async (req) => {
 
   try {
     switch (body.action) {
+      case 'list-calendars':
+        return json(await listCalendars(accessToken));
       case 'list':
-        return json(await listEvents(accessToken, supabase, body as { timeMin?: string; timeMax?: string; forceFull?: boolean }));
+        return json(
+          await listEvents(accessToken, supabase, body as { timeMin?: string; timeMax?: string; forceFull?: boolean; calendarIds?: string[] }),
+        );
       case 'create':
         return json(await createEvent(accessToken, body.event as Record<string, unknown>));
       case 'update':
@@ -117,43 +133,85 @@ async function getValidAccessToken(supabase: ReturnType<typeof createClient>): P
 
 // --- Google Calendar calls -------------------------------------------------
 
-async function listEvents(accessToken: string, supabase: ReturnType<typeof createClient>, opts: { timeMin?: string; timeMax?: string; forceFull?: boolean }) {
-  const { data: tokenRow } = await supabase.from('google_tokens').select('sync_token').eq('id', 'default').maybeSingle();
-  const params = new URLSearchParams({ singleEvents: 'true', maxResults: '250' });
-
-  if (tokenRow?.sync_token && !opts.forceFull) {
-    params.set('syncToken', tokenRow.sync_token as string);
-  } else {
-    params.set('orderBy', 'startTime');
-    params.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
-    params.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
-  }
-
-  let res = await fetch(`${GOOGLE_API}?${params.toString()}`, {
+async function listCalendars(accessToken: string) {
+  const res = await fetch(`${GOOGLE_CALENDAR_LIST_URL}?minAccessRole=reader&maxResults=250`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-
-  if (res.status === 410) {
-    // syncToken expirado — refaz do zero sem ele
-    params.delete('syncToken');
-    params.set('orderBy', 'startTime');
-    params.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
-    params.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
-    res = await fetch(`${GOOGLE_API}?${params.toString()}`, { headers: { Authorization: `Bearer ${accessToken}` } });
-  }
-
-  if (!res.ok) throw new Error(`Google events.list falhou: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`Google calendarList falhou: ${res.status} ${await res.text()}`);
   const data = await res.json();
+  const calendars = (data.items ?? []).map((c: Record<string, unknown>) => ({
+    id: c.id,
+    name: c.summary,
+    color: c.backgroundColor,
+    primary: !!c.primary,
+  }));
+  return { calendars };
+}
 
-  if (data.nextSyncToken) {
-    await supabase.from('google_tokens').update({ sync_token: data.nextSyncToken }).eq('id', 'default');
+async function listEvents(
+  accessToken: string,
+  supabase: ReturnType<typeof createClient>,
+  opts: { timeMin?: string; timeMax?: string; forceFull?: boolean; calendarIds?: string[] },
+) {
+  const calendarIds = opts.calendarIds && opts.calendarIds.length > 0 ? opts.calendarIds : ['primary'];
+
+  const { data: tokenRow } = await supabase.from('google_tokens').select('sync_tokens').eq('id', 'default').maybeSingle();
+  const syncTokens = (tokenRow?.sync_tokens as Record<string, string>) ?? {};
+  const newSyncTokens: Record<string, string> = { ...syncTokens };
+
+  const allEvents: Record<string, unknown>[] = [];
+  const allDeletedIds: string[] = [];
+
+  for (const calendarId of calendarIds) {
+    const params = new URLSearchParams({ singleEvents: 'true', maxResults: '250' });
+    const savedToken = syncTokens[calendarId];
+
+    if (savedToken && !opts.forceFull) {
+      params.set('syncToken', savedToken);
+    } else {
+      params.set('orderBy', 'startTime');
+      params.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
+      params.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
+    }
+
+    let res = await fetch(`${googleEventsUrl(calendarId)}?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (res.status === 410) {
+      // syncToken expirado — refaz do zero pra esse calendário específico
+      params.delete('syncToken');
+      params.set('orderBy', 'startTime');
+      params.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
+      params.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
+      res = await fetch(`${googleEventsUrl(calendarId)}?${params.toString()}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+    }
+
+    if (!res.ok) {
+      // um calendário com problema (ex: foi removido do compartilhamento)
+      // não deve derrubar a sincronização dos outros — loga e segue
+      console.error(`Google events.list falhou pra ${calendarId}: ${res.status} ${await res.text()}`);
+      continue;
+    }
+    const data = await res.json();
+
+    if (data.nextSyncToken) {
+      newSyncTokens[calendarId] = data.nextSyncToken;
+    }
+
+    const items = data.items ?? [];
+    for (const it of items) {
+      if (it.status === 'cancelled') {
+        allDeletedIds.push(it.id);
+      } else {
+        allEvents.push(mapGoogleEventToAether(it, calendarId));
+      }
+    }
   }
 
-  const events = (data.items ?? [])
-    .filter((it: Record<string, unknown>) => it.status !== 'cancelled')
-    .map(mapGoogleEventToAether);
+  await supabase.from('google_tokens').update({ sync_tokens: newSyncTokens }).eq('id', 'default');
 
-  return { events, deletedIds: (data.items ?? []).filter((it: Record<string, unknown>) => it.status === 'cancelled').map((it: Record<string, unknown>) => it.id) };
+  return { events: allEvents, deletedIds: allDeletedIds };
 }
 
 async function createEvent(accessToken: string, event: Record<string, unknown>) {
@@ -190,10 +248,16 @@ async function deleteEvent(accessToken: string, googleEventId: string) {
 
 // --- mapeamento de formato ---------------------------------------------
 
-function mapGoogleEventToAether(ev: Record<string, any>) {
+function mapGoogleEventToAether(ev: Record<string, any>, calendarId = 'primary') {
   const allDay = !!ev.start?.date;
   return {
     googleEventId: ev.id,
+    googleCalendarId: calendarId,
+    // presente só em instâncias expandidas de uma série (singleEvents=true
+    // devolve cada ocorrência separada, apontando pro evento "mestre" que
+    // carrega o RRULE de verdade) — o frontend usa isso pra não duplicar
+    // visualmente séries que ele mesmo criou e já expande localmente
+    recurringEventId: ev.recurringEventId || undefined,
     title: ev.summary ?? '(sem título)',
     calId: 'personal',
     startsAt: allDay ? new Date(`${ev.start.date}T00:00:00Z`).toISOString() : ev.start.dateTime,
@@ -221,7 +285,31 @@ function mapAetherEventToGoogle(event: Record<string, unknown>) {
     body.start = { dateTime: event.startsAt, timeZone: event.timeZone ?? 'America/Sao_Paulo' };
     body.end = { dateTime: event.endsAt, timeZone: event.timeZone ?? 'America/Sao_Paulo' };
   }
+  const rrule = toGoogleRRule(event.rrule as { freq: 'weekly'; dows: number[]; until?: string } | undefined);
+  if (rrule) body.recurrence = [rrule];
   return body;
+}
+
+const GOOGLE_DOW = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+
+/**
+ * Converte o RRule simplificado do Aether ({freq:'weekly', dows:[0-6], until?})
+ * pro formato RRULE de string que o Google Calendar espera. Só suporta
+ * semanal (é tudo que o Aether cria hoje) — se algum dia o Aether ganhar
+ * outras frequências, isso precisa crescer junto.
+ */
+function toGoogleRRule(rrule: { freq: 'weekly'; dows: number[]; until?: string } | undefined): string | null {
+  if (!rrule || !rrule.dows || rrule.dows.length === 0) return null;
+  const byDay = rrule.dows.map((d) => GOOGLE_DOW[d]).join(',');
+  let rule = `RRULE:FREQ=WEEKLY;BYDAY=${byDay}`;
+  if (rrule.until) {
+    const untilDate = new Date(rrule.until);
+    const yyyy = untilDate.getUTCFullYear();
+    const mm = String(untilDate.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(untilDate.getUTCDate()).padStart(2, '0');
+    rule += `;UNTIL=${yyyy}${mm}${dd}T235959Z`;
+  }
+  return rule;
 }
 
 function json(data: unknown, status = 200): Response {

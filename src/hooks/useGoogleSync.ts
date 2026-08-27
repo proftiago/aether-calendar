@@ -19,7 +19,7 @@ export function useGoogleSync() {
   const active = state.google === 'on' && isGoogleConfigured();
 
   async function pushCreate(event: Event) {
-    if (!active || event.rrule) return;
+    if (!active) return;
     dispatch({ type: 'ADD_PENDING_SYNC', id: event.id });
     try {
       const { googleEventId } = await createGoogleEvent(event as unknown as Record<string, unknown>);

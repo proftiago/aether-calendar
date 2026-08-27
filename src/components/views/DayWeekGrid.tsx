@@ -391,8 +391,17 @@ export function DayWeekGrid() {
           </div>
         )}
         <div
-          className="flex border-b sticky top-0 z-20"
-          style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
+          className="h-[2px] sticky top-0 z-30 shrink-0"
+          style={{ background: 'var(--surface2)' }}
+        >
+          <div
+            className="h-full"
+            style={{ width: `${(now / 1440) * 100}%`, background: 'var(--now-line)', transition: 'width 30s linear' }}
+          />
+        </div>
+        <div
+          className="flex border-b sticky z-20"
+          style={{ top: 2, borderColor: 'var(--border)', background: 'var(--bg)' }}
         >
           <div style={{ width: GUTTER }} className="flex items-end justify-center pb-1 shrink-0">
             <span className="text-[9px] font-mono-ae" style={{ color: 'var(--text3)' }}>
