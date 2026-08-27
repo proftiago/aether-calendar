@@ -46,8 +46,8 @@ export function DayWeekGrid() {
     return state.settings.showWeekends ? all : all.filter((d) => dowOf(d) !== 0 && dowOf(d) !== 6);
   }, [state.view, state.cursor, state.w, state.settings.weekStartsOn, state.settings.showWeekends]);
 
-  const H0 = state.workOnly ? 7 * 60 : 0;
-  const H1 = state.workOnly ? 19 * 60 : 24 * 60;
+  const H0 = state.workOnly ? state.settings.workStart : 0;
+  const H1 = state.workOnly ? state.settings.workEnd : 24 * 60;
   const visibleHours: number[] = [];
   for (let h = H0 / 60; h < H1 / 60; h++) visibleHours.push(h);
 
@@ -479,7 +479,7 @@ export function DayWeekGrid() {
             className="w-full text-left text-[11px] pl-[66px] py-1.5"
             style={{ background: 'var(--surface2)', color: 'var(--text3)' }}
           >
-            00:00 – 07:00 oculto · clique para expandir
+            00:00 – {hm(H0)} oculto · clique para expandir
           </button>
         )}
         <div ref={gridRef} className="flex relative" style={{ height: visibleHours.length * ROW_H }}>
@@ -656,7 +656,7 @@ export function DayWeekGrid() {
             className="w-full text-left text-[11px] pl-[66px] py-1.5"
             style={{ background: 'var(--surface2)', color: 'var(--text3)' }}
           >
-            20:00 – 24:00 oculto · clique para expandir
+            {hm(H1)} – 24:00 oculto · clique para expandir
           </button>
         )}
       </div>

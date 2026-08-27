@@ -49,14 +49,20 @@ export type RescheduleSuggestion = {
  * eventos — cada sugestão já assume que as anteriores foram aplicadas, pra
  * não sugerir o mesmo horário duas vezes.
  */
-export function suggestReschedules(allEvents: Event[], conflicts: Event[]): RescheduleSuggestion[] {
+export function suggestReschedules(
+  allEvents: Event[],
+  conflicts: Event[],
+  workStart = 9 * 60,
+  workEnd = 19 * 60,
+  workDays: number[] = [1, 2, 3, 4, 5],
+): RescheduleSuggestion[] {
   const suggestions: RescheduleSuggestion[] = [];
   let working = [...allEvents];
 
   for (const conflict of conflicts) {
     const duration = minutesOfDay(conflict.endsAt) - minutesOfDay(conflict.startsAt);
     const others = working.filter((ev) => ev.id !== conflict.id);
-    const [slot] = freeSlots(others, duration, 1);
+    const [slot] = freeSlots(others, duration, 1, workStart, workEnd, workDays);
     if (!slot) continue;
 
     suggestions.push({ event: conflict, newDateKey: slot.dateKey, newStartMin: slot.startMin, durationMin: duration });

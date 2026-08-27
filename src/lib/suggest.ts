@@ -27,9 +27,9 @@ export type Suggestion = {
 export function suggestBestTimes(
   visibleEvents: Event[],
   durationMin: number,
-  opts?: { priority?: 'alta' | 'média' | 'baixa'; preferMorning?: boolean },
+  opts?: { priority?: 'alta' | 'média' | 'baixa'; preferMorning?: boolean; workStart?: number; workEnd?: number; workDays?: number[] },
 ): Suggestion[] {
-  const candidateSlots = freeSlots(visibleEvents, durationMin, 10);
+  const candidateSlots = freeSlots(visibleEvents, durationMin, 10, opts?.workStart, opts?.workEnd, opts?.workDays);
   const byDay = groupByDay(visibleEvents);
   const today = todayKey();
 

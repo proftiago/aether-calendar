@@ -39,6 +39,9 @@ export type AppSettings = {
   reminderMinutes: number;
   syncEnabled: boolean;
   syncId: string | null;
+  workStart: number; // minutos desde 00:00
+  workEnd: number;
+  workDays: number[]; // 0=dom...6=sáb
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -54,6 +57,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   reminderMinutes: 10,
   syncEnabled: false,
   syncId: null,
+  workStart: 8 * 60,
+  workEnd: 19 * 60,
+  workDays: [1, 2, 3, 4, 5],
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {

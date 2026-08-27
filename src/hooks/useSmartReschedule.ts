@@ -24,7 +24,7 @@ export function useSmartReschedule() {
       return;
     }
 
-    const suggestions = suggestReschedules(visibleEvents, conflicts);
+    const suggestions = suggestReschedules(visibleEvents, conflicts, state.settings.workStart, state.settings.workEnd, state.settings.workDays);
     for (const s of suggestions) {
       const startsAt = toUtcIso(s.newDateKey, s.newStartMin);
       const endsAt = toUtcIso(s.newDateKey, s.newStartMin + s.durationMin);

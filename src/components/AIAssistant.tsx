@@ -31,7 +31,13 @@ export function AIAssistant() {
   }
 
   function runSuggest() {
-    const results = suggestBestTimes(visibleEvents, duration, { priority, preferMorning: true });
+    const results = suggestBestTimes(visibleEvents, duration, {
+      priority,
+      preferMorning: true,
+      workStart: state.settings.workStart,
+      workEnd: state.settings.workEnd,
+      workDays: state.settings.workDays,
+    });
     setSuggestions(results);
   }
 

@@ -3,17 +3,24 @@ import { addDays, dateKeyOf, dowOf, minutesOfDay, nowMinutesOfDay, todayKey } fr
 
 export type FreeSlot = { dateKey: string; startMin: number };
 
-const WORK_START = 9 * 60;
-const WORK_END = 19 * 60;
-
 /**
- * freeSlots(events, minutes): varre os próximos 14 dias, ignora sábado e
- * domingo; janela de trabalho 09:00–19:00; no dia de hoje começa em
- * max(09:00, agora arredondado para os próximos 30 min); percorre os eventos
- * do dia em ordem e coleta as lacunas >= minutes. Considera apenas eventos
- * de calendários visíveis (o filtro já deve ter sido aplicado em `events`).
+ * freeSlots(events, minutes, count, workStart, workEnd, workDays): varre os
+ * próximos 14 dias, considerando só os dias em workDays (0=dom...6=sáb) e a
+ * janela workStart–workEnd (minutos desde 00:00); no dia de hoje começa em
+ * max(workStart, agora arredondado para os próximos 30 min); percorre os
+ * eventos do dia em ordem e coleta as lacunas >= minutes. Considera apenas
+ * eventos de calendários visíveis (o filtro já deve ter sido aplicado em
+ * `events`). workStart/workEnd/workDays têm padrão pra manter compatibilidade
+ * de quem já chamava sem esses argumentos.
  */
-export function freeSlots(events: Event[], minutes: number, count: number): FreeSlot[] {
+export function freeSlots(
+  events: Event[],
+  minutes: number,
+  count: number,
+  workStart = 9 * 60,
+  workEnd = 19 * 60,
+  workDays: number[] = [1, 2, 3, 4, 5],
+): FreeSlot[] {
   const today = todayKey();
   const nowRounded = Math.ceil(nowMinutesOfDay() / 30) * 30;
   const results: FreeSlot[] = [];
@@ -32,10 +39,10 @@ export function freeSlots(events: Event[], minutes: number, count: number): Free
   for (let i = 0; i < 14 && results.length < count; i++) {
     const dateKey = addDays(today, i);
     const dow = dowOf(dateKey);
-    if (dow === 0 || dow === 6) continue;
+    if (!workDays.includes(dow)) continue;
 
-    const dayStart = dateKey === today ? Math.max(WORK_START, nowRounded) : WORK_START;
-    if (dayStart >= WORK_END) continue;
+    const dayStart = dateKey === today ? Math.max(workStart, nowRounded) : workStart;
+    if (dayStart >= workEnd) continue;
 
     const dayEvents = byDay.get(dateKey) ?? [];
     let cursor = dayStart;
@@ -49,7 +56,7 @@ export function freeSlots(events: Event[], minutes: number, count: number): Free
       cursor = Math.max(cursor, e);
     }
     if (results.length >= count) break;
-    if (WORK_END - cursor >= minutes) {
+    if (workEnd - cursor >= minutes) {
       results.push({ dateKey, startMin: cursor });
     }
   }

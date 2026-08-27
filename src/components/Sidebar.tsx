@@ -1,7 +1,22 @@
 import { useState } from 'react';
 import { Check, Plus, X } from 'lucide-react';
 import { useStore } from '../store/store';
+import { hm } from '../lib/dates';
 import { MiniCalendar } from './MiniCalendar';
+
+const DOW_SHORT_PT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
+function workDaysLabel(days: number[]): string {
+  if (days.length === 0) return 'nenhum dia';
+  if (days.length === 7) return 'todos os dias';
+  const sorted = [...days].sort();
+  // caso comum: intervalo contínuo (ex: seg a sex) — mostra como faixa
+  const isRange = sorted.every((d, i) => i === 0 || d === sorted[i - 1] + 1);
+  if (isRange && sorted.length > 1) {
+    return `${DOW_SHORT_PT[sorted[0]]} a ${DOW_SHORT_PT[sorted[sorted.length - 1]]}`;
+  }
+  return sorted.map((d) => DOW_SHORT_PT[d]).join(', ');
+}
 
 const CALENDAR_COLOR_PRESETS = [
   '#0284c7', // azul
@@ -21,6 +36,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
   const [addingSet, setAddingSet] = useState(false);
   const [newSetName, setNewSetName] = useState('');
   const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
+  const [workHoursOpen, setWorkHoursOpen] = useState(false);
 
   const overlayMode = state.w < 980;
 
@@ -221,14 +237,19 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
           </div>
         </section>
 
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-4 relative">
           <SectionDivider />
-          <div className="text-[11px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
-            Horário de trabalho
-          </div>
-          <div className="text-[11px] font-mono-ae mb-2" style={{ color: 'var(--text3)' }}>
-            08:00 – 19:00 · seg a sex
-          </div>
+          <button
+            onClick={() => setWorkHoursOpen((v) => !v)}
+            className="w-full text-left rounded-[7px] -mx-1.5 px-1.5 py-1 hover:[background:var(--surface2)]"
+          >
+            <div className="text-[11px] font-semibold mb-1" style={{ color: 'var(--text2)' }}>
+              Horário de trabalho
+            </div>
+            <div className="text-[11px] font-mono-ae mb-2" style={{ color: 'var(--text3)' }}>
+              {hm(state.settings.workStart)} – {hm(state.settings.workEnd)} · {workDaysLabel(state.settings.workDays)}
+            </div>
+          </button>
           <button
             onClick={() => dispatch({ type: 'TOGGLE_WORK_ONLY' })}
             className="w-full rounded-[7px] px-2.5 py-[7px] text-[12px] font-medium"
@@ -240,6 +261,70 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
           >
             {state.workOnly ? 'Mostrar 24 horas' : 'Colapsar fora do horário'}
           </button>
+
+          {workHoursOpen && (
+            <div
+              className="absolute bottom-full left-0 mb-2 z-30 w-full rounded-[12px] border p-3"
+              style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  type="time"
+                  value={hm(state.settings.workStart)}
+                  onChange={(e) => {
+                    const [h, m] = e.target.value.split(':').map(Number);
+                    if (!isNaN(h)) dispatch({ type: 'UPDATE_SETTINGS', changes: { workStart: h * 60 + m } });
+                  }}
+                  className="flex-1 min-w-0 text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+                  style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+                />
+                <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
+                  até
+                </span>
+                <input
+                  type="time"
+                  value={hm(state.settings.workEnd)}
+                  onChange={(e) => {
+                    const [h, m] = e.target.value.split(':').map(Number);
+                    if (!isNaN(h)) dispatch({ type: 'UPDATE_SETTINGS', changes: { workEnd: h * 60 + m } });
+                  }}
+                  className="flex-1 min-w-0 text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+                  style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+                />
+              </div>
+              <div className="flex gap-1">
+                {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((label, dow) => {
+                  const active = state.settings.workDays.includes(dow);
+                  return (
+                    <button
+                      key={dow}
+                      onClick={() => {
+                        const next = active
+                          ? state.settings.workDays.filter((d) => d !== dow)
+                          : [...state.settings.workDays, dow].sort();
+                        dispatch({ type: 'UPDATE_SETTINGS', changes: { workDays: next } });
+                      }}
+                      className="flex-1 h-7 rounded-[6px] text-[10px] font-semibold"
+                      style={
+                        active
+                          ? { background: 'var(--accent)', color: 'var(--accentText)' }
+                          : { background: 'var(--surface2)', color: 'var(--text3)' }
+                      }
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setWorkHoursOpen(false)}
+                className="w-full mt-3 text-[12px] font-medium rounded-[7px] py-1.5"
+                style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+              >
+                Pronto
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>

@@ -22,7 +22,7 @@ export function UtilityPopovers() {
   }
 
   if (state.panel === 'free') {
-    const slots = freeSlots(visibleEvents, 60, 5);
+    const slots = freeSlots(visibleEvents, 60, 5, state.settings.workStart, state.settings.workEnd, state.settings.workDays);
     return (
       <Popover title="Encontrar horário livre" onClose={close}>
         <p className="text-[12px] leading-[1.5] mb-3" style={{ color: 'var(--text2)' }}>
@@ -55,7 +55,7 @@ export function UtilityPopovers() {
   }
 
   // panel === 'link'
-  const slots = freeSlots(visibleEvents, 30, 4);
+  const slots = freeSlots(visibleEvents, 30, 4, state.settings.workStart, state.settings.workEnd, state.settings.workDays);
   return <BookingLinkPanel onClose={close} slots={slots} onPick={openSlotInModal} timeFormat={state.settings.timeFormat} />;
 }
 
