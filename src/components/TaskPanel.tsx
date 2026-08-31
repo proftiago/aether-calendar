@@ -8,6 +8,15 @@ import { weeklyStats, formatMinutes } from '../lib/analytics';
 import type { Task, TaskPriority } from '../lib/types';
 
 const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
+const PRIO_RANK: Record<TaskPriority, number> = { alta: 0, média: 1, baixa: 2 };
+
+function sortTasks(list: Task[], sortBy: 'prio' | 'dueDate' | 'title'): Task[] {
+  const sorted = [...list];
+  if (sortBy === 'prio') sorted.sort((a, b) => PRIO_RANK[a.prio] - PRIO_RANK[b.prio]);
+  else if (sortBy === 'dueDate') sorted.sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
+  else sorted.sort((a, b) => a.title.localeCompare(b.title, 'pt-BR'));
+  return sorted;
+}
 
 function startTouchDrag(e: React.PointerEvent, taskId: string, title: string) {
   const ghost = document.createElement('div');
@@ -82,6 +91,7 @@ export function TaskPanel({
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
   const [tab, setTab] = useState<'hoje' | 'proximas' | 'projetos'>('projetos');
   const [prioFilter, setPrioFilter] = useState<TaskPriority | 'todas'>('todas');
+  const [sortBy, setSortBy] = useState<'prio' | 'dueDate' | 'title'>('prio');
 
   useEffect(() => {
     function onRequestAdd() {
@@ -300,7 +310,7 @@ export function TaskPanel({
       )}
 
       {full && (
-        <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
           <div className="flex items-center p-[2px] rounded-[8px]" style={{ background: 'var(--surface2)' }}>
             {(['hoje', 'proximas', 'projetos'] as const).map((t) => (
               <button
@@ -313,19 +323,31 @@ export function TaskPanel({
               </button>
             ))}
           </div>
-          <select
-            value={prioFilter}
-            onChange={(e) => setPrioFilter(e.target.value as TaskPriority | 'todas')}
-            className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
-            style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
-          >
-            <option value="todas">Todas as prioridades</option>
-            {PRIOS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-1.5">
+            <select
+              value={prioFilter}
+              onChange={(e) => setPrioFilter(e.target.value as TaskPriority | 'todas')}
+              className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+              style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+            >
+              <option value="todas">Todas as prioridades</option>
+              {PRIOS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'prio' | 'dueDate' | 'title')}
+              className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+              style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+            >
+              <option value="prio">Ordenar: prioridade</option>
+              <option value="dueDate">Ordenar: vencimento</option>
+              <option value="title">Ordenar: título</option>
+            </select>
+          </div>
         </div>
       )}
 
@@ -341,7 +363,10 @@ export function TaskPanel({
       )}
       <div className="flex flex-col gap-2.5">
         {state.calendars.map((cal) => {
-          const tasksForCal = visibleTasks.filter((t) => t.calId === cal.id);
+          const tasksForCal = sortTasks(
+            visibleTasks.filter((t) => t.calId === cal.id),
+            full ? sortBy : 'prio',
+          );
           if (tasksForCal.length === 0) return null;
           const collapsed = collapsedGroups.includes(cal.id);
           return (
@@ -404,6 +429,14 @@ export function TaskPanel({
                       >
                         {task.title}
                       </span>
+                      {task.tag && task.tag !== 'Geral' && (
+                        <span
+                          className="text-[9.5px] font-semibold rounded-full px-2 py-[1px] shrink-0"
+                          style={{ background: 'color-mix(in oklab, ' + cal.color + ' 18%, var(--surface2))', color: cal.color }}
+                        >
+                          {task.tag}
+                        </span>
+                      )}
                       {task.dueDate && (
                         <span
                           className="text-[10px] font-mono-ae shrink-0"

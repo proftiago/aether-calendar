@@ -3,6 +3,7 @@ import { Search, Plus, Star, Trash2, Check, X, LayoutGrid, List as ListIcon } fr
 import { useStore } from '../store/store';
 import { eventBg } from '../lib/style';
 import { calendarOf } from '../store/selectors';
+import { AccountMenu } from '../components/AccountMenu';
 import type { Note, NoteChecklistItem } from '../lib/types';
 
 function formatRelative(iso: string): string {
@@ -93,6 +94,7 @@ export function NotasPage() {
               <Plus size={14} />
               Nova nota
             </button>
+            <AccountMenu />
           </div>
         </div>
 

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, MoreHorizontal, Plus, Search } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
 import { weatherOf } from '../lib/estimates';
+import { AccountMenu } from './AccountMenu';
 import type { ViewKey } from '../lib/types';
 
 const VIEWS: { key: ViewKey; label: string }[] = [
@@ -65,7 +66,61 @@ export function Toolbar() {
     </>
   );
 
-  const viewSwitcherAndMenu = (
+  const moreMenuButton = (
+    <div className="relative shrink-0">
+      <button
+        onClick={() => setMoreOpen((o) => !o)}
+        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)]"
+        aria-label="Mais opções"
+      >
+        <MoreHorizontal size={15} style={{ color: 'var(--text2)' }} />
+      </button>
+      {moreOpen && (
+        <div
+          className="absolute top-9 right-0 z-40 w-[220px] rounded-[12px] border p-1.5 animate-ae-pop"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+          onMouseLeave={() => setMoreOpen(false)}
+        >
+          <MenuItem
+            onClick={() => {
+              dispatch({ type: 'SET_PANEL', panel: 'free' });
+              setMoreOpen(false);
+            }}
+          >
+            Encontrar horário livre
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              dispatch({ type: 'SET_PANEL', panel: 'link' });
+              setMoreOpen(false);
+            }}
+          >
+            Link de agendamento
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              dispatch({ type: 'TOGGLE_WORK_ONLY' });
+              setMoreOpen(false);
+            }}
+          >
+            {state.workOnly ? 'Mostrar 24 horas' : 'Colapsar fora do horário'}
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              resolveConflicts();
+              setMoreOpen(false);
+            }}
+          >
+            Reorganizar conflitos de agenda
+          </MenuItem>
+        </div>
+      )}
+    </div>
+  );
+
+  // Visão mobile/tablet estreito: abas seguem como estavam (testado e
+  // livre de bug de sobreposição em telas pequenas — não mexi aqui).
+  const compactViewSwitcher = (
     <>
       <div className="flex items-center p-[2px] rounded-[9px] flex-1 min-w-0" style={{ background: 'var(--surface2)' }}>
         {VIEWS.map((v) => {
@@ -77,61 +132,12 @@ export function Toolbar() {
               className="h-9 flex-1 sm:flex-initial sm:px-3 rounded-[7px] text-[12px] sm:text-[13px] font-medium"
               style={active ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
             >
-              {compact ? v.label.slice(0, 3) : v.label}
+              {v.label.slice(0, 3)}
             </button>
           );
         })}
       </div>
-
-      <div className="relative shrink-0">
-        <button
-          onClick={() => setMoreOpen((o) => !o)}
-          className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)]"
-          aria-label="Mais opções"
-        >
-          <MoreHorizontal size={15} style={{ color: 'var(--text2)' }} />
-        </button>
-        {moreOpen && (
-          <div
-            className="absolute top-9 right-0 z-40 w-[220px] rounded-[12px] border p-1.5 animate-ae-pop"
-            style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
-            onMouseLeave={() => setMoreOpen(false)}
-          >
-            <MenuItem
-              onClick={() => {
-                dispatch({ type: 'SET_PANEL', panel: 'free' });
-                setMoreOpen(false);
-              }}
-            >
-              Encontrar horário livre
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                dispatch({ type: 'SET_PANEL', panel: 'link' });
-                setMoreOpen(false);
-              }}
-            >
-              Link de agendamento
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                dispatch({ type: 'TOGGLE_WORK_ONLY' });
-                setMoreOpen(false);
-              }}
-            >
-              {state.workOnly ? 'Mostrar 24 horas' : 'Colapsar fora do horário'}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                resolveConflicts();
-                setMoreOpen(false);
-              }}
-            >
-              Reorganizar conflitos de agenda
-            </MenuItem>
-          </div>
-        )}
-      </div>
+      {moreMenuButton}
     </>
   );
 
@@ -139,7 +145,7 @@ export function Toolbar() {
     return (
       <div className="flex flex-col border-b" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-1.5 px-3 pt-2 pb-1.5">{nav}</div>
-        <div className="flex items-center gap-1.5 px-3 pb-2">{viewSwitcherAndMenu}</div>
+        <div className="flex items-center gap-1.5 px-3 pb-2">{compactViewSwitcher}</div>
       </div>
     );
   }
@@ -151,7 +157,33 @@ export function Toolbar() {
     >
       {nav}
       <div className="flex-1" />
-      {viewSwitcherAndMenu}
+
+      <div className="relative shrink-0">
+        <select
+          value={state.view}
+          onChange={(e) => dispatch({ type: 'SET_VIEW', view: e.target.value as ViewKey })}
+          className="h-9 appearance-none rounded-[8px] pl-3 pr-7 text-[13px] font-medium outline-none cursor-pointer"
+          style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+        >
+          {VIEWS.map((v) => (
+            <option key={v.key} value={v.key}>
+              {v.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text3)' }} />
+      </div>
+
+      {moreMenuButton}
+
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('aether:open-search'))}
+        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
+        aria-label="Buscar"
+      >
+        <Search size={15} style={{ color: 'var(--text2)' }} />
+      </button>
+
       <button
         onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
         className="h-8 flex items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold shrink-0"
@@ -160,6 +192,8 @@ export function Toolbar() {
         <Plus size={14} strokeWidth={2.5} />
         Novo
       </button>
+
+      <AccountMenu />
     </div>
   );
 }

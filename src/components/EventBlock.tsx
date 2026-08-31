@@ -120,14 +120,13 @@ export function EventBlock({
       onPointerDown={handlePointerDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="absolute rounded-[8px] px-[9px] py-[7px] overflow-hidden cursor-grab select-none transition-shadow"
+      className="absolute rounded-[10px] px-[9px] py-[7px] overflow-hidden cursor-grab select-none transition-shadow"
       style={{
         top,
         height: Math.max(24, height),
         left,
         width,
-        background: eventBg(color),
-        borderLeft: `2px solid ${color}`,
+        background: eventBg(color, 22),
         outline: selected ? '2px solid var(--accent)' : 'none',
         boxShadow: dragging ? 'var(--shadow)' : undefined,
         zIndex: dragging ? 25 : hovered ? 30 : 5,
@@ -138,7 +137,7 @@ export function EventBlock({
         {!!event.seriesId && <Repeat size={11} className="shrink-0" style={{ color: 'var(--text2)' }} />}
         <div
           className="text-[12px] font-semibold truncate min-w-0"
-          style={{ color: 'var(--text)', textDecoration: event.done ? 'line-through' : 'none', opacity: event.done ? 0.6 : 1 }}
+          style={{ color, textDecoration: event.done ? 'line-through' : 'none', opacity: event.done ? 0.6 : 1 }}
         >
           {event.title}
         </div>
