@@ -58,7 +58,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         />
       )}
       <aside
-        className={`w-[268px] shrink-0 overflow-y-auto flex flex-col p-4 border-r ${
+        className={`dark w-[268px] shrink-0 overflow-y-auto flex flex-col p-4 border-r ${
           overlayMode ? 'fixed inset-y-0 left-0 z-30 transition-transform' : 'relative'
         }`}
         style={{
