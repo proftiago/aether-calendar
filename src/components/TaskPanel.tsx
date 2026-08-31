@@ -59,7 +59,15 @@ function startTouchDrag(e: React.PointerEvent, taskId: string, title: string) {
  * principal da página Tarefas (com mais espaço). O mesmo componente serve
  * pros dois contextos; `showAddButton`/`title` ajustam a moldura.
  */
-export function TaskPanel({ title = 'Tarefas', onSelectTask }: { title?: string; onSelectTask?: (id: string) => void }) {
+export function TaskPanel({
+  title = 'Tarefas',
+  onSelectTask,
+  full,
+}: {
+  title?: string;
+  onSelectTask?: (id: string) => void;
+  full?: boolean;
+}) {
   const { state, dispatch } = useStore();
   const allEvents = useAllEvents(state);
   const [adding, setAdding] = useState(false);
@@ -72,6 +80,8 @@ export function TaskPanel({ title = 'Tarefas', onSelectTask }: { title?: string;
   const [recurring, setRecurring] = useState(false);
   const [recurDows, setRecurDows] = useState<number[]>([]);
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
+  const [tab, setTab] = useState<'hoje' | 'proximas' | 'projetos'>('projetos');
+  const [prioFilter, setPrioFilter] = useState<TaskPriority | 'todas'>('todas');
 
   useEffect(() => {
     function onRequestAdd() {
@@ -109,9 +119,19 @@ export function TaskPanel({ title = 'Tarefas', onSelectTask }: { title?: string;
     resetTaskForm();
   }
 
-  const visibleTasks = state.tasks.filter((t) => !t.archived);
-  const doneCount = visibleTasks.filter((t) => t.done).length;
-  const totalCount = visibleTasks.length;
+  const visibleTasksAll = state.tasks.filter((t) => !t.archived);
+  const today = todayKey();
+  const visibleTasks = useMemo(() => {
+    let list = visibleTasksAll;
+    if (full) {
+      if (tab === 'hoje') list = list.filter((t) => !t.dueDate || t.dueDate <= today);
+      else if (tab === 'proximas') list = list.filter((t) => !!t.dueDate && t.dueDate > today);
+      if (prioFilter !== 'todas') list = list.filter((t) => t.prio === prioFilter);
+    }
+    return list;
+  }, [visibleTasksAll, full, tab, prioFilter, today]);
+  const doneCount = visibleTasksAll.filter((t) => t.done).length;
+  const totalCount = visibleTasksAll.length;
   const progressPct = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
   const stats = useMemo(() => weeklyStats(allEvents, state.tasks), [allEvents, state.tasks]);
 
@@ -276,6 +296,36 @@ export function TaskPanel({ title = 'Tarefas', onSelectTask }: { title?: string;
               Adicionar
             </button>
           </div>
+        </div>
+      )}
+
+      {full && (
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center p-[2px] rounded-[8px]" style={{ background: 'var(--surface2)' }}>
+            {(['hoje', 'proximas', 'projetos'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="h-7 px-3 rounded-[6px] text-[12px] font-medium"
+                style={tab === t ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+              >
+                {t === 'hoje' ? 'Hoje' : t === 'proximas' ? 'Próximas' : 'Projetos'}
+              </button>
+            ))}
+          </div>
+          <select
+            value={prioFilter}
+            onChange={(e) => setPrioFilter(e.target.value as TaskPriority | 'todas')}
+            className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+            style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+          >
+            <option value="todas">Todas as prioridades</option>
+            {PRIOS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { useStore } from '../store/store';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
+import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
 import { weatherOf } from '../lib/estimates';
@@ -152,6 +152,14 @@ export function Toolbar() {
       {nav}
       <div className="flex-1" />
       {viewSwitcherAndMenu}
+      <button
+        onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
+        className="h-8 flex items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold shrink-0"
+        style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
+      >
+        <Plus size={14} strokeWidth={2.5} />
+        Novo
+      </button>
     </div>
   );
 }

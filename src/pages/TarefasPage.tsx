@@ -17,7 +17,7 @@ export function TarefasPage() {
           <h1 className="text-[22px] font-semibold tracking-[-0.02em] mb-6" style={{ color: 'var(--text)' }}>
             Tarefas
           </h1>
-          <TaskPanel title="Todas as tarefas" onSelectTask={setSelectedId} />
+          <TaskPanel title="Todas as tarefas" onSelectTask={setSelectedId} full />
         </div>
       </div>
       {selectedId && <TaskDetailPanel taskId={selectedId} onClose={() => setSelectedId(null)} />}

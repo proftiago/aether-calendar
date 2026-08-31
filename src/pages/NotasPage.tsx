@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Search, Plus, Star, Trash2, Check, X } from 'lucide-react';
+import { Search, Plus, Star, Trash2, Check, X, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { useStore } from '../store/store';
 import { eventBg } from '../lib/style';
 import { calendarOf } from '../store/selectors';
@@ -25,6 +25,7 @@ export function NotasPage() {
   const { state, dispatch } = useStore();
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [newChecklistText, setNewChecklistText] = useState('');
 
   const filtered = useMemo(() => {
@@ -65,14 +66,34 @@ export function NotasPage() {
           <h1 className="text-[22px] font-semibold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
             Notas
           </h1>
-          <button
-            onClick={createNote}
-            className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold"
-            style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
-          >
-            <Plus size={14} />
-            Nova nota
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center p-[2px] rounded-[8px]" style={{ background: 'var(--surface2)' }}>
+              <button
+                onClick={() => setViewMode('grid')}
+                className="w-7 h-7 rounded-[6px] grid place-items-center"
+                style={{ background: viewMode === 'grid' ? 'var(--surface)' : 'transparent' }}
+                aria-label="Grade"
+              >
+                <LayoutGrid size={14} style={{ color: viewMode === 'grid' ? 'var(--text)' : 'var(--text3)' }} />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className="w-7 h-7 rounded-[6px] grid place-items-center"
+                style={{ background: viewMode === 'list' ? 'var(--surface)' : 'transparent' }}
+                aria-label="Lista"
+              >
+                <ListIcon size={14} style={{ color: viewMode === 'list' ? 'var(--text)' : 'var(--text3)' }} />
+              </button>
+            </div>
+            <button
+              onClick={createNote}
+              className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold"
+              style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
+            >
+              <Plus size={14} />
+              Nova nota
+            </button>
+          </div>
         </div>
 
         <div className="relative mb-5 max-w-[360px]">
@@ -92,15 +113,38 @@ export function NotasPage() {
           </p>
         )}
 
-        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+        <div className={viewMode === 'grid' ? 'columns-[220px] gap-3' : 'flex flex-col gap-2'}>
           {filtered.map((note) => {
             const cal = calendarOf(state, note.calId);
             const doneCount = note.checklist.filter((i) => i.done).length;
+            if (viewMode === 'list') {
+              return (
+                <button
+                  key={note.id}
+                  onClick={() => setSelectedId(note.id)}
+                  className="text-left rounded-[10px] px-3.5 py-2.5 flex items-center gap-3"
+                  style={{ background: eventBg(cal?.color ?? 'var(--accent)', 8), border: '1px solid var(--border)' }}
+                >
+                  {note.favorite && <Star size={12} fill="var(--gold)" style={{ color: 'var(--gold)' }} className="shrink-0" />}
+                  <span className="text-[13px] font-semibold flex-1 truncate" style={{ color: 'var(--text)' }}>
+                    {note.title || 'Sem título'}
+                  </span>
+                  {cal && (
+                    <span className="text-[10px] font-semibold rounded-full px-2 py-[2px] shrink-0" style={{ background: eventBg(cal.color, 22), color: cal.color }}>
+                      {cal.name}
+                    </span>
+                  )}
+                  <span className="text-[11px] shrink-0" style={{ color: 'var(--text3)' }}>
+                    {formatRelative(note.updatedAt)}
+                  </span>
+                </button>
+              );
+            }
             return (
               <button
                 key={note.id}
                 onClick={() => setSelectedId(note.id)}
-                className="text-left rounded-[14px] p-3.5 flex flex-col gap-2 hover:scale-[1.015] transition-transform"
+                className="text-left rounded-[14px] p-3.5 flex flex-col gap-2 hover:scale-[1.015] transition-transform w-full mb-3 break-inside-avoid"
                 style={{ background: eventBg(cal?.color ?? 'var(--accent)', 10), border: '1px solid var(--border)' }}
               >
                 <div className="flex items-start justify-between gap-2">

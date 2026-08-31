@@ -61,15 +61,19 @@ export function NavRail() {
       <div className="mt-auto w-full px-2 flex flex-col items-center gap-1.5">
         <button
           onClick={() => dispatch({ type: 'SET_PAGE', page: 'hoje' })}
-          className="w-full rounded-[10px] p-2 text-center hover:opacity-80"
+          className="w-full rounded-[10px] pt-2 pb-1.5 text-center hover:opacity-80 overflow-hidden relative"
           style={{ background: 'color-mix(in oklab, var(--gold) 12%, var(--surface2))' }}
         >
-          <div className="text-[9px] font-medium mb-0.5" style={{ color: 'var(--text3)' }}>
+          <div className="text-[9px] font-medium mb-0.5 relative z-10" style={{ color: 'var(--text3)' }}>
             Seu dia
           </div>
-          <div className="text-[9.5px] font-semibold leading-tight" style={{ color: 'var(--text)' }}>
+          <div className="text-[9.5px] font-semibold leading-tight relative z-10" style={{ color: 'var(--text)' }}>
             {today} {today === 1 ? 'tarefa' : 'tarefas'}
           </div>
+          <svg viewBox="0 0 60 24" className="w-full h-6 mt-1" preserveAspectRatio="none" aria-hidden="true">
+            <circle cx="30" cy="10" r="7" fill="var(--gold)" opacity="0.55" />
+            <path d="M0 22 Q 15 10, 30 16 T 60 14 V 24 H 0 Z" fill="var(--gold)" opacity="0.3" />
+          </svg>
         </button>
         <button
           onClick={() => dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'general' })}
