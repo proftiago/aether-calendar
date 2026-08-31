@@ -1,5 +1,6 @@
-export function eventBg(color: string): string {
-  return `color-mix(in oklab, ${color} var(--event-mix), var(--surface))`;
+export function eventBg(color: string, mixPercent?: number): string {
+  const mix = mixPercent != null ? `${mixPercent}%` : 'var(--event-mix)';
+  return `color-mix(in oklab, ${color} ${mix}, var(--surface))`;
 }
 
 export function prioColor(prio: 'alta' | 'média' | 'baixa'): string {

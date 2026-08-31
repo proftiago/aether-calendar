@@ -116,11 +116,10 @@ export function MonthView() {
                         e.stopPropagation();
                         dispatch({ type: 'SET_SELECTED', id: ev.id });
                       }}
-                      className="text-[11px] rounded-[5px] px-1.5 py-[2px] flex items-center gap-1 cursor-pointer min-w-0"
-                      style={{ background: eventBg(cal?.color ?? 'var(--accent)') }}
+                      className="text-[11px] rounded-full px-2 py-[3px] flex items-center gap-1.5 cursor-pointer min-w-0"
+                      style={{ background: eventBg(cal?.color ?? 'var(--accent)', 22) }}
                     >
-                      <span className="w-[5px] h-[5px] rounded-full shrink-0" style={{ background: cal?.color }} />
-                      <span className="font-mono-ae text-[10px] shrink-0" style={{ color: 'var(--text2)' }}>
+                      <span className="font-mono-ae text-[10px] shrink-0" style={{ color: cal?.color }}>
                         {ev.allDay ? 'dia' : hm(minutesOfDay(ev.startsAt), timeFormat)}
                       </span>
                       <span className="font-semibold truncate min-w-0 flex-1" style={{ color: 'var(--text)' }}>

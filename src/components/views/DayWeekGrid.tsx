@@ -456,10 +456,10 @@ export function DayWeekGrid() {
                             e.stopPropagation();
                             dispatch({ type: 'SET_SELECTED', id: ev.id });
                           }}
-                          className="text-[11px] font-semibold rounded-[6px] px-[7px] py-[3px] truncate cursor-pointer"
+                          className="text-[11px] font-semibold rounded-full px-2.5 py-[3px] truncate cursor-pointer"
                           style={{
-                            background: eventBg(cal?.color ?? 'var(--accent)'),
-                            borderLeft: `2px solid ${cal?.color}`,
+                            background: eventBg(cal?.color ?? 'var(--accent)', 18),
+                            color: cal?.color,
                           }}
                         >
                           {ev.title}

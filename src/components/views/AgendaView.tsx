@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { keyToDate } from '../../lib/dates';
 import { weatherOf } from '../../lib/estimates';
 import { travelOf } from '../../lib/estimates';
+import { eventBg } from '../../lib/style';
 import type { Event } from '../../lib/types';
 
 export function AgendaView() {
@@ -71,7 +72,7 @@ export function AgendaView() {
                 {isToday ? 'Hoje · ' : ''}
                 {format(keyToDate(dateKey), "EEEE, d 'de' MMMM", { locale: ptBR })}
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-1.5 px-3 py-2">
                 {events.map((ev) => {
                   const cal = calendarOf(state, ev.calId);
                   const travel = travelOf(ev);
@@ -79,11 +80,11 @@ export function AgendaView() {
                     <button
                       key={ev.id}
                       onClick={() => dispatch({ type: 'SET_SELECTED', id: ev.id })}
-                      className="flex items-start gap-3 px-4 py-3 text-left border-b active:[background:var(--surface2)]"
-                      style={{ borderColor: 'var(--border)' }}
+                      className="flex items-start gap-2.5 px-3.5 py-2.5 text-left rounded-2xl active:scale-[0.98] transition-transform"
+                      style={{ background: eventBg(cal?.color ?? 'var(--accent)', 16) }}
                     >
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-[3px]" style={{ background: cal?.color }} />
-                      <span className="w-[62px] shrink-0 text-[12.5px] font-mono-ae" style={{ color: 'var(--text2)' }}>
+                      <span className="w-2 h-2 rounded-full shrink-0 mt-[5px]" style={{ background: cal?.color }} />
+                      <span className="w-[60px] shrink-0 text-[12.5px] font-mono-ae" style={{ color: cal?.color }}>
                         {ev.allDay ? 'dia todo' : hm(minutesOfDay(ev.startsAt), state.settings.timeFormat)}
                       </span>
                       <span className="min-w-0 flex-1">
