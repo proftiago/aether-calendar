@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
-import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey } from '../lib/types';
+import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey, Note, NoteChecklistItem } from '../lib/types';
 import { CALENDARS, seedEvents, seedTasks } from '../lib/mockData';
 import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf, daysBetween } from '../lib/dates';
 import { loadJSON, saveJSON } from '../lib/persistence';
@@ -25,6 +25,7 @@ export type FormState = {
 };
 
 export type SettingsTab = 'general' | 'analytics' | 'google' | 'data';
+export type PageKey = 'hoje' | 'calendario' | 'tarefas' | 'notas';
 
 export type AppSettings = {
   themeMode: 'auto' | 'light' | 'dark';
@@ -78,10 +79,12 @@ export type AppState = {
   theme: 'light' | 'dark'; // tema resolvido (derivado de settings.themeMode)
   settingsOpen: boolean;
   settingsTab: SettingsTab;
+  page: PageKey;
   view: ViewKey;
   cursor: string; // dateKey
   events: Event[];
   tasks: Task[];
+  notes: Note[];
   calendars: Calendar[];
   calendarSets: CalendarSet[];
   set: string; // id de um CalendarSet ativo, ou 'custom'
@@ -123,6 +126,14 @@ type Action =
   | { type: 'PATCH_EVENT'; id: string; changes: Partial<Event>; toast?: string }
   | { type: 'REMOVE_EVENT'; id: string; toast?: string }
   | { type: 'ADD_TASK'; task: Task }
+  | { type: 'SET_PAGE'; page: PageKey }
+  | { type: 'ADD_NOTE'; note: Note }
+  | { type: 'UPDATE_NOTE'; id: string; changes: Partial<Note> }
+  | { type: 'REMOVE_NOTE'; id: string }
+  | { type: 'TOGGLE_NOTE_FAVORITE'; id: string }
+  | { type: 'ADD_NOTE_CHECKLIST_ITEM'; noteId: string; item: NoteChecklistItem }
+  | { type: 'TOGGLE_NOTE_CHECKLIST_ITEM'; noteId: string; itemId: string }
+  | { type: 'REMOVE_NOTE_CHECKLIST_ITEM'; noteId: string; itemId: string }
   | { type: 'REMOVE_TASK'; id: string }
   | { type: 'UPDATE_CALENDAR_COLOR'; id: string; color: string }
   | { type: 'UPDATE_CALENDAR_ICON'; id: string; icon: string | undefined }
@@ -210,6 +221,7 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         events: state.events.filter((ev) => ev.src === 'google'),
         tasks: [],
+        notes: [],
         calendarSets: DEFAULT_CALENDAR_SETS,
         // desliga a sincronização também — senão ela puxava os dados
         // "apagados" de volta do Supabase na próxima vez que rodasse
@@ -297,6 +309,50 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case 'ADD_TASK':
       return { ...state, tasks: [...state.tasks, action.task], toast: `Tarefa criada: ${action.task.title}` };
+    case 'SET_PAGE':
+      return { ...state, page: action.page };
+    case 'ADD_NOTE':
+      return { ...state, notes: [action.note, ...state.notes] };
+    case 'UPDATE_NOTE':
+      return {
+        ...state,
+        notes: state.notes.map((n) => (n.id === action.id ? { ...n, ...action.changes, updatedAt: new Date().toISOString() } : n)),
+      };
+    case 'REMOVE_NOTE':
+      return { ...state, notes: state.notes.filter((n) => n.id !== action.id), toast: 'Nota excluída' };
+    case 'TOGGLE_NOTE_FAVORITE':
+      return { ...state, notes: state.notes.map((n) => (n.id === action.id ? { ...n, favorite: !n.favorite } : n)) };
+    case 'ADD_NOTE_CHECKLIST_ITEM':
+      return {
+        ...state,
+        notes: state.notes.map((n) =>
+          n.id === action.noteId
+            ? { ...n, checklist: [...n.checklist, action.item], updatedAt: new Date().toISOString() }
+            : n,
+        ),
+      };
+    case 'TOGGLE_NOTE_CHECKLIST_ITEM':
+      return {
+        ...state,
+        notes: state.notes.map((n) =>
+          n.id === action.noteId
+            ? {
+                ...n,
+                checklist: n.checklist.map((item) => (item.id === action.itemId ? { ...item, done: !item.done } : item)),
+                updatedAt: new Date().toISOString(),
+              }
+            : n,
+        ),
+      };
+    case 'REMOVE_NOTE_CHECKLIST_ITEM':
+      return {
+        ...state,
+        notes: state.notes.map((n) =>
+          n.id === action.noteId
+            ? { ...n, checklist: n.checklist.filter((item) => item.id !== action.itemId), updatedAt: new Date().toISOString() }
+            : n,
+        ),
+      };
     case 'REMOVE_TASK':
       return { ...state, tasks: state.tasks.filter((t) => t.id !== action.id) };
     case 'UPDATE_CALENDAR_COLOR':
@@ -445,6 +501,7 @@ function initialState(): AppState {
 
   const storedEvents = loadJSON<Event[]>('events');
   const storedTasks = loadJSON<Task[]>('tasks');
+  const storedNotes = loadJSON<Note[]>('notes');
   const storedCalendars = loadJSON<Calendar[]>('calendars');
   const storedCalendarSets = loadJSON<CalendarSet[]>('calendarSets');
   const storedGoogleConnected = loadJSON<boolean>('googleConnected');
@@ -456,10 +513,12 @@ function initialState(): AppState {
     theme: resolveTheme(settings.themeMode),
     settingsOpen: false,
     settingsTab: 'general',
+    page: 'calendario',
     view: w < 900 ? 'agenda' : 'week',
     cursor: todayKey(),
     events: storedEvents ?? seedEvents(),
     tasks: storedTasks ?? seedTasks(),
+    notes: storedNotes ?? [],
     calendars: storedCalendars ?? CALENDARS,
     calendarSets: storedCalendarSets ?? DEFAULT_CALENDAR_SETS,
     set: 'all',
@@ -631,6 +690,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveJSON('tasks', state.tasks);
   }, [state.tasks]);
+  useEffect(() => {
+    saveJSON('notes', state.notes);
+  }, [state.notes]);
   useEffect(() => {
     saveJSON('calendars', state.calendars);
   }, [state.calendars]);

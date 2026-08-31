@@ -100,3 +100,21 @@ export type WeatherInfo = {
   label: string;
   temp: number;
 };
+
+export type NoteChecklistItem = {
+  id: string;
+  text: string;
+  done: boolean;
+};
+
+export type Note = {
+  id: string;
+  title: string;
+  content: string;
+  /** reaproveita o calendário (Trabalho/Pessoal/Família) como categoria/tag da nota */
+  calId: CalendarId;
+  favorite: boolean;
+  checklist: NoteChecklistItem[];
+  createdAt: string; // ISO
+  updatedAt: string; // ISO
+};
