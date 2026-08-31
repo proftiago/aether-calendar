@@ -3,15 +3,13 @@ import { StoreProvider, useStore, emptyCreateForm } from './store/store';
 import { useAllEvents } from './store/selectors';
 import { Header } from './components/Header';
 import { FloatingDock } from './components/FloatingDock';
-import { Sidebar } from './components/Sidebar';
-import { Toolbar } from './components/Toolbar';
-import { DayWeekGrid } from './components/views/DayWeekGrid';
-import { MonthView } from './components/views/MonthView';
-import { AgendaView } from './components/views/AgendaView';
-import { Drawer } from './components/Drawer';
+import { NavRail } from './components/NavRail';
+import { CalendarioPage } from './pages/CalendarioPage';
+import { TarefasPage } from './pages/TarefasPage';
+import { NotasPage } from './pages/NotasPage';
+import { HojePage } from './pages/HojePage';
 import { EventModal } from './components/EventModal';
 import { SettingsModal } from './components/SettingsModal';
-import { UtilityPopovers } from './components/UtilityPopovers';
 import { AIAssistant } from './components/AIAssistant';
 import { RightPanel } from './components/RightPanel';
 import { FocusModeView } from './components/FocusModeView';
@@ -146,7 +144,6 @@ function AppShell() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [state.form, state.selected, state.panel, state.cursor, dispatch]);
 
-  const drawerOpen = state.selected !== null;
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg)', height: '100dvh' }}>
@@ -158,25 +155,18 @@ function AppShell() {
           <FocusModeView />
         ) : (
           <>
-            <Sidebar eventCountByCal={eventCountByCal} />
-            <div className="flex-1 flex flex-col min-w-0 relative">
-              <Toolbar />
-              <div
-                key={state.view === 'day' || state.view === 'week' ? 'grid' : state.view}
-                className="flex-1 flex flex-col min-h-0 animate-ae-in"
-              >
-                {state.view === 'day' || state.view === 'week' ? (
-                  <DayWeekGrid />
-                ) : state.view === 'month' ? (
-                  <MonthView />
-                ) : (
-                  <AgendaView />
-                )}
-              </div>
-              <UtilityPopovers />
+            <NavRail />
+            <div key={state.page} className="flex-1 flex min-h-0 animate-ae-in">
+              {state.page === 'hoje' ? (
+                <HojePage />
+              ) : state.page === 'tarefas' ? (
+                <TarefasPage />
+              ) : state.page === 'notas' ? (
+                <NotasPage />
+              ) : (
+                <CalendarioPage eventCountByCal={eventCountByCal} />
+              )}
             </div>
-            {!drawerOpen && <RightPanel />}
-            {drawerOpen && <Drawer />}
           </>
         )}
       </div>
@@ -184,6 +174,7 @@ function AppShell() {
       <BottomNav />
       <EventModal />
       <SettingsModal />
+      <RightPanel />
       <Toast />
       <AIAssistant />
       <CommandMenu />

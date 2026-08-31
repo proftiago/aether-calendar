@@ -1,33 +1,19 @@
-import { CalendarDays, RefreshCw, Plus, ListChecks, User } from 'lucide-react';
+import { CalendarDays, FileText, Plus, ListChecks, User } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
-import { isGoogleConfigured, buildGoogleAuthUrl } from '../lib/googleApi';
 
 export function BottomNav() {
   const { state, dispatch } = useStore();
   if (state.w >= 640 || state.focusMode) return null;
 
   function goHome() {
+    dispatch({ type: 'SET_PAGE', page: 'calendario' });
     dispatch({ type: 'GO_TODAY' });
     dispatch({ type: 'SET_VIEW', view: 'day' });
   }
 
-  function handleSync() {
-    if (state.google === 'on') {
-      window.dispatchEvent(new CustomEvent('aether:sync-now'));
-    } else if (isGoogleConfigured()) {
-      window.location.href = buildGoogleAuthUrl();
-    } else {
-      dispatch({ type: 'GOOGLE_TOGGLE' });
-    }
-  }
-
   function openTasks() {
-    dispatch({ type: 'SET_SIDEBAR', open: true });
-    window.dispatchEvent(new CustomEvent('aether:open-tasks'));
+    dispatch({ type: 'SET_PAGE', page: 'tarefas' });
   }
-
-  const syncColor =
-    state.google === 'off' ? 'var(--text3)' : state.google === 'sync' ? 'var(--sync-progress)' : 'var(--sync-ok)';
 
   return (
     <nav
@@ -40,7 +26,7 @@ export function BottomNav() {
       }}
     >
       <NavButton icon={<CalendarDays size={20} />} label="Agenda" onClick={goHome} />
-      <NavButton icon={<RefreshCw size={20} style={{ color: syncColor }} className={state.google === 'sync' ? 'animate-ae-spin' : ''} />} label="Sync" onClick={handleSync} />
+      <NavButton icon={<FileText size={20} />} label="Notas" onClick={() => dispatch({ type: 'SET_PAGE', page: 'notas' })} />
       <button
         onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
         className="w-12 h-12 rounded-full grid place-items-center -mt-5 shrink-0"

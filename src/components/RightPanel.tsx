@@ -14,40 +14,40 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
 ];
 
 /**
- * As tarefas moraram aqui antes — voltaram pra Sidebar (esquerda), por
- * pedido explícito. Esse painel agora só mostra os atalhos de teclado.
+ * Painel de atalhos — as tarefas moraram aqui antes, voltaram pra Sidebar.
+ * Como agora só sobrou isso (uso ocasional, não é conteúdo "sempre visível"
+ * como as tarefas eram), virou sempre um overlay flutuante, independente
+ * do tamanho de tela — antes ele tentava viver "no fluxo" em telas largas,
+ * o que só funcionava quando estava dentro do container flex certo. Agora
+ * que é renderizado globalmente (fora desse container), overlay sempre é
+ * a opção que funciona em qualquer contexto.
  */
 export function RightPanel() {
   const { state, dispatch } = useStore();
   if (!state.shortcutsOpen) return null;
-  const overlayMode = state.w < 1024;
 
   return (
     <>
-      {overlayMode && (
-        <div
-          className="fixed inset-0 z-30"
-          style={{ background: 'rgba(0,0,0,0.35)' }}
-          onClick={() => dispatch({ type: 'SET_SHORTCUTS_OPEN', open: false })}
-        />
-      )}
+      <div
+        className="fixed inset-0 z-30"
+        style={{ background: 'rgba(0,0,0,0.35)' }}
+        onClick={() => dispatch({ type: 'SET_SHORTCUTS_OPEN', open: false })}
+      />
       <aside
-        className={`w-[220px] shrink-0 border-l p-4 flex flex-col overflow-y-auto ${overlayMode ? 'fixed inset-y-0 right-0 z-40' : 'relative'}`}
-        style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: overlayMode ? 'var(--shadow)' : undefined }}
+        className="fixed inset-y-0 right-0 z-40 w-[220px] shrink-0 border-l p-4 flex flex-col overflow-y-auto animate-ae-in"
+        style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
       >
         <div className="flex items-center justify-between mb-4">
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: 'var(--text3)' }}>
             Atalhos
           </span>
-          {overlayMode && (
-            <button
-              onClick={() => dispatch({ type: 'SET_SHORTCUTS_OPEN', open: false })}
-              className="w-6 h-6 rounded-[7px] grid place-items-center shrink-0"
-              aria-label="Fechar"
-            >
-              <X size={13} style={{ color: 'var(--text3)' }} />
-            </button>
-          )}
+          <button
+            onClick={() => dispatch({ type: 'SET_SHORTCUTS_OPEN', open: false })}
+            className="w-6 h-6 rounded-[7px] grid place-items-center shrink-0"
+            aria-label="Fechar"
+          >
+            <X size={13} style={{ color: 'var(--text3)' }} />
+          </button>
         </div>
 
         <div className="flex flex-col gap-[13px]">

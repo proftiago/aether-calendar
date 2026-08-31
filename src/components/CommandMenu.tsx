@@ -97,7 +97,13 @@ export function CommandMenu() {
         id: 'new-task',
         label: 'Nova tarefa',
         icon: <CalendarPlus size={15} />,
-        run: () => window.dispatchEvent(new CustomEvent('aether:add-task')),
+        run: () => {
+          dispatch({ type: 'SET_PAGE', page: 'tarefas' });
+          // pequeno atraso: precisa a pagina Tarefas montar (e o TaskPanel
+          // registrar o listener) antes do evento ser disparado, senao a
+          // navegacao e o evento correm em paralelo e o evento se perde
+          window.setTimeout(() => window.dispatchEvent(new CustomEvent('aether:add-task')), 50);
+        },
       },
       {
         id: 'create',
