@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
-import { Plus } from 'lucide-react';
 import { StoreProvider, useStore, emptyCreateForm } from './store/store';
 import { useAllEvents } from './store/selectors';
 import { Header } from './components/Header';
+import { FloatingDock } from './components/FloatingDock';
 import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
 import { DayWeekGrid } from './components/views/DayWeekGrid';
@@ -139,7 +139,7 @@ function AppShell() {
         dispatch({ type: 'NAV', dir: 1 });
       } else if (e.key === 'g' || e.key === 'G') {
         e.preventDefault();
-        document.getElementById('quick-add-input')?.focus();
+        window.dispatchEvent(new CustomEvent('aether:open-search'));
       }
     }
     window.addEventListener('keydown', onKeyDown);
@@ -182,22 +182,7 @@ function AppShell() {
       <Toast />
       <AIAssistant />
       <CommandMenu />
-      {!state.form && !drawerOpen && !state.focusMode && !(state.shortcutsOpen && state.w < 1024) && state.w >= 640 && (
-        <button
-          onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
-          className="fixed z-40 w-12 h-12 rounded-full grid place-items-center"
-          style={{
-            right: 76,
-            bottom: 'calc(48px + env(safe-area-inset-bottom))',
-            background: 'var(--accent)',
-            color: 'var(--accentText)',
-            boxShadow: 'var(--shadow)',
-          }}
-          aria-label="Criar evento"
-        >
-          <Plus size={22} strokeWidth={2.5} />
-        </button>
-      )}
+      <FloatingDock />
     </div>
   );
 }

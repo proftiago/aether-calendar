@@ -571,7 +571,7 @@ export function DayWeekGrid() {
                     key={h}
                     style={{
                       height: ROW_H,
-                      borderBottom: '1px solid color-mix(in oklab, var(--border) 60%, transparent)',
+                      borderBottom: '1px solid color-mix(in oklab, var(--border) 30%, transparent)',
                       background: h < 8 || h >= 19 ? 'color-mix(in oklab, var(--text3) 5%, transparent)' : undefined,
                     }}
                   />

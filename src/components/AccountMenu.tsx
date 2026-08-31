@@ -3,7 +3,7 @@ import { Settings, RefreshCw, LogOut, Sparkles, Command } from 'lucide-react';
 import { useStore } from '../store/store';
 import { isGoogleConfigured } from '../lib/googleApi';
 
-export function AccountMenu() {
+export function AccountMenu({ openUpward }: { openUpward?: boolean } = {}) {
   const { state, dispatch } = useStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -32,7 +32,7 @@ export function AccountMenu() {
 
       {open && (
         <div
-          className="absolute top-11 right-0 z-50 w-[240px] rounded-[12px] border p-1.5 animate-ae-pop"
+          className={`absolute ${openUpward ? 'bottom-11' : 'top-11'} right-0 z-50 w-[240px] rounded-[12px] border p-1.5 animate-ae-pop`}
           style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
         >
           <div className="px-2.5 py-2 mb-1 border-b" style={{ borderColor: 'var(--border)' }}>
