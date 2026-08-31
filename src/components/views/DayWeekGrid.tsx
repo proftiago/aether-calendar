@@ -221,9 +221,10 @@ export function DayWeekGrid() {
   }
 
   // Drag-and-drop nativo (HTML5) só funciona com mouse — em touch (tablet/
-  // celular) o navegador simplesmente ignora. RightPanel detecta toque e
-  // dispara este evento customizado com a posição do dedo; aqui a gente
-  // traduz pra data+horário do mesmo jeito que já fazíamos com o mouse.
+  // celular) o navegador simplesmente ignora. A Sidebar (onde as tarefas
+  // moram) detecta toque e dispara este evento customizado com a posição
+  // do dedo; aqui a gente traduz pra data+horário do mesmo jeito que já
+  // fazíamos com o mouse.
   useEffect(() => {
     function onTouchDrop(e: globalThis.Event) {
       const { taskId, clientX, clientY } = (e as CustomEvent).detail as { taskId: string; clientX: number; clientY: number };

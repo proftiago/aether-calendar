@@ -154,7 +154,7 @@ export function FloatingDock() {
             />
             <DockIcon
               icon={PanelRight}
-              label="Tarefas e atalhos"
+              label="Atalhos"
               onClick={() => dispatch({ type: 'TOGGLE_SHORTCUTS' })}
               activeState={state.shortcutsOpen}
             />

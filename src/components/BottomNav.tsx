@@ -22,7 +22,7 @@ export function BottomNav() {
   }
 
   function openTasks() {
-    dispatch({ type: 'SET_SHORTCUTS_OPEN', open: true });
+    dispatch({ type: 'SET_SIDEBAR', open: true });
     window.dispatchEvent(new CustomEvent('aether:open-tasks'));
   }
 

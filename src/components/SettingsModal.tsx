@@ -16,7 +16,22 @@ const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'data', label: 'Dados' },
 ];
 
-const ACCENT_COLOR_PRESETS = ['#0284c7', '#4f46e5', '#7c3aed', '#db2777', '#e11d48', '#ea580c', '#16a34a', '#0d9488'];
+const ACCENT_COLOR_PRESETS = [
+  '#0284c7',
+  '#0891b2',
+  '#0d9488',
+  '#16a34a',
+  '#65a30d',
+  '#ca8a04',
+  '#ea580c',
+  '#dc2626',
+  '#e11d48',
+  '#db2777',
+  '#c026d3',
+  '#9333ea',
+  '#7c3aed',
+  '#4f46e5',
+];
 
 export function SettingsModal() {
   const { state, dispatch } = useStore();

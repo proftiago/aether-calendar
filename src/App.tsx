@@ -161,13 +161,18 @@ function AppShell() {
             <Sidebar eventCountByCal={eventCountByCal} />
             <div className="flex-1 flex flex-col min-w-0 relative">
               <Toolbar />
-              {state.view === 'day' || state.view === 'week' ? (
-                <DayWeekGrid />
-              ) : state.view === 'month' ? (
-                <MonthView />
-              ) : (
-                <AgendaView />
-              )}
+              <div
+                key={state.view === 'day' || state.view === 'week' ? 'grid' : state.view}
+                className="flex-1 flex flex-col min-h-0 animate-ae-in"
+              >
+                {state.view === 'day' || state.view === 'week' ? (
+                  <DayWeekGrid />
+                ) : state.view === 'month' ? (
+                  <MonthView />
+                ) : (
+                  <AgendaView />
+                )}
+              </div>
               <UtilityPopovers />
             </div>
             {!drawerOpen && <RightPanel />}
