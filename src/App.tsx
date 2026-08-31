@@ -124,7 +124,7 @@ function AppShell() {
 
       if (e.key === 't' || e.key === 'T') {
         dispatch({ type: 'GO_TODAY' });
-      } else if (e.key === 'c' || e.key === 'C') {
+      } else if (e.key === 'c' || e.key === 'C' || e.key === 'n' || e.key === 'N') {
         dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) });
       } else if (['1', '2', '3', '4'].includes(e.key)) {
         const map: Record<string, ViewKey> = { '1': 'day', '2': 'week', '3': 'month', '4': 'agenda' };

@@ -8,7 +8,7 @@ import type { Task, TaskPriority } from '../lib/types';
 const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ['Ctrl', '/'], label: 'Menu de comando' },
   { keys: ['T'], label: 'Ir para hoje' },
-  { keys: ['C'], label: 'Criar evento' },
+  { keys: ['C', 'N'], label: 'Criar evento' },
   { keys: ['G'], label: 'Ir para busca' },
   { keys: ['D'], label: 'Ver: Dia' },
   { keys: ['W'], label: 'Ver: Semana' },
@@ -355,7 +355,7 @@ export function RightPanel() {
                 onPointerDown={(e) => {
                   if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
                 }}
-                className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] flex items-center gap-2 group"
+                className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] hover:scale-[1.015] flex items-center gap-2 group transition-transform"
                 style={{ opacity: task.done ? 0.45 : 1, touchAction: 'none' }}
               >
                 <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: prioColor(task.prio) }} />
