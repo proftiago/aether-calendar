@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, Plus, X, Repeat } from 'lucide-react';
+import { Check, Plus, X, Repeat, ChevronDown } from 'lucide-react';
 import { useStore } from '../store/store';
 import { hm, todayKey } from '../lib/dates';
 import { prioColor } from '../lib/style';
@@ -100,6 +100,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
   const [dueDate, setDueDate] = useState('');
   const [recurring, setRecurring] = useState(false);
   const [recurDows, setRecurDows] = useState<number[]>([]);
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
 
   const overlayMode = state.w < 980;
 
@@ -347,65 +348,109 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px]" style={{ color: 'var(--text3)' }}>
               arraste p/ agendar
             </span>
           </div>
-          <div className="flex flex-col gap-0.5">
-            {visibleTasks.length === 0 && (
-              <p className="text-[12px] py-3 text-center" style={{ color: 'var(--text3)' }}>
-                Nenhuma tarefa pendente
-              </p>
-            )}
-            {visibleTasks.map((task) => (
-              <div
-                key={task.id}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('application/x-aether-task', task.id);
-                  e.dataTransfer.effectAllowed = 'copyMove';
-                }}
-                onPointerDown={(e) => {
-                  if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
-                }}
-                className="rounded-[7px] px-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] hover:scale-[1.015] flex items-center gap-2 group transition-transform"
-                style={{ opacity: task.done ? 0.45 : 1, touchAction: 'none' }}
-              >
-                <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: prioColor(task.prio) }} />
-                {!!task.recurring && <Repeat size={10} className="shrink-0" style={{ color: 'var(--text3)' }} />}
-                <span
-                  onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
-                  className="text-[12px] font-medium truncate flex-1"
-                  style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
-                >
-                  {task.title}
-                </span>
-                {task.dueDate && (
-                  <span
-                    className="text-[10px] font-mono-ae shrink-0"
-                    style={{ color: task.dueDate < todayKey() && !task.done ? 'var(--danger)' : 'var(--text3)' }}
-                    title={`Vence ${task.dueDate}`}
+          {visibleTasks.length === 0 && (
+            <p className="text-[12px] py-3 text-center" style={{ color: 'var(--text3)' }}>
+              Nenhuma tarefa pendente
+            </p>
+          )}
+          <div className="flex flex-col gap-2.5">
+            {state.calendars.map((cal) => {
+              const tasksForCal = visibleTasks.filter((t) => t.calId === cal.id);
+              if (tasksForCal.length === 0) return null;
+              const collapsed = collapsedGroups.includes(cal.id);
+              return (
+                <div key={cal.id}>
+                  <button
+                    onClick={() =>
+                      setCollapsedGroups((prev) => (collapsed ? prev.filter((id) => id !== cal.id) : [...prev, cal.id]))
+                    }
+                    className="w-full flex items-center gap-2 mb-1 rounded-[6px] px-1 py-[3px] hover:[background:var(--surface2)]"
                   >
-                    {task.dueDate.slice(5)}
-                  </span>
-                )}
-                <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
-                  {task.dur}m
-                </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    dispatch({ type: 'REMOVE_TASK', id: task.id });
-                  }}
-                  className="w-4 h-4 rounded-[4px] grid place-items-center shrink-0 opacity-0 group-hover:opacity-100"
-                  style={{ color: 'var(--text3)' }}
-                  aria-label="Excluir tarefa"
-                >
-                  <X size={11} />
-                </button>
-              </div>
-            ))}
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cal.color }} />
+                    <span className="text-[12px] font-semibold flex-1 text-left truncate" style={{ color: 'var(--text)' }}>
+                      {cal.name}
+                    </span>
+                    <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
+                      {tasksForCal.length}
+                    </span>
+                    <ChevronDown
+                      size={12}
+                      className="shrink-0 transition-transform"
+                      style={{ color: 'var(--text3)', transform: collapsed ? 'rotate(-90deg)' : undefined }}
+                    />
+                  </button>
+                  {!collapsed && (
+                    <div className="flex flex-col gap-0.5">
+                      {tasksForCal.map((task) => (
+                        <div
+                          key={task.id}
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('application/x-aether-task', task.id);
+                            e.dataTransfer.effectAllowed = 'copyMove';
+                          }}
+                          onPointerDown={(e) => {
+                            if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
+                          }}
+                          className="rounded-[7px] pl-1.5 pr-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] hover:scale-[1.015] flex items-center gap-2 group transition-transform"
+                          style={{ opacity: task.done ? 0.45 : 1, touchAction: 'none' }}
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dispatch({ type: 'TOGGLE_TASK', id: task.id });
+                            }}
+                            className="w-[15px] h-[15px] rounded-full border grid place-items-center shrink-0"
+                            style={{
+                              borderColor: task.done ? cal.color : 'var(--text3)',
+                              background: task.done ? cal.color : 'transparent',
+                            }}
+                            aria-label={task.done ? 'Marcar como pendente' : 'Marcar como concluída'}
+                          >
+                            {task.done && <Check size={9} strokeWidth={3.5} color="white" />}
+                          </button>
+                          {!!task.recurring && <Repeat size={9} className="shrink-0" style={{ color: 'var(--text3)' }} />}
+                          <span
+                            className="text-[12px] font-medium truncate flex-1"
+                            style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
+                          >
+                            {task.title}
+                          </span>
+                          {task.dueDate && (
+                            <span
+                              className="text-[10px] font-mono-ae shrink-0"
+                              style={{ color: task.dueDate < todayKey() && !task.done ? 'var(--danger)' : 'var(--text3)' }}
+                              title={`Vence ${task.dueDate}`}
+                            >
+                              {task.dueDate.slice(5)}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
+                            {task.dur}m
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dispatch({ type: 'REMOVE_TASK', id: task.id });
+                            }}
+                            className="w-4 h-4 rounded-[4px] grid place-items-center shrink-0 opacity-0 group-hover:opacity-100"
+                            style={{ color: 'var(--text3)' }}
+                            aria-label="Excluir tarefa"
+                          >
+                            <X size={11} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <button
