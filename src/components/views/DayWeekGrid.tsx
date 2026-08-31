@@ -671,6 +671,28 @@ export function DayWeekGrid() {
         )}
       </div>
 
+      {state.w >= 900 && (
+        <div
+          className="flex items-center justify-between gap-4 px-4 py-2 border-t shrink-0"
+          style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
+        >
+          <div className="flex items-center gap-4 flex-wrap">
+            {state.calendars.map((cal) => (
+              <span key={cal.id} className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--text2)' }}>
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cal.color }} />
+                {cal.name}
+              </span>
+            ))}
+          </div>
+          {state.google === 'on' && (
+            <span className="flex items-center gap-1.5 text-[11px] shrink-0" style={{ color: 'var(--text3)' }}>
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--sync-ok)' }} />
+              Sincronizado agora há pouco
+            </span>
+          )}
+        </div>
+      )}
+
       {quickMenu && (
         <>
           <div className="fixed inset-0 z-[70]" onClick={() => setQuickMenu(null)} onPointerDown={() => setQuickMenu(null)} />

@@ -69,6 +69,11 @@ export type Task = {
   lastDoneKey?: string;
   /** true quando arquivada automaticamente (concluída há muito tempo) — some da lista, mas continua salva */
   archived?: boolean;
+  /** marcada como importante — destaque visual no painel de detalhes */
+  important?: boolean;
+  /** notas livres, editadas no painel de detalhes */
+  notes?: string;
+  subtasks?: NoteChecklistItem[];
 };
 
 export type CalendarSetKey = string; // id de um CalendarSet, ou 'custom'

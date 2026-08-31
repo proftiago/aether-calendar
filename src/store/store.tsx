@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
-import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey, Note, NoteChecklistItem } from '../lib/types';
+import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey, Note, NoteChecklistItem, TaskPriority } from '../lib/types';
 import { CALENDARS, seedEvents, seedTasks } from '../lib/mockData';
 import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf, daysBetween } from '../lib/dates';
 import { loadJSON, saveJSON } from '../lib/persistence';
@@ -139,6 +139,12 @@ type Action =
   | { type: 'UPDATE_CALENDAR_ICON'; id: string; icon: string | undefined }
   | { type: 'TOGGLE_TASK'; id: string }
   | { type: 'RESET_RECURRING_TASKS' }
+  | { type: 'TOGGLE_TASK_IMPORTANT'; id: string }
+  | { type: 'UPDATE_TASK_NOTES'; id: string; notes: string }
+  | { type: 'UPDATE_TASK_PRIORITY'; id: string; prio: TaskPriority }
+  | { type: 'ADD_TASK_SUBTASK'; taskId: string; item: NoteChecklistItem }
+  | { type: 'TOGGLE_TASK_SUBTASK'; taskId: string; itemId: string }
+  | { type: 'REMOVE_TASK_SUBTASK'; taskId: string; itemId: string }
   | { type: 'ARCHIVE_OLD_TASKS' }
   | { type: 'ADD_PENDING_SYNC'; id: string }
   | { type: 'REMOVE_PENDING_SYNC'; id: string }
@@ -377,6 +383,33 @@ function reducer(state: AppState, action: Action): AppState {
       });
       return { ...state, tasks };
     }
+    case 'TOGGLE_TASK_IMPORTANT':
+      return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, important: !t.important } : t)) };
+    case 'UPDATE_TASK_NOTES':
+      return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, notes: action.notes } : t)) };
+    case 'UPDATE_TASK_PRIORITY':
+      return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, prio: action.prio } : t)) };
+    case 'ADD_TASK_SUBTASK':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) => (t.id === action.taskId ? { ...t, subtasks: [...(t.subtasks ?? []), action.item] } : t)),
+      };
+    case 'TOGGLE_TASK_SUBTASK':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.taskId
+            ? { ...t, subtasks: (t.subtasks ?? []).map((s) => (s.id === action.itemId ? { ...s, done: !s.done } : s)) }
+            : t,
+        ),
+      };
+    case 'REMOVE_TASK_SUBTASK':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.taskId ? { ...t, subtasks: (t.subtasks ?? []).filter((s) => s.id !== action.itemId) } : t,
+        ),
+      };
     case 'ARCHIVE_OLD_TASKS': {
       const today = todayKey();
       const tasks = state.tasks.map((t) => {

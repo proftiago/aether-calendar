@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Check, Plus, X, Repeat, ChevronDown } from 'lucide-react';
 import { useStore } from '../store/store';
+import { useAllEvents } from '../store/selectors';
 import { todayKey } from '../lib/dates';
 import { prioColor } from '../lib/style';
+import { weeklyStats, formatMinutes } from '../lib/analytics';
 import type { Task, TaskPriority } from '../lib/types';
 
 const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
@@ -57,8 +59,9 @@ function startTouchDrag(e: React.PointerEvent, taskId: string, title: string) {
  * principal da página Tarefas (com mais espaço). O mesmo componente serve
  * pros dois contextos; `showAddButton`/`title` ajustam a moldura.
  */
-export function TaskPanel({ title = 'Tarefas' }: { title?: string }) {
+export function TaskPanel({ title = 'Tarefas', onSelectTask }: { title?: string; onSelectTask?: (id: string) => void }) {
   const { state, dispatch } = useStore();
+  const allEvents = useAllEvents(state);
   const [adding, setAdding] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const [prio, setPrio] = useState<TaskPriority>('média');
@@ -110,6 +113,7 @@ export function TaskPanel({ title = 'Tarefas' }: { title?: string }) {
   const doneCount = visibleTasks.filter((t) => t.done).length;
   const totalCount = visibleTasks.length;
   const progressPct = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
+  const stats = useMemo(() => weeklyStats(allEvents, state.tasks), [allEvents, state.tasks]);
 
   return (
     <div className="flex flex-col">
@@ -324,6 +328,7 @@ export function TaskPanel({ title = 'Tarefas' }: { title?: string }) {
                       onPointerDown={(e) => {
                         if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
                       }}
+                      onClick={() => onSelectTask?.(task.id)}
                       className="rounded-[7px] pl-1.5 pr-2 py-[6px] cursor-grab select-none hover:[background:var(--surface2)] hover:scale-[1.015] flex items-center gap-2 group transition-transform"
                       style={{ opacity: task.done ? 0.45 : 1, touchAction: 'none' }}
                     >
@@ -341,6 +346,7 @@ export function TaskPanel({ title = 'Tarefas' }: { title?: string }) {
                       >
                         {task.done && <Check size={9} strokeWidth={3.5} color="white" />}
                       </button>
+                      {!!task.important && <span className="text-[10px] shrink-0">⭐</span>}
                       {!!task.recurring && <Repeat size={9} className="shrink-0" style={{ color: 'var(--text3)' }} />}
                       <span
                         className="text-[12px] font-medium truncate flex-1"
@@ -380,6 +386,17 @@ export function TaskPanel({ title = 'Tarefas' }: { title?: string }) {
         })}
       </div>
 
+      <div className="mt-4">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
+          Resumo da semana
+        </span>
+        <div className="grid grid-cols-3 gap-1.5 mt-2">
+          <StatBlock label="Eventos" value={stats.eventsCount} delta={stats.eventsDelta} unit="" />
+          <StatBlock label="Foco" value={formatMinutes(stats.focusMinutes)} delta={stats.focusDeltaMinutes} unit="min" />
+          <StatBlock label="Tarefas" value={stats.tasksCompleted} delta={stats.tasksDelta} unit="" />
+        </div>
+      </div>
+
       <button
         onClick={() => dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'analytics' })}
         className="mt-3 text-[12px] font-medium text-left rounded-[7px] px-2 py-1.5 hover:[background:var(--surface2)]"
@@ -387,6 +404,27 @@ export function TaskPanel({ title = 'Tarefas' }: { title?: string }) {
       >
         Ver Analytics completo →
       </button>
+    </div>
+  );
+}
+
+function StatBlock({ label, value, delta, unit }: { label: string; value: number | string; delta: number; unit: string }) {
+  const sign = delta > 0 ? '+' : '';
+  return (
+    <div className="rounded-[9px] p-2" style={{ background: 'var(--surface2)' }}>
+      <div className="text-[9.5px] mb-0.5" style={{ color: 'var(--text3)' }}>
+        {label}
+      </div>
+      <div className="text-[14px] font-semibold" style={{ color: 'var(--text)' }}>
+        {value}
+      </div>
+      {delta !== 0 && (
+        <div className="text-[9px] font-mono-ae" style={{ color: delta > 0 ? 'var(--sync-ok)' : 'var(--text3)' }}>
+          {sign}
+          {delta}
+          {unit} vs. sem. passada
+        </div>
+      )}
     </div>
   );
 }

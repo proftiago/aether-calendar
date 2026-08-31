@@ -100,3 +100,51 @@ export function formatMinutes(min: number): string {
   if (m === 0) return `${h}h`;
   return `${h}h${String(m).padStart(2, '0')}`;
 }
+
+export type WeeklyStats = {
+  eventsCount: number;
+  eventsDelta: number;
+  focusMinutes: number;
+  focusDeltaMinutes: number;
+  tasksCompleted: number;
+  tasksDelta: number;
+};
+
+/**
+ * Compara a semana atual com a anterior — usado no "Resumo da semana" ao
+ * lado do calendário. "Foco" reaproveita o bucket 'work' (trabalho não
+ * reunião) de weeklyTimeBreakdown, que já é a aproximação mais próxima que
+ * temos de tempo de foco de verdade.
+ */
+export function weeklyStats(events: Event[], tasks: Array<{ done: boolean; lastDoneKey?: string }>): WeeklyStats {
+  const thisWeekStart = startOfWeekKey(todayKey(), 1);
+  const lastWeekStart = addDays(thisWeekStart, -7);
+  const lastWeekEnd = thisWeekStart;
+  const nextWeekStart = addDays(thisWeekStart, 7);
+
+  const countEventsInRange = (start: string, end: string) =>
+    events.filter((ev) => !ev.allDay && dateKeyOf(ev.startsAt) >= start && dateKeyOf(ev.startsAt) < end).length;
+
+  const thisWeekEvents = countEventsInRange(thisWeekStart, nextWeekStart);
+  const lastWeekEvents = countEventsInRange(lastWeekStart, lastWeekEnd);
+
+  const thisWeekBuckets = weeklyTimeBreakdown(events, thisWeekStart);
+  const lastWeekBuckets = weeklyTimeBreakdown(events, lastWeekStart);
+  const thisWeekFocus = thisWeekBuckets.find((b) => b.key === 'work')?.minutes ?? 0;
+  const lastWeekFocus = lastWeekBuckets.find((b) => b.key === 'work')?.minutes ?? 0;
+
+  const tasksDoneInRange = (start: string, end: string) =>
+    tasks.filter((t) => t.done && t.lastDoneKey && t.lastDoneKey >= start && t.lastDoneKey < end).length;
+
+  const thisWeekTasks = tasksDoneInRange(thisWeekStart, nextWeekStart);
+  const lastWeekTasks = tasksDoneInRange(lastWeekStart, lastWeekEnd);
+
+  return {
+    eventsCount: thisWeekEvents,
+    eventsDelta: thisWeekEvents - lastWeekEvents,
+    focusMinutes: thisWeekFocus,
+    focusDeltaMinutes: thisWeekFocus - lastWeekFocus,
+    tasksCompleted: thisWeekTasks,
+    tasksDelta: thisWeekTasks - lastWeekTasks,
+  };
+}
