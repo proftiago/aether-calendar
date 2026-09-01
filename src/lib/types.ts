@@ -74,6 +74,7 @@ export type Task = {
   /** notas livres, editadas no painel de detalhes */
   notes?: string;
   subtasks?: NoteChecklistItem[];
+  links?: { id: string; url: string; label: string }[];
 };
 
 export type CalendarSetKey = string; // id de um CalendarSet, ou 'custom'

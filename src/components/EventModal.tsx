@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useStore, buildRRuleFromForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
@@ -10,7 +11,16 @@ const DOW_LABELS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 export function EventModal() {
   const { state, dispatch } = useStore();
   const { pushCreate, pushUpdate, pushDelete } = useGoogleSync();
+  const [quickMode, setQuickMode] = useState<'evento' | 'foco'>('evento');
   const rawForm = state.form;
+  const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    const isOpen = !!rawForm;
+    if (isOpen && !wasOpenRef.current) setQuickMode('evento');
+    wasOpenRef.current = isOpen;
+  }, [rawForm]);
+
   if (!rawForm) return null;
   const form = rawForm;
 
@@ -100,6 +110,29 @@ export function EventModal() {
         <h2 className="text-[18px] font-semibold tracking-[-0.02em] mb-4" style={{ color: 'var(--text)' }}>
           {form.mode === 'create' ? 'Novo evento' : form.editingSeries ? 'Editar série' : 'Editar evento'}
         </h2>
+
+        {sheet && form.mode === 'create' && (
+          <div className="flex items-center p-[2px] rounded-[9px] mb-3" style={{ background: 'var(--surface2)' }}>
+            <button
+              onClick={() => setQuickMode('evento')}
+              className="flex-1 h-9 rounded-[7px] text-[13px] font-medium"
+              style={quickMode === 'evento' ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+            >
+              Evento
+            </button>
+            <button
+              onClick={() => {
+                setQuickMode('foco');
+                const endMin = form.startMin + 90;
+                dispatch({ type: 'UPDATE_FORM', changes: { endMin: endMin % 1440 } });
+              }}
+              className="flex-1 h-9 rounded-[7px] text-[13px] font-medium"
+              style={quickMode === 'foco' ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+            >
+              Foco (90min)
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           <input

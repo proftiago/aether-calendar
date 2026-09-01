@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Check, Plus, Star, Trash2 } from 'lucide-react';
+import { X, Check, Plus, Star, Trash2, Link as LinkIcon } from 'lucide-react';
 import { useStore } from '../store/store';
 import { calendarOf } from '../store/selectors';
 import { prioColor } from '../lib/style';
@@ -16,6 +16,7 @@ const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
 export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: () => void }) {
   const { state, dispatch } = useStore();
   const [newSubtask, setNewSubtask] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
   const task = state.tasks.find((t) => t.id === taskId);
   if (!task) return null;
   const cal = calendarOf(state, task.calId);
@@ -28,6 +29,21 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
     const item: NoteChecklistItem = { id: `sub-${Date.now()}`, text: newSubtask.trim(), done: false };
     dispatch({ type: 'ADD_TASK_SUBTASK', taskId, item });
     setNewSubtask('');
+  }
+
+  function addLink() {
+    const url = newLinkUrl.trim();
+    if (!url) return;
+    const normalized = /^https?:\/\//.test(url) ? url : `https://${url}`;
+    let label = normalized;
+    try {
+      label = new URL(normalized).hostname.replace(/^www\./, '');
+    } catch {
+      // url mal formada mesmo depois de normalizar — guarda como está,
+      // o link só não vai abrir se a pessoa clicar
+    }
+    dispatch({ type: 'ADD_TASK_LINK', taskId, link: { id: `link-${Date.now()}`, url: normalized, label } });
+    setNewLinkUrl('');
   }
 
   return (
@@ -161,6 +177,48 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
           className="w-full mt-1.5 text-[13px] leading-[1.6] outline-none bg-transparent resize-none rounded-[8px] p-2"
           style={{ color: 'var(--text)', background: 'var(--surface2)' }}
         />
+      </div>
+
+      <div>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.1em]" style={{ color: 'var(--text3)' }}>
+          Links
+        </span>
+        <div className="flex flex-col gap-1 mt-1.5">
+          {(task.links ?? []).map((link) => (
+            <div key={link.id} className="flex items-center gap-2 group">
+              <LinkIcon size={12} className="shrink-0" style={{ color: 'var(--text3)' }} />
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-[12.5px] flex-1 truncate underline"
+                style={{ color: 'var(--accent)' }}
+              >
+                {link.label || link.url}
+              </a>
+              <button
+                onClick={() => dispatch({ type: 'REMOVE_TASK_LINK', taskId: task.id, linkId: link.id })}
+                className="w-4 h-4 rounded-[4px] grid place-items-center opacity-0 group-hover:opacity-100 shrink-0"
+                style={{ color: 'var(--text3)' }}
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ))}
+          <div className="flex items-center gap-1.5 mt-1">
+            <input
+              value={newLinkUrl}
+              onChange={(e) => setNewLinkUrl(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addLink()}
+              placeholder="Colar um link…"
+              className="flex-1 rounded-[7px] px-2 py-[6px] text-[12px] outline-none min-w-0"
+              style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+            />
+            <button onClick={addLink} className="w-7 h-7 rounded-[7px] grid place-items-center shrink-0" style={{ background: 'var(--surface2)', color: 'var(--text2)' }}>
+              <Plus size={13} />
+            </button>
+          </div>
+        </div>
       </div>
 
       <button

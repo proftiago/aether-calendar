@@ -5,6 +5,7 @@ import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
 import { weatherOf } from '../lib/estimates';
 import { AccountMenu } from './AccountMenu';
+import { NotificationBell } from './NotificationBell';
 import type { ViewKey } from '../lib/types';
 
 const VIEWS: { key: ViewKey; label: string }[] = [
@@ -183,6 +184,8 @@ export function Toolbar() {
       >
         <Search size={15} style={{ color: 'var(--text2)' }} />
       </button>
+
+      <NotificationBell />
 
       <button
         onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}

@@ -145,6 +145,8 @@ type Action =
   | { type: 'ADD_TASK_SUBTASK'; taskId: string; item: NoteChecklistItem }
   | { type: 'TOGGLE_TASK_SUBTASK'; taskId: string; itemId: string }
   | { type: 'REMOVE_TASK_SUBTASK'; taskId: string; itemId: string }
+  | { type: 'ADD_TASK_LINK'; taskId: string; link: { id: string; url: string; label: string } }
+  | { type: 'REMOVE_TASK_LINK'; taskId: string; linkId: string }
   | { type: 'ARCHIVE_OLD_TASKS' }
   | { type: 'ADD_PENDING_SYNC'; id: string }
   | { type: 'REMOVE_PENDING_SYNC'; id: string }
@@ -408,6 +410,18 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         tasks: state.tasks.map((t) =>
           t.id === action.taskId ? { ...t, subtasks: (t.subtasks ?? []).filter((s) => s.id !== action.itemId) } : t,
+        ),
+      };
+    case 'ADD_TASK_LINK':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) => (t.id === action.taskId ? { ...t, links: [...(t.links ?? []), action.link] } : t)),
+      };
+    case 'REMOVE_TASK_LINK':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.taskId ? { ...t, links: (t.links ?? []).filter((l) => l.id !== action.linkId) } : t,
         ),
       };
     case 'ARCHIVE_OLD_TASKS': {

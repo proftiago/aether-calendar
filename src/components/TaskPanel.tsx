@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, Plus, X, Repeat, ChevronDown } from 'lucide-react';
 import { useStore } from '../store/store';
-import { useAllEvents } from '../store/selectors';
+import { useAllEvents, calendarOf } from '../store/selectors';
 import { todayKey } from '../lib/dates';
 import { prioColor } from '../lib/style';
 import { weeklyStats, formatMinutes } from '../lib/analytics';
@@ -92,6 +92,7 @@ export function TaskPanel({
   const [tab, setTab] = useState<'hoje' | 'proximas' | 'projetos'>('projetos');
   const [prioFilter, setPrioFilter] = useState<TaskPriority | 'todas'>('todas');
   const [sortBy, setSortBy] = useState<'prio' | 'dueDate' | 'title'>('prio');
+  const [groupBy, setGroupBy] = useState<'calendar' | 'priority' | 'none'>('calendar');
 
   useEffect(() => {
     function onRequestAdd() {
@@ -144,6 +145,36 @@ export function TaskPanel({
   const totalCount = visibleTasksAll.length;
   const progressPct = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
   const stats = useMemo(() => weeklyStats(allEvents, state.tasks), [allEvents, state.tasks]);
+
+  type Group = { key: string; label: string; color: string; tasks: Task[] };
+  const groups: Group[] = useMemo(() => {
+    if (!full || groupBy === 'calendar') {
+      return state.calendars
+        .map((cal) => ({
+          key: cal.id,
+          label: cal.name,
+          color: cal.color,
+          tasks: sortTasks(
+            visibleTasks.filter((t) => t.calId === cal.id),
+            full ? sortBy : 'prio',
+          ),
+        }))
+        .filter((g) => g.tasks.length > 0);
+    }
+    if (groupBy === 'priority') {
+      return PRIOS.map((p) => ({
+        key: p,
+        label: p.charAt(0).toUpperCase() + p.slice(1),
+        color: prioColor(p),
+        tasks: sortTasks(
+          visibleTasks.filter((t) => t.prio === p),
+          sortBy,
+        ),
+      })).filter((g) => g.tasks.length > 0);
+    }
+    // 'none': um grupo só, sem cabeçalho de verdade
+    return [{ key: 'all', label: 'Todas', color: 'var(--accent)', tasks: sortTasks(visibleTasks, sortBy) }];
+  }, [full, groupBy, state.calendars, visibleTasks, sortBy]);
 
   return (
     <div className="flex flex-col">
@@ -325,6 +356,16 @@ export function TaskPanel({
           </div>
           <div className="flex items-center gap-1.5">
             <select
+              value={groupBy}
+              onChange={(e) => setGroupBy(e.target.value as 'calendar' | 'priority' | 'none')}
+              className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+              style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+            >
+              <option value="calendar">Grupo: calendário</option>
+              <option value="priority">Grupo: prioridade</option>
+              <option value="none">Grupo: nenhum</option>
+            </select>
+            <select
               value={prioFilter}
               onChange={(e) => setPrioFilter(e.target.value as TaskPriority | 'todas')}
               className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
@@ -362,37 +403,36 @@ export function TaskPanel({
         </p>
       )}
       <div className="flex flex-col gap-2.5">
-        {state.calendars.map((cal) => {
-          const tasksForCal = sortTasks(
-            visibleTasks.filter((t) => t.calId === cal.id),
-            full ? sortBy : 'prio',
-          );
-          if (tasksForCal.length === 0) return null;
-          const collapsed = collapsedGroups.includes(cal.id);
+        {groups.map((group) => {
+          const collapsed = collapsedGroups.includes(group.key);
           return (
-            <div key={cal.id}>
-              <button
-                onClick={() =>
-                  setCollapsedGroups((prev) => (collapsed ? prev.filter((id) => id !== cal.id) : [...prev, cal.id]))
-                }
-                className="w-full flex items-center gap-2 mb-1 rounded-[6px] px-1 py-[3px] hover:[background:var(--surface2)]"
-              >
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cal.color }} />
-                <span className="text-[12px] font-semibold flex-1 text-left truncate" style={{ color: 'var(--text)' }}>
-                  {cal.name}
-                </span>
-                <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
-                  {tasksForCal.length}
-                </span>
-                <ChevronDown
-                  size={12}
-                  className="shrink-0 transition-transform"
-                  style={{ color: 'var(--text3)', transform: collapsed ? 'rotate(-90deg)' : undefined }}
-                />
-              </button>
+            <div key={group.key}>
+              {groupBy !== 'none' && (
+                <button
+                  onClick={() =>
+                    setCollapsedGroups((prev) => (collapsed ? prev.filter((id) => id !== group.key) : [...prev, group.key]))
+                  }
+                  className="w-full flex items-center gap-2 mb-1 rounded-[6px] px-1 py-[3px] hover:[background:var(--surface2)]"
+                >
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: group.color }} />
+                  <span className="text-[12px] font-semibold flex-1 text-left truncate" style={{ color: 'var(--text)' }}>
+                    {group.label}
+                  </span>
+                  <span className="text-[10px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
+                    {group.tasks.length}
+                  </span>
+                  <ChevronDown
+                    size={12}
+                    className="shrink-0 transition-transform"
+                    style={{ color: 'var(--text3)', transform: collapsed ? 'rotate(-90deg)' : undefined }}
+                  />
+                </button>
+              )}
               {!collapsed && (
                 <div className="flex flex-col gap-0.5">
-                  {tasksForCal.map((task) => (
+                  {group.tasks.map((task) => {
+                    const cal = calendarOf(state, task.calId);
+                    return (
                     <div
                       key={task.id}
                       draggable
@@ -414,8 +454,8 @@ export function TaskPanel({
                         }}
                         className="w-[15px] h-[15px] rounded-full border grid place-items-center shrink-0"
                         style={{
-                          borderColor: task.done ? cal.color : 'var(--text3)',
-                          background: task.done ? cal.color : 'transparent',
+                          borderColor: task.done ? (cal?.color ?? 'var(--accent)') : 'var(--text3)',
+                          background: task.done ? (cal?.color ?? 'var(--accent)') : 'transparent',
                         }}
                         aria-label={task.done ? 'Marcar como pendente' : 'Marcar como concluída'}
                       >
@@ -432,7 +472,7 @@ export function TaskPanel({
                       {task.tag && task.tag !== 'Geral' && (
                         <span
                           className="text-[9.5px] font-semibold rounded-full px-2 py-[1px] shrink-0"
-                          style={{ background: 'color-mix(in oklab, ' + cal.color + ' 18%, var(--surface2))', color: cal.color }}
+                          style={{ background: 'color-mix(in oklab, ' + (cal?.color ?? 'var(--accent)') + ' 18%, var(--surface2))', color: cal?.color ?? 'var(--accent)' }}
                         >
                           {task.tag}
                         </span>
@@ -461,7 +501,8 @@ export function TaskPanel({
                         <X size={11} />
                       </button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

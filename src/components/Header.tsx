@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, Settings } from 'lucide-react';
 import { useStore } from '../store/store';
 
 /**
- * Header ficou reduzido ao mínimo — só o botão de abrir a sidebar (+ busca,
- * exclusiva do celular, onde a FloatingDock não aparece). Tudo que morava
- * aqui antes (criar evento, sincronizar, menu de comando, tarefas, Focus
- * Mode, conta) mudou pra FloatingDock.tsx, barra flutuante no rodapé,
- * estilo Amie — só que ela só existe em telas >=640px.
+ * Header ficou reduzido ao mínimo — hamburguer (só funciona na página
+ * Calendário, onde a Sidebar de filtros existe de verdade) ou engrenagem
+ * de Configurações (nas outras páginas, onde o hamburguer não abriria
+ * nada — bug real que existia antes desse ajuste: clicar nele em Notas/
+ * Tarefas/Hoje não fazia literalmente nada). + busca, exclusiva do
+ * celular, onde a FloatingDock não aparece.
  */
 export function Header() {
   const { state, dispatch } = useStore();
   const [searchOpen, setSearchOpen] = useState(false);
+  const onCalendarPage = state.page === 'calendario';
 
   useEffect(() => {
     function onOpenSearch() {
@@ -27,22 +29,32 @@ export function Header() {
       style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
     >
       <button
-        onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+        onClick={() =>
+          onCalendarPage
+            ? dispatch({ type: 'TOGGLE_SIDEBAR' })
+            : dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'general' })
+        }
         className="w-8 h-8 rounded-[8px] grid place-items-center shrink-0 hover:[background:var(--surface2)]"
-        aria-label="Abrir menu"
+        aria-label={onCalendarPage ? 'Abrir menu' : 'Configurações'}
       >
-        <span
-          className="hidden sm:grid w-[26px] h-[26px] rounded-[7px] place-items-center"
-          style={{ background: 'linear-gradient(135deg, #0a2e4a, var(--accent))' }}
-        >
-          <span className="grid grid-cols-2 gap-[2.5px]">
-            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.92)' }} />
-            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.55)' }} />
-            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.55)' }} />
-            <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'var(--gold)' }} />
-          </span>
-        </span>
-        <Menu size={17} className="sm:hidden" style={{ color: 'var(--text2)' }} />
+        {onCalendarPage ? (
+          <>
+            <span
+              className="hidden sm:grid w-[26px] h-[26px] rounded-[7px] place-items-center"
+              style={{ background: 'linear-gradient(135deg, #0a2e4a, var(--accent))' }}
+            >
+              <span className="grid grid-cols-2 gap-[2.5px]">
+                <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.92)' }} />
+                <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.55)' }} />
+                <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'rgba(255,255,255,0.55)' }} />
+                <span className="w-[6px] h-[6px] rounded-[2px]" style={{ background: 'var(--gold)' }} />
+              </span>
+            </span>
+            <Menu size={17} className="sm:hidden" style={{ color: 'var(--text2)' }} />
+          </>
+        ) : (
+          <Settings size={17} style={{ color: 'var(--text2)' }} />
+        )}
       </button>
 
       {state.w < 640 && (

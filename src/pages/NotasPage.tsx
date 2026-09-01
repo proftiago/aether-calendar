@@ -4,6 +4,7 @@ import { useStore } from '../store/store';
 import { eventBg } from '../lib/style';
 import { calendarOf } from '../store/selectors';
 import { AccountMenu } from '../components/AccountMenu';
+import { NotificationBell } from '../components/NotificationBell';
 import type { Note, NoteChecklistItem } from '../lib/types';
 
 function formatRelative(iso: string): string {
@@ -94,6 +95,7 @@ export function NotasPage() {
               <Plus size={14} />
               Nova nota
             </button>
+            <NotificationBell />
             <AccountMenu />
           </div>
         </div>
