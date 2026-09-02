@@ -679,35 +679,59 @@ function NotificationsTab() {
 }
 
 function ShortcutsTab() {
-  const SHORTCUTS: { keys: string[]; label: string }[] = [
-    { keys: ['Ctrl', '/'], label: 'Menu de comando' },
-    { keys: ['T'], label: 'Ir para hoje' },
-    { keys: ['C', 'N'], label: 'Criar evento' },
-    { keys: ['G'], label: 'Ir para busca' },
-    { keys: ['D'], label: 'Ver: Dia' },
-    { keys: ['W'], label: 'Ver: Semana' },
-    { keys: ['1', '2', '3', '4'], label: 'Trocar view (dia/semana/mês/agenda)' },
-    { keys: ['←', '→'], label: 'Navegar' },
-    { keys: ['Esc'], label: 'Fechar' },
+  const GROUPS: { title: string; items: { keys: string[]; label: string }[] }[] = [
+    {
+      title: 'Navegação',
+      items: [
+        { keys: ['Ctrl', '/'], label: 'Menu de comando' },
+        { keys: ['T'], label: 'Ir para hoje' },
+        { keys: ['G'], label: 'Ir para busca' },
+        { keys: ['←', '→'], label: 'Navegar' },
+        { keys: ['Esc'], label: 'Fechar' },
+      ],
+    },
+    {
+      title: 'Criar',
+      items: [
+        { keys: ['C', 'N'], label: 'Criar evento' },
+      ],
+    },
+    {
+      title: 'Calendário',
+      items: [
+        { keys: ['D'], label: 'Ver: Dia' },
+        { keys: ['W'], label: 'Ver: Semana' },
+        { keys: ['1', '2', '3', '4'], label: 'Trocar view (dia/semana/mês/agenda)' },
+      ],
+    },
   ];
   return (
-    <div className="flex flex-col gap-[13px] max-w-[420px]">
-      {SHORTCUTS.map((s, i) => (
-        <div key={i} className="flex items-center justify-between gap-3">
-          <span className="text-[13px]" style={{ color: 'var(--text2)' }}>
-            {s.label}
-          </span>
-          <span className="flex gap-1 shrink-0">
-            {s.keys.map((k, j) => (
-              <kbd
-                key={j}
-                className="text-[11px] font-mono-ae font-semibold rounded-[5px] px-[7px] py-[2px] border"
-                style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text2)' }}
-              >
-                {k}
-              </kbd>
+    <div className="flex flex-col gap-6 max-w-[420px]">
+      {GROUPS.map((group) => (
+        <div key={group.title}>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-2.5" style={{ color: 'var(--text3)' }}>
+            {group.title}
+          </div>
+          <div className="flex flex-col gap-[13px]">
+            {group.items.map((s, i) => (
+              <div key={i} className="flex items-center justify-between gap-3">
+                <span className="text-[13px]" style={{ color: 'var(--text2)' }}>
+                  {s.label}
+                </span>
+                <span className="flex gap-1 shrink-0">
+                  {s.keys.map((k, j) => (
+                    <kbd
+                      key={j}
+                      className="text-[11px] font-mono-ae font-semibold rounded-[5px] px-[7px] py-[2px] border"
+                      style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text2)' }}
+                    >
+                      {k}
+                    </kbd>
+                  ))}
+                </span>
+              </div>
             ))}
-          </span>
+          </div>
         </div>
       ))}
     </div>
