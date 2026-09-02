@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Plus, X } from 'lucide-react';
+import { Check, Plus, X, Settings } from 'lucide-react';
 import { useStore } from '../store/store';
 import { hm } from '../lib/dates';
 import { MiniCalendar } from './MiniCalendar';
@@ -89,7 +89,17 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         <SectionDivider />
 
         <section>
-          <SectionTitle>Filtro</SectionTitle>
+          <div className="flex items-center justify-between mb-0.5">
+            <SectionTitle>Filtro</SectionTitle>
+            <button
+              onClick={() => dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'general' })}
+              className="w-5 h-5 rounded-[5px] grid place-items-center hover:[background:var(--surface2)]"
+              aria-label="Configurações de filtro"
+              title="Configurações"
+            >
+              <Settings size={11} style={{ color: 'var(--text3)' }} />
+            </button>
+          </div>
           <div className="mt-2 flex flex-col gap-0.5">
             <FilterToggle
               label="Tarefas"

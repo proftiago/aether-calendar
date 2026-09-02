@@ -1,4 +1,4 @@
-import { Sun, CalendarDays, CheckSquare, FileText, BookOpen, Settings } from 'lucide-react';
+import { Sun, CalendarDays, CheckSquare, FileText, BookOpen, Hourglass, Settings } from 'lucide-react';
 import { useStore } from '../store/store';
 import type { PageKey } from '../store/store';
 
@@ -55,6 +55,15 @@ export function NavRail() {
           );
         })}
       </div>
+
+      <button
+        onClick={() => dispatch({ type: 'SET_FOCUS_MODE', on: true })}
+        className="w-9 h-9 rounded-[9px] grid place-items-center hover:[background:var(--surface2)]"
+        aria-label="Timer de Foco"
+        title="Timer de Foco"
+      >
+        <Hourglass size={16} style={{ color: 'var(--text2)' }} />
+      </button>
 
       <div className="mt-auto flex flex-col items-center gap-0.5">
         <button

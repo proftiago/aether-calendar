@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, MoreHorizontal, Plus, Search, SlidersHorizontal, ListChecks } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Search, SlidersHorizontal, ListChecks } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
@@ -169,20 +169,20 @@ export function Toolbar() {
         <SlidersHorizontal size={15} style={{ color: state.sidebarOpen ? 'var(--accent)' : 'var(--text2)' }} />
       </button>
 
-      <div className="relative shrink-0">
-        <select
-          value={state.view}
-          onChange={(e) => dispatch({ type: 'SET_VIEW', view: e.target.value as ViewKey })}
-          className="h-9 appearance-none rounded-[8px] pl-3 pr-7 text-[13px] font-medium outline-none cursor-pointer"
-          style={{ background: 'var(--surface2)', color: 'var(--text)' }}
-        >
-          {VIEWS.map((v) => (
-            <option key={v.key} value={v.key}>
+      <div className="flex items-center p-[2px] rounded-[9px] shrink-0" style={{ background: 'var(--surface2)' }}>
+        {VIEWS.map((v) => {
+          const active = state.view === v.key;
+          return (
+            <button
+              key={v.key}
+              onClick={() => dispatch({ type: 'SET_VIEW', view: v.key })}
+              className="h-8 px-3 rounded-[7px] text-[13px] font-medium"
+              style={active ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+            >
               {v.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text3)' }} />
+            </button>
+          );
+        })}
       </div>
 
       {moreMenuButton}
