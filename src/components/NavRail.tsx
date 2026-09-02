@@ -74,6 +74,18 @@ export function NavRail() {
         >
           <Settings size={16} style={{ color: 'var(--text2)' }} />
         </button>
+        <button
+          onClick={() => dispatch({ type: 'SET_PAGE', page: 'perfil' })}
+          className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-semibold shrink-0 mt-1"
+          style={{
+            background: state.page === 'perfil' ? 'var(--accent)' : 'var(--surface2)',
+            color: state.page === 'perfil' ? 'var(--accentText)' : 'var(--text2)',
+          }}
+          aria-label="Perfil"
+          title="Perfil"
+        >
+          {(state.settings.userName || 'Você').charAt(0).toUpperCase()}
+        </button>
       </div>
     </nav>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Settings, RefreshCw, LogOut, Sparkles, Command } from 'lucide-react';
+import { Settings, RefreshCw, LogOut, Sparkles, Command, UserRound } from 'lucide-react';
 import { useStore } from '../store/store';
 import { isGoogleConfigured } from '../lib/googleApi';
 
@@ -18,6 +18,8 @@ export function AccountMenu({ openUpward }: { openUpward?: boolean } = {}) {
   }, [open]);
 
   const connected = state.google === 'on';
+  const name = state.settings.userName;
+  const initial = (name || 'Você').charAt(0).toUpperCase();
 
   return (
     <div className="relative shrink-0" ref={ref}>
@@ -27,7 +29,7 @@ export function AccountMenu({ openUpward }: { openUpward?: boolean } = {}) {
         style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
         aria-label="Conta"
       >
-        T
+        {initial}
       </button>
 
       {open && (
@@ -37,12 +39,21 @@ export function AccountMenu({ openUpward }: { openUpward?: boolean } = {}) {
         >
           <div className="px-2.5 py-2 mb-1 border-b" style={{ borderColor: 'var(--border)' }}>
             <div className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>
-              Aether Calendar
+              {name || 'Aether Calendar'}
             </div>
             <div className="text-[12px]" style={{ color: 'var(--text3)' }}>
               {connected ? 'Google Calendar conectado' : 'Uso local'}
             </div>
           </div>
+
+          <MenuItem
+            icon={<UserRound size={15} />}
+            label="Perfil"
+            onClick={() => {
+              dispatch({ type: 'SET_PAGE', page: 'perfil' });
+              setOpen(false);
+            }}
+          />
 
           <MenuItem
             icon={<Command size={15} />}

@@ -125,6 +125,14 @@ export function HojePage() {
           <h1 className="text-[22px] font-semibold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
             {greeting()}! 👋
           </h1>
+          <button
+            onClick={() => dispatch({ type: 'SET_PAGE', page: 'perfil' })}
+            className="w-9 h-9 rounded-full grid place-items-center text-[13px] font-semibold shrink-0"
+            style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
+            aria-label="Perfil"
+          >
+            {(state.settings.userName || 'Você').charAt(0).toUpperCase()}
+          </button>
         </div>
         <p className="text-[13px] capitalize mb-6" style={{ color: 'var(--text3)' }}>
           {dateLabel}

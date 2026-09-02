@@ -8,6 +8,7 @@ import { CalendarioPage } from './pages/CalendarioPage';
 import { TarefasPage } from './pages/TarefasPage';
 import { NotasPage } from './pages/NotasPage';
 import { PaginasPage } from './pages/PaginasPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { HojePage } from './pages/HojePage';
 import { EventModal } from './components/EventModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -166,6 +167,8 @@ function AppShell() {
                 <NotasPage />
               ) : state.page === 'paginas' ? (
                 <PaginasPage />
+              ) : state.page === 'perfil' ? (
+                <ProfilePage />
               ) : (
                 <CalendarioPage eventCountByCal={eventCountByCal} />
               )}

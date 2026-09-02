@@ -25,7 +25,7 @@ export type FormState = {
 };
 
 export type SettingsTab = 'general' | 'analytics' | 'google' | 'data' | 'notifications' | 'shortcuts' | 'about';
-export type PageKey = 'hoje' | 'calendario' | 'tarefas' | 'notas' | 'paginas';
+export type PageKey = 'hoje' | 'calendario' | 'tarefas' | 'notas' | 'paginas' | 'perfil';
 
 export type AppSettings = {
   themeMode: 'auto' | 'light' | 'dark';
@@ -49,6 +49,8 @@ export type AppSettings = {
   calFilterHabits: boolean;
   calFilterAllDay: boolean;
   calHideCompletedTasks: boolean;
+  userName: string;
+  userBio: string;
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -73,6 +75,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   calFilterHabits: true,
   calFilterAllDay: true,
   calHideCompletedTasks: false,
+  userName: '',
+  userBio: '',
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {
