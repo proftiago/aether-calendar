@@ -113,6 +113,7 @@ export type AppState = {
   w: number;
   now: number;
   sidebarOpen: boolean;
+  taskPanelOpen: boolean;
   shortcutsOpen: boolean;
   aiOpen: boolean;
   focusMode: boolean;
@@ -182,6 +183,8 @@ export type Action =
   | { type: 'TICK_NOW' }
   | { type: 'TOGGLE_SIDEBAR' }
   | { type: 'SET_SIDEBAR'; open: boolean }
+  | { type: 'TOGGLE_TASK_PANEL' }
+  | { type: 'SET_TASK_PANEL'; open: boolean }
   | { type: 'TOGGLE_SHORTCUTS' }
   | { type: 'SET_SHORTCUTS_OPEN'; open: boolean }
   | { type: 'SET_AI_OPEN'; open: boolean }
@@ -526,6 +529,10 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, sidebarOpen: !state.sidebarOpen };
     case 'SET_SIDEBAR':
       return { ...state, sidebarOpen: action.open };
+    case 'TOGGLE_TASK_PANEL':
+      return { ...state, taskPanelOpen: !state.taskPanelOpen };
+    case 'SET_TASK_PANEL':
+      return { ...state, taskPanelOpen: action.open };
     case 'TOGGLE_SHORTCUTS':
       return { ...state, shortcutsOpen: !state.shortcutsOpen };
     case 'SET_SHORTCUTS_OPEN':
@@ -533,7 +540,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'SET_AI_OPEN':
       return { ...state, aiOpen: action.open };
     case 'SET_FOCUS_MODE':
-      return { ...state, focusMode: action.on, sidebarOpen: false };
+      return { ...state, focusMode: action.on, sidebarOpen: false, taskPanelOpen: false };
     case 'GOOGLE_TOGGLE': {
       if (state.google === 'on') {
         return {
@@ -630,6 +637,7 @@ function initialState(): AppState {
     w,
     now: nowMinutesOfDay(),
     sidebarOpen: false,
+    taskPanelOpen: false,
     shortcutsOpen: w >= 1024,
     aiOpen: false,
     focusMode: false,

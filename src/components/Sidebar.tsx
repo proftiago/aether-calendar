@@ -51,7 +51,9 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
   const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
   const [workHoursOpen, setWorkHoursOpen] = useState(false);
 
-  const overlayMode = state.w < 980;
+  // sempre overlay agora — no original o painel de filtros abre/fecha por
+  // cima da grade, não fica fixo ocupando espaço permanente
+  const overlayMode = true;
 
   function confirmAddSet() {
     if (newSetName.trim()) {

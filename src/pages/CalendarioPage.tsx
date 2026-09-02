@@ -9,15 +9,15 @@ import { Drawer } from '../components/Drawer';
 import { UtilityPopovers } from '../components/UtilityPopovers';
 
 /**
- * Página Calendário — o que já era a tela principal do Aether: sidebar de
- * filtros à esquerda, grade/mês/agenda no centro, e um painel à direita
- * que alterna entre Tarefas (padrão) e detalhes do evento selecionado —
- * os dois disputam a mesma coluna, nunca aparecem juntos.
+ * Página Calendário — sidebar de filtros (esquerda) e painel de tarefas
+ * (direita) são os dois popovers/overlay, igual ao app de referência: a
+ * grade fica em largura cheia por padrão, os dois só aparecem quando
+ * abertos explicitamente (botões no Toolbar), flutuando por cima em vez
+ * de ocupar espaço fixo.
  */
 export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<string, number> }) {
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
   const drawerOpen = state.selected !== null;
-  const showTaskPanel = state.w >= 1280 && !drawerOpen;
 
   return (
     <>
@@ -38,13 +38,21 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
         </div>
         <UtilityPopovers />
       </div>
-      {showTaskPanel && (
-        <aside
-          className="w-[260px] shrink-0 border-l p-4 overflow-y-auto"
-          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
-        >
-          <TaskPanel />
-        </aside>
+
+      {state.taskPanelOpen && !drawerOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-30"
+            style={{ background: 'rgba(0,0,0,0.2)' }}
+            onClick={() => dispatch({ type: 'SET_TASK_PANEL', open: false })}
+          />
+          <aside
+            className="fixed inset-y-0 right-0 z-40 w-[280px] shrink-0 border-l p-4 overflow-y-auto animate-ae-in"
+            style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+          >
+            <TaskPanel />
+          </aside>
+        </>
       )}
       {drawerOpen && <Drawer />}
     </>

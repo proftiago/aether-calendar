@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, MoreHorizontal, Plus, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, MoreHorizontal, Plus, Search, SlidersHorizontal, ListChecks } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
@@ -159,6 +159,16 @@ export function Toolbar() {
       {nav}
       <div className="flex-1" />
 
+      <button
+        onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
+        style={{ background: state.sidebarOpen ? 'var(--surface2)' : undefined }}
+        aria-label="Filtros"
+        title="Filtros"
+      >
+        <SlidersHorizontal size={15} style={{ color: state.sidebarOpen ? 'var(--accent)' : 'var(--text2)' }} />
+      </button>
+
       <div className="relative shrink-0">
         <select
           value={state.view}
@@ -186,6 +196,16 @@ export function Toolbar() {
       </button>
 
       <NotificationBell />
+
+      <button
+        onClick={() => dispatch({ type: 'TOGGLE_TASK_PANEL' })}
+        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
+        style={{ background: state.taskPanelOpen ? 'var(--surface2)' : undefined }}
+        aria-label="Tarefas"
+        title="Tarefas"
+      >
+        <ListChecks size={15} style={{ color: state.taskPanelOpen ? 'var(--accent)' : 'var(--text2)' }} />
+      </button>
 
       <button
         onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
