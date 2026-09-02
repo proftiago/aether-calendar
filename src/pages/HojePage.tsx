@@ -135,7 +135,7 @@ export function HojePage() {
           <StatCard label="Hábitos hoje" value={`${habitsDoneToday}/${todayHabits.length}`} accent="var(--sync-ok)" icon="💪" isText />
         </div>
 
-        <section className="mb-8">
+        <section className="mb-5 rounded-[16px] p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <h2 className="text-[13px] font-semibold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--text3)' }}>
             Agenda de hoje
           </h2>
@@ -171,7 +171,7 @@ export function HojePage() {
           )}
         </section>
 
-        <section className="mb-8">
+        <section className="mb-5 rounded-[16px] p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
             ✔️ Tarefas
           </h2>
@@ -219,7 +219,7 @@ export function HojePage() {
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <section>
+          <section className="rounded-[16px] p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-[15px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
                 💪 Hábitos
@@ -237,11 +237,11 @@ export function HojePage() {
                   <div key={h.id} className="relative group">
                     <button
                       onClick={() => dispatch({ type: 'TOGGLE_HABIT_TODAY', id: h.id })}
-                      className="flex items-center gap-1.5 rounded-full pl-3 pr-2 py-1.5 text-[12.5px] font-medium"
+                      className="flex items-center gap-1.5 rounded-[9px] pl-3 pr-2 py-1.5 text-[12.5px] font-medium border"
                       style={
                         done
-                          ? { background: 'var(--sync-ok)', color: 'white' }
-                          : { background: 'var(--surface2)', color: 'var(--text2)' }
+                          ? { background: 'var(--sync-ok)', color: 'white', borderColor: 'var(--sync-ok)' }
+                          : { background: 'var(--surface)', color: 'var(--text2)', borderColor: 'var(--border)' }
                       }
                     >
                       <span>{h.icon}</span>
@@ -289,30 +289,32 @@ export function HojePage() {
                 />
               </div>
             ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {HABIT_SUGGESTIONS.filter((s) => !todayHabits.some((h) => h.title === s.title)).map((s) => (
-                  <button
-                    key={s.title}
-                    onClick={() => quickAddHabit(s.icon, s.title)}
-                    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
-                    style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
-                  >
-                    <span>{s.icon}</span>
-                    {s.title}
-                  </button>
-                ))}
+              <div className="flex flex-col gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
+                  {HABIT_SUGGESTIONS.filter((s) => !todayHabits.some((h) => h.title === s.title)).map((s) => (
+                    <button
+                      key={s.title}
+                      onClick={() => quickAddHabit(s.icon, s.title)}
+                      className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px] font-medium border"
+                      style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text2)' }}
+                    >
+                      <span>{s.icon}</span>
+                      {s.title}
+                    </button>
+                  ))}
+                </div>
                 <button
                   onClick={() => setAddingHabit(true)}
-                  className="rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
-                  style={{ background: 'color-mix(in oklab, var(--accent) 14%, var(--surface2))', color: 'var(--accent)' }}
+                  className="w-full rounded-[9px] px-3 py-2 text-[12.5px] font-semibold text-center"
+                  style={{ background: 'color-mix(in oklab, var(--accent) 12%, var(--surface))', color: 'var(--accent)' }}
                 >
-                  + Criar hábito
+                  + Criar seu próprio hábito
                 </button>
               </div>
             )}
           </section>
 
-          <section>
+          <section className="rounded-[16px] p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
             <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
               <FileText size={16} /> Páginas recentes
             </h2>
@@ -357,7 +359,7 @@ function StatCard({
   icon?: string;
 }) {
   return (
-    <div className="rounded-[14px] p-3.5 flex items-center gap-3" style={{ background: 'var(--surface2)' }}>
+    <div className="rounded-[14px] p-3.5 flex items-center gap-3 border" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       {icon && (
         <span
           className="w-9 h-9 rounded-[10px] grid place-items-center shrink-0 text-[16px]"
