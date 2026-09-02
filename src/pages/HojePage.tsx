@@ -129,10 +129,10 @@ export function HojePage() {
         </p>
 
         <div className="grid grid-cols-4 gap-3 mb-8">
-          <StatCard label="Eventos hoje" value={todaysEvents.length} />
-          <StatCard label="Tarefas pendentes" value={activeTasks.filter((t) => !t.done).length} />
-          <StatCard label="Sequência de dias" value={streak} accent="var(--gold)" />
-          <StatCard label="Hábitos hoje" value={`${habitsDoneToday}/${todayHabits.length}`} accent="var(--sync-ok)" isText />
+          <StatCard label="Eventos hoje" value={todaysEvents.length} icon="📅" accent="var(--accent)" />
+          <StatCard label="Tarefas pendentes" value={activeTasks.filter((t) => !t.done).length} icon="✅" accent="var(--cal-personal)" />
+          <StatCard label="Sequência de dias" value={streak} accent="var(--gold)" icon="🔥" />
+          <StatCard label="Hábitos hoje" value={`${habitsDoneToday}/${todayHabits.length}`} accent="var(--sync-ok)" icon="💪" isText />
         </div>
 
         <section className="mb-8">
@@ -343,14 +343,36 @@ export function HojePage() {
   );
 }
 
-function StatCard({ label, value, accent, isText }: { label: string; value: number | string; accent?: string; isText?: boolean }) {
+function StatCard({
+  label,
+  value,
+  accent,
+  isText,
+  icon,
+}: {
+  label: string;
+  value: number | string;
+  accent?: string;
+  isText?: boolean;
+  icon?: string;
+}) {
   return (
-    <div className="rounded-[14px] p-3.5" style={{ background: 'var(--surface2)' }}>
-      <div className={isText ? 'text-[17px] font-semibold' : 'text-[22px] font-semibold tracking-[-0.02em]'} style={{ color: accent ?? 'var(--text)' }}>
-        {value}
-      </div>
-      <div className="text-[11px]" style={{ color: 'var(--text3)' }}>
-        {label}
+    <div className="rounded-[14px] p-3.5 flex items-center gap-3" style={{ background: 'var(--surface2)' }}>
+      {icon && (
+        <span
+          className="w-9 h-9 rounded-[10px] grid place-items-center shrink-0 text-[16px]"
+          style={{ background: `color-mix(in oklab, ${accent ?? 'var(--accent)'} 16%, var(--surface))` }}
+        >
+          {icon}
+        </span>
+      )}
+      <div>
+        <div className={isText ? 'text-[17px] font-semibold' : 'text-[22px] font-semibold tracking-[-0.02em]'} style={{ color: accent ?? 'var(--text)' }}>
+          {value}
+        </div>
+        <div className="text-[11px]" style={{ color: 'var(--text3)' }}>
+          {label}
+        </div>
       </div>
     </div>
   );
