@@ -108,6 +108,7 @@ export type AppState = {
   search: string;
   google: GoogleSyncState;
   lastSync: number | null;
+  lastFullSync: number | null;
   selected: string | null;
   form: FormState | null;
   panel: 'free' | 'link' | null;
@@ -195,7 +196,7 @@ export type Action =
   | { type: 'SET_FOCUS_MODE'; on: boolean }
   | { type: 'GOOGLE_TOGGLE' }
   | { type: 'GOOGLE_CONNECTED_REAL' }
-  | { type: 'GOOGLE_SYNC_MERGE'; events: Event[]; deletedGoogleIds: string[] }
+  | { type: 'GOOGLE_SYNC_MERGE'; events: Event[]; deletedGoogleIds: string[]; wasFullSync?: boolean }
   | { type: 'GOOGLE_SYNCED'; events: Event[] };
 
 function navigate(view: ViewKey, cursor: string, dir: 1 | -1): string {
@@ -575,6 +576,7 @@ function reducer(state: AppState, action: Action): AppState {
         google: 'on',
         events,
         lastSync: Date.now(),
+        lastFullSync: action.wasFullSync ? Date.now() : state.lastFullSync,
         toast: `${action.events.length} eventos sincronizados do Google`,
       };
     }
@@ -632,6 +634,7 @@ function initialState(): AppState {
     search: '',
     google: storedGoogleConnected && isGoogleConfigured() ? 'on' : 'off',
     lastSync: null,
+    lastFullSync: null,
     selected: null,
     form: null,
     panel: null,
@@ -734,9 +737,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // --- Google Calendar real: detecta o retorno do OAuth e sincroniza -----
 
+  // Sincronização incremental (via syncToken) trava a janela de datas
+  // (timeMin/timeMax) usada da ÚLTIMA vez que foi feita uma sincronização
+  // completa — ela não "anda" com o tempo sozinha. Sem isso, depois de
+  // semanas de uso a janela original (que ia uns 4 meses à frente) vai
+  // encolhendo até quase não sobrar nada de futuro visível. Corrigido
+  // forçando uma sincronização completa automaticamente de tempos em
+  // tempos, pra essa janela sempre se renovar relativa a "agora".
+  const FULL_SYNC_MAX_AGE_MS = 20 * 60 * 60_000; // 20h
+
   async function syncFromGoogle(forceFull = false) {
+    const lastFull = stateRef.current.lastFullSync;
+    const effectiveForceFull = forceFull || !lastFull || Date.now() - lastFull > FULL_SYNC_MAX_AGE_MS;
     try {
-      const result = await listGoogleEvents(forceFull, stateRef.current.settings.selectedGoogleCalendarIds);
+      const result = await listGoogleEvents(effectiveForceFull, stateRef.current.settings.selectedGoogleCalendarIds);
       // instâncias de série cujo "mestre" já é um evento nativo do Aether
       // (rrule + o mesmo googleEventId) não entram — o Aether já expande
       // essa série localmente; importar as instâncias de novo duplicaria
@@ -749,7 +763,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return !recurringEventId || !nativeSeriesGoogleIds.has(recurringEventId);
       });
       const events = filtered.map(rawToAetherEvent);
-      dispatch({ type: 'GOOGLE_SYNC_MERGE', events, deletedGoogleIds: result.deletedIds ?? [] });
+      dispatch({ type: 'GOOGLE_SYNC_MERGE', events, deletedGoogleIds: result.deletedIds ?? [], wasFullSync: effectiveForceFull });
     } catch (err) {
       console.error('Falha ao sincronizar com o Google:', err);
       dispatch({ type: 'TOAST', message: 'Não consegui sincronizar com o Google agora' });
