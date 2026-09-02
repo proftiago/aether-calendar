@@ -44,6 +44,11 @@ export type AppSettings = {
   workEnd: number;
   workDays: number[]; // 0=dom...6=sáb
   selectedGoogleCalendarIds: string[];
+  calFilterEvents: boolean;
+  calFilterTasks: boolean;
+  calFilterHabits: boolean;
+  calFilterAllDay: boolean;
+  calHideCompletedTasks: boolean;
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -63,6 +68,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   workEnd: 19 * 60,
   workDays: [1, 2, 3, 4, 5],
   selectedGoogleCalendarIds: ['primary'],
+  calFilterEvents: true,
+  calFilterTasks: true,
+  calFilterHabits: true,
+  calFilterAllDay: true,
+  calHideCompletedTasks: false,
 };
 
 function resolveTheme(mode: AppSettings['themeMode']): 'light' | 'dark' {

@@ -33,7 +33,17 @@ export function DayWeekGrid() {
   const { state, dispatch } = useStore();
   const { pushUpdate, pushCreate, pushDelete } = useGoogleSync();
   const allEvents = useAllEvents(state);
-  const visibleEvents = useVisibleEvents(state, allEvents);
+  const rawVisibleEvents = useVisibleEvents(state, allEvents);
+  const visibleEvents = useMemo(() => {
+    const s = state.settings;
+    return rawVisibleEvents.filter((ev) => {
+      if (!s.calFilterTasks && ev.fromTaskId) return false;
+      if (!s.calFilterEvents && !ev.fromTaskId) return false;
+      if (!s.calFilterAllDay && ev.allDay) return false;
+      if (s.calHideCompletedTasks && ev.done) return false;
+      return true;
+    });
+  }, [rawVisibleEvents, state.settings.calFilterTasks, state.settings.calFilterEvents, state.settings.calFilterAllDay, state.settings.calHideCompletedTasks]);
   const ROW_H = state.settings.density === 'compact' ? 40 : 56;
   const PX_PER_MIN = ROW_H / 60;
 
@@ -46,8 +56,7 @@ export function DayWeekGrid() {
     return state.settings.showWeekends ? all : all.filter((d) => dowOf(d) !== 0 && dowOf(d) !== 6);
   }, [state.view, state.cursor, state.w, state.settings.weekStartsOn, state.settings.showWeekends]);
 
-  const H0 = state.workOnly ? state.settings.workStart : 0;
-  const H1 = state.workOnly ? state.settings.workEnd : 24 * 60;
+  const H0 = state.workOnly ? state.settings.workStart : 0;  const H1 = state.workOnly ? state.settings.workEnd : 24 * 60;
   const visibleHours: number[] = [];
   for (let h = H0 / 60; h < H1 / 60; h++) visibleHours.push(h);
 
@@ -359,6 +368,7 @@ export function DayWeekGrid() {
   }, [state.google, state.w]);
 
   const today = todayKey();
+  const todayHabitsForStrip = state.habits.filter((h) => h.days.length === 0 || h.days.includes(new Date().getDay()));
   const now = state.now;
 
   const nextEvent = useMemo(() => {
@@ -482,6 +492,35 @@ export function DayWeekGrid() {
             );
           })}
         </div>
+
+        {state.settings.calFilterHabits && todayHabitsForStrip.length > 0 && (
+          <div
+            className="flex items-center gap-1.5 px-4 py-1.5 border-b flex-wrap"
+            style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em] shrink-0" style={{ color: 'var(--text3)' }}>
+              Hábitos hoje
+            </span>
+            {todayHabitsForStrip.map((h) => {
+              const done = h.doneDates.includes(today);
+              return (
+                <button
+                  key={h.id}
+                  onClick={() => dispatch({ type: 'TOGGLE_HABIT_TODAY', id: h.id })}
+                  className="flex items-center gap-1 rounded-full px-2 py-[3px] text-[11px] font-medium"
+                  style={
+                    done
+                      ? { background: 'var(--sync-ok)', color: 'white' }
+                      : { background: 'var(--surface2)', color: 'var(--text2)' }
+                  }
+                >
+                  <span>{h.icon}</span>
+                  {h.title}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {state.workOnly && (
           <button

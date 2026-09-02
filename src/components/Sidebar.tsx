@@ -87,6 +87,39 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         <SectionDivider />
 
         <section>
+          <SectionTitle>Filtro</SectionTitle>
+          <div className="mt-2 flex flex-col gap-0.5">
+            <FilterToggle
+              label="Tarefas"
+              checked={state.settings.calFilterTasks}
+              onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { calFilterTasks: v } })}
+            />
+            <FilterToggle
+              label="Eventos"
+              checked={state.settings.calFilterEvents}
+              onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { calFilterEvents: v } })}
+            />
+            <FilterToggle
+              label="Hábitos"
+              checked={state.settings.calFilterHabits}
+              onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { calFilterHabits: v } })}
+            />
+            <FilterToggle
+              label="Eventos de dia inteiro"
+              checked={state.settings.calFilterAllDay}
+              onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { calFilterAllDay: v } })}
+            />
+            <FilterToggle
+              label="Ocultar concluídas"
+              checked={state.settings.calHideCompletedTasks}
+              onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { calHideCompletedTasks: v } })}
+            />
+          </div>
+        </section>
+
+        <SectionDivider />
+
+        <section>
           <SectionTitle>Calendar sets</SectionTitle>
           <div className="mt-2 flex flex-col gap-0.5">
             {state.calendarSets.map((s) => {
@@ -341,6 +374,28 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         </div>
       </aside>
     </>
+  );
+}
+
+function FilterToggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      className="w-full flex items-center justify-between rounded-[7px] px-1.5 py-[6px] hover:[background:var(--surface2)]"
+    >
+      <span className="text-[13px] font-medium" style={{ color: 'var(--text2)' }}>
+        {label}
+      </span>
+      <span
+        className="w-8 h-[18px] rounded-full relative transition-colors shrink-0"
+        style={{ background: checked ? 'var(--accent)' : 'var(--surface2)', border: checked ? 'none' : '1px solid var(--border)' }}
+      >
+        <span
+          className="absolute top-1/2 -translate-y-1/2 w-[14px] h-[14px] rounded-full transition-all"
+          style={{ left: checked ? 16 : 2, background: checked ? 'white' : 'var(--text3)' }}
+        />
+      </span>
+    </button>
   );
 }
 
