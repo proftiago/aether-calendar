@@ -1,4 +1,4 @@
-import { Sun, CalendarDays, CheckSquare, FileText, Settings } from 'lucide-react';
+import { Sun, CalendarDays, CheckSquare, FileText, BookOpen, Settings } from 'lucide-react';
 import { useStore } from '../store/store';
 import type { PageKey } from '../store/store';
 
@@ -7,6 +7,7 @@ const NAV_ITEMS: { key: PageKey; label: string; icon: typeof Sun }[] = [
   { key: 'calendario', label: 'Calendário', icon: CalendarDays },
   { key: 'tarefas', label: 'Tarefas', icon: CheckSquare },
   { key: 'notas', label: 'Notas', icon: FileText },
+  { key: 'paginas', label: 'Páginas', icon: BookOpen },
 ];
 
 /**

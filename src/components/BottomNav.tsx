@@ -1,4 +1,4 @@
-import { Sun, CalendarDays, ListChecks, FileText, Plus } from 'lucide-react';
+import { Sun, CalendarDays, ListChecks, FileText, BookOpen, Plus } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import type { PageKey } from '../store/store';
 
@@ -7,6 +7,7 @@ const NAV_ITEMS: { key: PageKey; label: string; icon: typeof Sun }[] = [
   { key: 'calendario', label: 'Calendário', icon: CalendarDays },
   { key: 'tarefas', label: 'Tarefas', icon: ListChecks },
   { key: 'notas', label: 'Notas', icon: FileText },
+  { key: 'paginas', label: 'Páginas', icon: BookOpen },
 ];
 
 /**
@@ -52,7 +53,7 @@ export function BottomNav() {
             <button
               key={key}
               onClick={() => dispatch({ type: 'SET_PAGE', page: key })}
-              className="flex flex-col items-center gap-0.5 py-1.5 px-3"
+              className="flex flex-col items-center gap-0.5 py-1.5 px-2"
               style={{ color: active ? 'var(--accent)' : 'var(--text2)' }}
             >
               <Icon size={20} />

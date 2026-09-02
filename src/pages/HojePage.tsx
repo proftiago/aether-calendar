@@ -325,7 +325,7 @@ export function HojePage() {
                 {recentPages.map((p) => (
                   <button
                     key={p.id}
-                    onClick={() => dispatch({ type: 'SET_PAGE', page: 'notas' })}
+                    onClick={() => dispatch({ type: 'SET_PAGE', page: 'paginas' })}
                     className="flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 hover:[background:var(--surface2)]"
                   >
                     <span>{p.icon || '📄'}</span>

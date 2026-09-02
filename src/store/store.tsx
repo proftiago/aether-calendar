@@ -25,7 +25,7 @@ export type FormState = {
 };
 
 export type SettingsTab = 'general' | 'analytics' | 'google' | 'data';
-export type PageKey = 'hoje' | 'calendario' | 'tarefas' | 'notas';
+export type PageKey = 'hoje' | 'calendario' | 'tarefas' | 'notas' | 'paginas';
 
 export type AppSettings = {
   themeMode: 'auto' | 'light' | 'dark';

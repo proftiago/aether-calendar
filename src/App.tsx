@@ -7,6 +7,7 @@ import { NavRail } from './components/NavRail';
 import { CalendarioPage } from './pages/CalendarioPage';
 import { TarefasPage } from './pages/TarefasPage';
 import { NotasPage } from './pages/NotasPage';
+import { PaginasPage } from './pages/PaginasPage';
 import { HojePage } from './pages/HojePage';
 import { EventModal } from './components/EventModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -163,6 +164,8 @@ function AppShell() {
                 <TarefasPage />
               ) : state.page === 'notas' ? (
                 <NotasPage />
+              ) : state.page === 'paginas' ? (
+                <PaginasPage />
               ) : (
                 <CalendarioPage eventCountByCal={eventCountByCal} />
               )}
