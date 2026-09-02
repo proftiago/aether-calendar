@@ -163,28 +163,28 @@ async function listEvents(
   const allDeletedIds: string[] = [];
 
   for (const calendarId of calendarIds) {
-    const params = new URLSearchParams({ singleEvents: 'true', maxResults: '250' });
+    const baseParams = new URLSearchParams({ singleEvents: 'true', maxResults: '2500' });
     const savedToken = syncTokens[calendarId];
 
     if (savedToken && !opts.forceFull) {
-      params.set('syncToken', savedToken);
+      baseParams.set('syncToken', savedToken);
     } else {
-      params.set('orderBy', 'startTime');
-      params.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
-      params.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
+      baseParams.set('orderBy', 'startTime');
+      baseParams.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
+      baseParams.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
     }
 
-    let res = await fetch(`${googleEventsUrl(calendarId)}?${params.toString()}`, {
+    let res = await fetch(`${googleEventsUrl(calendarId)}?${baseParams.toString()}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (res.status === 410) {
       // syncToken expirado — refaz do zero pra esse calendário específico
-      params.delete('syncToken');
-      params.set('orderBy', 'startTime');
-      params.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
-      params.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
-      res = await fetch(`${googleEventsUrl(calendarId)}?${params.toString()}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+      baseParams.delete('syncToken');
+      baseParams.set('orderBy', 'startTime');
+      baseParams.set('timeMin', opts.timeMin ?? new Date(Date.now() - 45 * 86400_000).toISOString());
+      baseParams.set('timeMax', opts.timeMax ?? new Date(Date.now() + 120 * 86400_000).toISOString());
+      res = await fetch(`${googleEventsUrl(calendarId)}?${baseParams.toString()}`, { headers: { Authorization: `Bearer ${accessToken}` } });
     }
 
     if (!res.ok) {
@@ -193,19 +193,45 @@ async function listEvents(
       console.error(`Google events.list falhou pra ${calendarId}: ${res.status} ${await res.text()}`);
       continue;
     }
-    const data = await res.json();
 
-    if (data.nextSyncToken) {
-      newSyncTokens[calendarId] = data.nextSyncToken;
-    }
+    // Google pagina a resposta em blocos de até maxResults (2500) — uma
+    // agenda com muitos eventos (aulas recorrentes, por exemplo) facilmente
+    // passa disso numa janela de ~165 dias. Sem seguir nextPageToken, o
+    // resto ficava cortado silenciosamente — bug real que explicava
+    // "só mostra até essa semana" mesmo com a janela de datas correta.
+    let data = await res.json();
+    let pageCount = 1;
+    while (true) {
+      if (data.nextSyncToken) newSyncTokens[calendarId] = data.nextSyncToken;
 
-    const items = data.items ?? [];
-    for (const it of items) {
-      if (it.status === 'cancelled') {
-        allDeletedIds.push(it.id);
-      } else {
-        allEvents.push(mapGoogleEventToAether(it, calendarId));
+      const items = data.items ?? [];
+      for (const it of items) {
+        if (it.status === 'cancelled') {
+          allDeletedIds.push(it.id);
+        } else {
+          allEvents.push(mapGoogleEventToAether(it, calendarId));
+        }
       }
+
+      if (!data.nextPageToken || pageCount >= 20) break; // teto de segurança: 20 páginas = 5000 eventos
+      pageCount++;
+      const pageParams = new URLSearchParams(baseParams);
+      // pageToken já carrega o contexto da consulta original — combinar
+      // com syncToken/timeMin/timeMax na mesma chamada não é válido pra
+      // API do Google, então removo antes de paginar
+      pageParams.delete('syncToken');
+      pageParams.delete('timeMin');
+      pageParams.delete('timeMax');
+      pageParams.delete('orderBy');
+      pageParams.set('pageToken', data.nextPageToken);
+      const pageRes = await fetch(`${googleEventsUrl(calendarId)}?${pageParams.toString()}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!pageRes.ok) {
+        console.error(`Google events.list (página ${pageCount}) falhou pra ${calendarId}: ${pageRes.status} ${await pageRes.text()}`);
+        break;
+      }
+      data = await pageRes.json();
     }
   }
 
