@@ -20,7 +20,7 @@ export function ProfilePage() {
   const notesCount = state.notes.length;
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-10">
+    <div className="flex-1 overflow-y-auto px-6 py-8">
       <div className="max-w-[560px] mx-auto">
         <button
           onClick={() => dispatch({ type: 'SET_PAGE', page: 'hoje' })}

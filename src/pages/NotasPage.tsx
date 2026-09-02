@@ -63,7 +63,7 @@ export function NotasPage() {
 
   return (
     <div className="flex-1 flex min-h-0">
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+      <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="flex items-center justify-between mb-5">
           <h1 className="text-[22px] font-semibold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
             Notas

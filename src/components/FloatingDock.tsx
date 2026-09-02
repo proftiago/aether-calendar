@@ -66,7 +66,7 @@ export function FloatingDock() {
         >
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cal?.color }} />
-            <span className="text-[14px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+            <span className="text-[14px] font-semibold truncate flex-1 min-w-0" style={{ color: 'var(--text)' }}>
               {parsed.title}
             </span>
           </div>

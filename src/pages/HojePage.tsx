@@ -305,7 +305,7 @@ export function HojePage() {
                     className="flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 hover:[background:var(--surface2)]"
                   >
                     <span>{p.icon || '📄'}</span>
-                    <span className="text-[13px] font-medium truncate" style={{ color: 'var(--text)' }}>
+                    <span className="text-[13px] font-medium truncate flex-1 min-w-0" style={{ color: 'var(--text)' }}>
                       {p.title || 'Sem título'}
                     </span>
                   </button>
@@ -416,7 +416,7 @@ function TaskColumn({
                 className="shrink-0"
               />
               <span
-                className="text-[13px] truncate"
+                className="text-[13px] truncate flex-1 min-w-0"
                 style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none', opacity: task.done ? 0.5 : 1 }}
               >
                 {task.title}

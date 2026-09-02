@@ -105,7 +105,7 @@ export function PaginasPage() {
               style={{ background: selectedId === p.id ? 'var(--surface2)' : 'transparent' }}
             >
               <span className="shrink-0">{p.icon || '📄'}</span>
-              <span className="text-[13px] truncate" style={{ color: 'var(--text)' }}>
+              <span className="text-[13px] truncate flex-1 min-w-0" style={{ color: 'var(--text)' }}>
                 {p.title || 'Sem título'}
               </span>
             </button>
@@ -116,7 +116,7 @@ export function PaginasPage() {
       {selected ? (
         <PageEditor page={selected} onDelete={() => setSelectedId(null)} />
       ) : (
-        <div className="flex-1 overflow-y-auto px-8 py-10">
+        <div className="flex-1 overflow-y-auto px-6 py-8">
           <div className="max-w-[720px] mx-auto">
             <p className="text-center text-[13px] mb-6" style={{ color: 'var(--text3)' }}>
               Explore o que dá pra fazer com páginas ✨
@@ -134,7 +134,7 @@ export function PaginasPage() {
               <button
                 onClick={createPage}
                 className="rounded-full px-6 py-3 text-[14px] font-semibold"
-                style={{ background: 'var(--accent)', color: 'var(--accentText)' }}
+                style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
               >
                 + Criar sua primeira página
               </button>

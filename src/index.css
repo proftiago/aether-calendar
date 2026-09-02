@@ -185,13 +185,16 @@ button {
   outline-offset: 2px;
 }
 
-/* Campos de texto já mostram foco pela própria mudança de fundo/borda —
-   o anel de foco genérico acima fica pesado demais neles. Precisa ser uma
-   regra mais específica (elemento + pseudo-classe) pra vencer a de cima,
-   já que Tailwind v4 injeta utilities numa @layer com prioridade menor
-   que CSS solto — "outline-none" no className sozinho não bastava. */
+/* Campos de texto tinham o anel de foco genérico removido com a
+   justificativa de que "já mostram foco pela própria mudança de fundo/
+   borda" — checado e isso era falso, nenhum campo tinha onFocus nem
+   estilo :focus implementado, então ficavam completamente sem indicação
+   nenhuma pra quem navega pelo teclado. Corrigido com um anel mais leve
+   (box-shadow, não o outline grosso dos botões) — mantém a leveza que
+   o comentário original queria, mas sem deixar o campo invisível. */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
 }

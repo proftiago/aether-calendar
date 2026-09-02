@@ -166,7 +166,7 @@ export function FocusModeView() {
                   <label key={t.id} className="flex items-center gap-2 py-1 cursor-pointer">
                     <input type="checkbox" checked={t.done} onChange={() => dispatch({ type: 'TOGGLE_TASK', id: t.id })} />
                     <span
-                      className="text-[13px] truncate"
+                      className="text-[13px] truncate flex-1 min-w-0"
                       style={{ color: '#3a2a26', textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.5 : 1 }}
                     >
                       {t.title}
