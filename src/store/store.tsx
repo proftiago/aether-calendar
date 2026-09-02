@@ -787,6 +787,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isGoogleConfigured() || state.google !== 'on') return;
+    // Sincroniza imediatamente ao carregar o app (se já estava conectado de
+    // uma sessão anterior) — sem isso, a primeira sincronização só
+    // acontecia depois de 5 minutos (o intervalo abaixo), ao focar a aba,
+    // ou manualmente. Um simples F5 podia deixar a pessoa olhando dados
+    // desatualizados por minutos sem perceber.
+    syncFromGoogle();
     const id = setInterval(syncFromGoogle, 5 * 60_000);
     const onFocus = () => syncFromGoogle();
     const onManualSync = (e: globalThis.Event) => syncFromGoogle((e as CustomEvent).detail?.forceFull === true);
