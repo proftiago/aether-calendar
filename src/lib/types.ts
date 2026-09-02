@@ -75,6 +75,8 @@ export type Task = {
   notes?: string;
   subtasks?: NoteChecklistItem[];
   links?: { id: string; url: string; label: string }[];
+  /** true = tarefa "algum dia", sem prazo definido — bucket próprio, não calculado por data */
+  someday?: boolean;
 };
 
 export type CalendarSetKey = string; // id de um CalendarSet, ou 'custom'
@@ -123,4 +125,31 @@ export type Note = {
   checklist: NoteChecklistItem[];
   createdAt: string; // ISO
   updatedAt: string; // ISO
+};
+
+export type Habit = {
+  id: string;
+  title: string;
+  icon: string; // emoji
+  /** dias em que o hábito deve aparecer (0=dom...6=sáb) — todos os dias por padrão */
+  days: number[];
+  /** datas (YYYY-MM-DD) em que foi marcado feito */
+  doneDates: string[];
+  createdAt: string;
+};
+
+export type Page = {
+  id: string;
+  title: string;
+  icon: string; // emoji
+  /** texto simples, uma "linha" por item — o editor é deliberadamente simples,
+   * não é um sistema de blocos aninhados de verdade */
+  content: string;
+  tag?: string;
+  duration?: number; // minutos
+  scheduleDate?: string; // YYYY-MM-DD
+  deadline?: string; // YYYY-MM-DD
+  archived?: boolean;
+  createdAt: string;
+  updatedAt: string;
 };

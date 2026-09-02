@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
-import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey, Note, NoteChecklistItem, TaskPriority } from '../lib/types';
+import type { Calendar, CalendarSet, Event, GoogleSyncState, RRule, Task, ViewKey, Note, NoteChecklistItem, TaskPriority, Habit, Page } from '../lib/types';
 import { CALENDARS, seedEvents, seedTasks } from '../lib/mockData';
 import { todayKey, nowMinutesOfDay, addDays, dateKeyOf, dowOf, daysBetween } from '../lib/dates';
 import { loadJSON, saveJSON } from '../lib/persistence';
@@ -85,6 +85,8 @@ export type AppState = {
   events: Event[];
   tasks: Task[];
   notes: Note[];
+  habits: Habit[];
+  pages: Page[];
   calendars: Calendar[];
   calendarSets: CalendarSet[];
   set: string; // id de um CalendarSet ativo, ou 'custom'
@@ -107,7 +109,7 @@ export type AppState = {
   pendingSyncIds: string[];
 };
 
-type Action =
+export type Action =
   | { type: 'UPDATE_SETTINGS'; changes: Partial<AppSettings> }
   | { type: 'SET_SETTINGS_OPEN'; open: boolean; tab?: SettingsTab }
   | { type: 'CLEAR_DEMO_DATA' }
@@ -127,6 +129,12 @@ type Action =
   | { type: 'REMOVE_EVENT'; id: string; toast?: string }
   | { type: 'ADD_TASK'; task: Task }
   | { type: 'SET_PAGE'; page: PageKey }
+  | { type: 'ADD_HABIT'; habit: Habit }
+  | { type: 'REMOVE_HABIT'; id: string }
+  | { type: 'TOGGLE_HABIT_TODAY'; id: string }
+  | { type: 'ADD_WORKSPACE_PAGE'; page: Page }
+  | { type: 'UPDATE_WORKSPACE_PAGE'; id: string; changes: Partial<Page> }
+  | { type: 'REMOVE_WORKSPACE_PAGE'; id: string }
   | { type: 'ADD_NOTE'; note: Note }
   | { type: 'UPDATE_NOTE'; id: string; changes: Partial<Note> }
   | { type: 'REMOVE_NOTE'; id: string }
@@ -230,6 +238,8 @@ function reducer(state: AppState, action: Action): AppState {
         events: state.events.filter((ev) => ev.src === 'google'),
         tasks: [],
         notes: [],
+        habits: [],
+        pages: [],
         calendarSets: DEFAULT_CALENDAR_SETS,
         // desliga a sincronização também — senão ela puxava os dados
         // "apagados" de volta do Supabase na próxima vez que rodasse
@@ -321,6 +331,30 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, page: action.page };
     case 'ADD_NOTE':
       return { ...state, notes: [action.note, ...state.notes] };
+    case 'ADD_HABIT':
+      return { ...state, habits: [...state.habits, action.habit] };
+    case 'REMOVE_HABIT':
+      return { ...state, habits: state.habits.filter((h) => h.id !== action.id) };
+    case 'TOGGLE_HABIT_TODAY': {
+      const today = todayKey();
+      return {
+        ...state,
+        habits: state.habits.map((h) => {
+          if (h.id !== action.id) return h;
+          const done = h.doneDates.includes(today);
+          return { ...h, doneDates: done ? h.doneDates.filter((d) => d !== today) : [...h.doneDates, today] };
+        }),
+      };
+    }
+    case 'ADD_WORKSPACE_PAGE':
+      return { ...state, pages: [action.page, ...state.pages] };
+    case 'UPDATE_WORKSPACE_PAGE':
+      return {
+        ...state,
+        pages: state.pages.map((p) => (p.id === action.id ? { ...p, ...action.changes, updatedAt: new Date().toISOString() } : p)),
+      };
+    case 'REMOVE_WORKSPACE_PAGE':
+      return { ...state, pages: state.pages.filter((p) => p.id !== action.id) };
     case 'UPDATE_NOTE':
       return {
         ...state,
@@ -549,6 +583,8 @@ function initialState(): AppState {
   const storedEvents = loadJSON<Event[]>('events');
   const storedTasks = loadJSON<Task[]>('tasks');
   const storedNotes = loadJSON<Note[]>('notes');
+  const storedHabits = loadJSON<Habit[]>('habits');
+  const storedPages = loadJSON<Page[]>('pages');
   const storedCalendars = loadJSON<Calendar[]>('calendars');
   const storedCalendarSets = loadJSON<CalendarSet[]>('calendarSets');
   const storedGoogleConnected = loadJSON<boolean>('googleConnected');
@@ -566,6 +602,8 @@ function initialState(): AppState {
     events: storedEvents ?? seedEvents(),
     tasks: storedTasks ?? seedTasks(),
     notes: storedNotes ?? [],
+    habits: storedHabits ?? [],
+    pages: storedPages ?? [],
     calendars: storedCalendars ?? CALENDARS,
     calendarSets: storedCalendarSets ?? DEFAULT_CALENDAR_SETS,
     set: 'all',
@@ -740,6 +778,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveJSON('notes', state.notes);
   }, [state.notes]);
+  useEffect(() => {
+    saveJSON('habits', state.habits);
+  }, [state.habits]);
+  useEffect(() => {
+    saveJSON('pages', state.pages);
+  }, [state.pages]);
   useEffect(() => {
     saveJSON('calendars', state.calendars);
   }, [state.calendars]);
