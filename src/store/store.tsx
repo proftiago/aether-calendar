@@ -24,7 +24,7 @@ export type FormState = {
   repeatUntil: string; // dateKey ou ''
 };
 
-export type SettingsTab = 'general' | 'analytics' | 'google' | 'data';
+export type SettingsTab = 'general' | 'analytics' | 'google' | 'data' | 'notifications' | 'shortcuts' | 'about';
 export type PageKey = 'hoje' | 'calendario' | 'tarefas' | 'notas' | 'paginas';
 
 export type AppSettings = {

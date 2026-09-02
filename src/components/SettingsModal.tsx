@@ -10,10 +10,13 @@ import { Sparkline } from './Sparkline';
 import type { SettingsTab } from '../store/store';
 
 const TABS: { key: SettingsTab; label: string }[] = [
-  { key: 'general', label: 'Geral' },
+  { key: 'google', label: 'Integrações de Calendário' },
+  { key: 'general', label: 'Personalização' },
+  { key: 'notifications', label: 'Notificações' },
+  { key: 'shortcuts', label: 'Atalhos de teclado' },
   { key: 'analytics', label: 'Analytics' },
-  { key: 'google', label: 'Google Calendar' },
   { key: 'data', label: 'Dados' },
+  { key: 'about', label: 'Sobre' },
 ];
 
 const ACCENT_COLOR_PRESETS = [
@@ -112,6 +115,9 @@ export function SettingsModal() {
           {state.settingsTab === 'analytics' && <AnalyticsTab />}
           {state.settingsTab === 'google' && <GoogleTab />}
           {state.settingsTab === 'data' && <DataTab />}
+          {state.settingsTab === 'notifications' && <NotificationsTab />}
+          {state.settingsTab === 'shortcuts' && <ShortcutsTab />}
+          {state.settingsTab === 'about' && <AboutTab />}
         </div>
       </div>
     </div>
@@ -240,34 +246,6 @@ function GeneralTab() {
             ]}
           />
         </FieldRow>
-      </div>
-
-      <div>
-        <SectionHeading>Lembretes</SectionHeading>
-        <ToggleRow
-          label="Notificar antes do evento"
-          checked={s.remindersEnabled}
-          onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { remindersEnabled: v } })}
-        />
-        {s.remindersEnabled && (
-          <>
-            <FieldRow label="Avisar com">
-              <Select
-                value={String(s.reminderMinutes)}
-                onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { reminderMinutes: Number(v) } })}
-                options={[
-                  { value: '5', label: '5 min de antecedência' },
-                  { value: '10', label: '10 min de antecedência' },
-                  { value: '15', label: '15 min de antecedência' },
-                  { value: '30', label: '30 min de antecedência' },
-                ]}
-              />
-            </FieldRow>
-            <p className="text-[11.5px] leading-[1.6] mt-1" style={{ color: 'var(--text3)' }}>
-              Só funciona com o Aether aberto numa aba — não é uma notificação push de verdade, então não chega se o navegador estiver fechado.
-            </p>
-          </>
-        )}
       </div>
 
       <div>
@@ -651,6 +629,126 @@ function DataTab() {
         >
           Apagar todos os dados locais
         </button>
+      </div>
+    </div>
+  );
+}
+
+function NotificationsTab() {
+  const { state, dispatch } = useStore();
+  const s = state.settings;
+  return (
+    <div className="flex flex-col gap-5 max-w-[420px]">
+      <div>
+        <SectionHeading>Lembretes de evento</SectionHeading>
+        <ToggleRow
+          label="Notificar antes do evento"
+          checked={s.remindersEnabled}
+          onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { remindersEnabled: v } })}
+        />
+        {s.remindersEnabled && (
+          <>
+            <FieldRow label="Avisar com">
+              <Select
+                value={String(s.reminderMinutes)}
+                onChange={(v) => dispatch({ type: 'UPDATE_SETTINGS', changes: { reminderMinutes: Number(v) } })}
+                options={[
+                  { value: '5', label: '5 min de antecedência' },
+                  { value: '10', label: '10 min de antecedência' },
+                  { value: '15', label: '15 min de antecedência' },
+                  { value: '30', label: '30 min de antecedência' },
+                ]}
+              />
+            </FieldRow>
+            <p className="text-[11.5px] leading-[1.6] mt-1" style={{ color: 'var(--text3)' }}>
+              Só funciona com o Aether aberto numa aba — não é uma notificação push de verdade, então não chega se o navegador estiver fechado.
+            </p>
+          </>
+        )}
+      </div>
+
+      <div>
+        <SectionHeading>Central de Alertas</SectionHeading>
+        <p className="text-[13px] leading-[1.6]" style={{ color: 'var(--text2)' }}>
+          O sino no topo mostra eventos de hoje que ainda vão começar, tarefas atrasadas e tarefas que vencem hoje —
+          sempre calculado na hora a partir da sua agenda, não é um histórico salvo.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ShortcutsTab() {
+  const SHORTCUTS: { keys: string[]; label: string }[] = [
+    { keys: ['Ctrl', '/'], label: 'Menu de comando' },
+    { keys: ['T'], label: 'Ir para hoje' },
+    { keys: ['C', 'N'], label: 'Criar evento' },
+    { keys: ['G'], label: 'Ir para busca' },
+    { keys: ['D'], label: 'Ver: Dia' },
+    { keys: ['W'], label: 'Ver: Semana' },
+    { keys: ['1', '2', '3', '4'], label: 'Trocar view (dia/semana/mês/agenda)' },
+    { keys: ['←', '→'], label: 'Navegar' },
+    { keys: ['Esc'], label: 'Fechar' },
+  ];
+  return (
+    <div className="flex flex-col gap-[13px] max-w-[420px]">
+      {SHORTCUTS.map((s, i) => (
+        <div key={i} className="flex items-center justify-between gap-3">
+          <span className="text-[13px]" style={{ color: 'var(--text2)' }}>
+            {s.label}
+          </span>
+          <span className="flex gap-1 shrink-0">
+            {s.keys.map((k, j) => (
+              <kbd
+                key={j}
+                className="text-[11px] font-mono-ae font-semibold rounded-[5px] px-[7px] py-[2px] border"
+                style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text2)' }}
+              >
+                {k}
+              </kbd>
+            ))}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AboutTab() {
+  return (
+    <div className="flex flex-col gap-5 max-w-[420px]">
+      <div>
+        <SectionHeading>Aether Calendar</SectionHeading>
+        <p className="text-[13px] leading-[1.6]" style={{ color: 'var(--text2)' }}>
+          Calendário pessoal construído sob medida — código aberto no seu repositório, sem serviço de terceiros por
+          trás além do que você mesmo conectou (Google Calendar, Supabase).
+        </p>
+      </div>
+      <div>
+        <SectionHeading>Enviar feedback</SectionHeading>
+        <p className="text-[13px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
+          Achou um bug ou tem uma ideia? Manda direto — não tem sistema de feedback dentro do app, mas um e-mail
+          chega.
+        </p>
+        <a
+          href="mailto:?subject=Feedback%20Aether%20Calendar"
+          className="inline-block rounded-[9px] px-4 py-2 text-[13px] font-semibold"
+          style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+        >
+          Abrir e-mail
+        </a>
+      </div>
+      <div>
+        <SectionHeading>Repositório</SectionHeading>
+        <a
+          href="https://github.com/proftiago/aether-calendar"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="text-[13px] underline"
+          style={{ color: 'var(--accent)' }}
+        >
+          github.com/proftiago/aether-calendar
+        </a>
       </div>
     </div>
   );
