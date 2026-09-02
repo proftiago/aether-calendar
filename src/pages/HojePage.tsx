@@ -7,6 +7,16 @@ import { dateKeyOf, addDays, hm, minutesOfDay, todayKey } from '../lib/dates';
 import { eventBg } from '../lib/style';
 import type { Task } from '../lib/types';
 
+const HABIT_ICON_PRESETS = ['🧘', '🏃', '🚶', '📖', '🏋️', '🍎', '💧', '😴', '✍️', '🎨'];
+const HABIT_SUGGESTIONS = [
+  { icon: '🧘', title: 'Meditar' },
+  { icon: '🏃', title: 'Correr' },
+  { icon: '🚶', title: 'Caminhar' },
+  { icon: '📖', title: 'Ler' },
+  { icon: '🏋️', title: 'Academia' },
+  { icon: '🍎', title: 'Comer frutas' },
+];
+
 function greeting(): string {
   const h = new Date().getHours();
   if (h < 12) return 'Bom dia';
@@ -41,6 +51,9 @@ export function HojePage() {
   const [newTitle, setNewTitle] = useState('');
   const [tomorrowOpen, setTomorrowOpen] = useState(true);
   const [somedayOpen, setSomedayOpen] = useState(true);
+  const [addingHabit, setAddingHabit] = useState(false);
+  const [newHabitTitle, setNewHabitTitle] = useState('');
+  const [newHabitIcon, setNewHabitIcon] = useState('🧘');
 
   const todaysEvents = useMemo(
     () =>
@@ -82,6 +95,23 @@ export function HojePage() {
     dispatch({ type: 'ADD_TASK', task });
     setNewTitle('');
     setAddingIn(null);
+  }
+
+  function quickAddHabit(icon: string, title: string) {
+    dispatch({
+      type: 'ADD_HABIT',
+      habit: { id: `habit-${Date.now()}`, title, icon, days: [], doneDates: [], createdAt: new Date().toISOString() },
+    });
+  }
+
+  function submitHabit() {
+    if (!newHabitTitle.trim()) {
+      setAddingHabit(false);
+      return;
+    }
+    quickAddHabit(newHabitIcon, newHabitTitle.trim());
+    setNewHabitTitle('');
+    setAddingHabit(false);
   }
 
   const dateLabel = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -194,27 +224,20 @@ export function HojePage() {
               <h2 className="text-[15px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
                 💪 Hábitos
               </h2>
-              <button
-                onClick={() => dispatch({ type: 'SET_SETTINGS_OPEN', open: true, tab: 'general' })}
-                className="text-[12px] font-medium"
-                style={{ color: 'var(--gold)' }}
-              >
-                Gerenciar →
-              </button>
             </div>
-            {todayHabits.length === 0 ? (
-              <p className="text-[13px]" style={{ color: 'var(--text3)' }}>
+            {todayHabits.length === 0 && !addingHabit && (
+              <p className="text-[13px] mb-2.5" style={{ color: 'var(--text3)' }}>
                 Nenhum hábito criado ainda.
               </p>
-            ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {todayHabits.map((h) => {
-                  const done = h.doneDates.includes(today);
-                  return (
+            )}
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {todayHabits.map((h) => {
+                const done = h.doneDates.includes(today);
+                return (
+                  <div key={h.id} className="relative group">
                     <button
-                      key={h.id}
                       onClick={() => dispatch({ type: 'TOGGLE_HABIT_TODAY', id: h.id })}
-                      className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
+                      className="flex items-center gap-1.5 rounded-full pl-3 pr-2 py-1.5 text-[12.5px] font-medium"
                       style={
                         done
                           ? { background: 'var(--sync-ok)', color: 'white' }
@@ -224,8 +247,67 @@ export function HojePage() {
                       <span>{h.icon}</span>
                       {h.title}
                     </button>
-                  );
-                })}
+                    <button
+                      onClick={() => dispatch({ type: 'REMOVE_HABIT', id: h.id })}
+                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full grid place-items-center opacity-0 group-hover:opacity-100"
+                      style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text3)' }}
+                      aria-label="Remover hábito"
+                    >
+                      <span style={{ fontSize: 9 }}>✕</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {addingHabit ? (
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={newHabitIcon}
+                  onChange={(e) => setNewHabitIcon(e.target.value)}
+                  className="text-[16px] rounded-[8px] px-1.5 py-1.5 outline-none shrink-0"
+                  style={{ background: 'var(--surface2)' }}
+                >
+                  {HABIT_ICON_PRESETS.map((icon) => (
+                    <option key={icon} value={icon}>
+                      {icon}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  autoFocus
+                  value={newHabitTitle}
+                  onChange={(e) => setNewHabitTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') submitHabit();
+                    if (e.key === 'Escape') setAddingHabit(false);
+                  }}
+                  onBlur={submitHabit}
+                  placeholder="Nome do hábito"
+                  className="flex-1 rounded-[8px] px-2.5 py-1.5 text-[13px] outline-none min-w-0"
+                  style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {HABIT_SUGGESTIONS.filter((s) => !todayHabits.some((h) => h.title === s.title)).map((s) => (
+                  <button
+                    key={s.title}
+                    onClick={() => quickAddHabit(s.icon, s.title)}
+                    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
+                    style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+                  >
+                    <span>{s.icon}</span>
+                    {s.title}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setAddingHabit(true)}
+                  className="rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
+                  style={{ background: 'color-mix(in oklab, var(--accent) 14%, var(--surface2))', color: 'var(--accent)' }}
+                >
+                  + Criar hábito
+                </button>
               </div>
             )}
           </section>
