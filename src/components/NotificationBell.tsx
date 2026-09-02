@@ -3,16 +3,20 @@ import { Bell } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, useVisibleEvents, calendarOf } from '../store/selectors';
 import { dateKeyOf, hm, minutesOfDay, todayKey } from '../lib/dates';
+import { AlertsModal } from './AlertsModal';
 
 /**
- * Sino de notificação — mostra os próximos eventos de hoje que ainda vão
- * começar (dados reais, não decoração). Não é uma "central de
- * notificações" com histórico — o Aether não tem esse sistema por baixo,
- * então não finjo um: isso aqui é só "o que vem por aí hoje".
+ * Sino de notificação — dropdown rápido com os próximos eventos de hoje
+ * (dados reais). "Ver todos os alertas" abre a central completa
+ * (AlertsModal), que também junta tarefas atrasadas e tarefas que vencem
+ * hoje. Sempre computado na hora a partir dos dados reais — o Aether não
+ * guarda um histórico de notificações passadas, então não existe "alerta
+ * antigo" pra mostrar, só o que é verdade agora.
  */
 export function NotificationBell() {
   const { state, dispatch } = useStore();
   const [open, setOpen] = useState(false);
+  const [alertsModalOpen, setAlertsModalOpen] = useState(false);
   const allEvents = useAllEvents(state);
   const visibleEvents = useVisibleEvents(state, allEvents);
   const today = todayKey();
@@ -80,9 +84,20 @@ export function NotificationBell() {
                 );
               })
             )}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setAlertsModalOpen(true);
+              }}
+              className="w-full text-center text-[12px] font-medium rounded-[8px] py-2 mt-1 hover:[background:var(--surface2)]"
+              style={{ color: 'var(--accent)' }}
+            >
+              Ver todos os alertas
+            </button>
           </div>
         </>
       )}
+      {alertsModalOpen && <AlertsModal onClose={() => setAlertsModalOpen(false)} />}
     </div>
   );
 }
