@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Search, SlidersHorizontal, ListChecks } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, SlidersHorizontal, ListChecks } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
@@ -186,14 +186,6 @@ export function Toolbar() {
       </div>
 
       {moreMenuButton}
-
-      <button
-        onClick={() => window.dispatchEvent(new CustomEvent('aether:open-search'))}
-        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
-        aria-label="Buscar"
-      >
-        <Search size={15} style={{ color: 'var(--text2)' }} />
-      </button>
 
       <NotificationBell />
 

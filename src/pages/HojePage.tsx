@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 import { ChevronDown, FileText } from 'lucide-react';
 import { useStore } from '../store/store';
 import type { Action } from '../store/store';
-import { useAllEvents, useVisibleEvents, calendarOf } from '../store/selectors';
-import { dateKeyOf, addDays, hm, minutesOfDay, todayKey } from '../lib/dates';
-import { eventBg } from '../lib/style';
+import { useAllEvents, useVisibleEvents } from '../store/selectors';
+import { dateKeyOf, addDays, minutesOfDay, todayKey } from '../lib/dates';
+import { TodayHourGrid } from '../components/TodayHourGrid';
 import type { Task } from '../lib/types';
 
 const HABIT_ICON_PRESETS = ['🧘', '🏃', '🚶', '📖', '🏋️', '🍎', '💧', '😴', '✍️', '🎨'];
@@ -117,7 +117,9 @@ export function HojePage() {
   const dateLabel = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-8">
+    <div className="flex-1 flex min-h-0">
+      <TodayHourGrid />
+      <div className="flex-1 overflow-y-auto px-6 py-8">
       <div className="max-w-[920px] mx-auto">
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-[22px] font-semibold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
@@ -134,42 +136,6 @@ export function HojePage() {
           <StatCard label="Sequência de dias" value={streak} accent="var(--gold)" icon="🔥" />
           <StatCard label="Hábitos hoje" value={`${habitsDoneToday}/${todayHabits.length}`} accent="var(--sync-ok)" icon="💪" isText />
         </div>
-
-        <section className="mb-5 rounded-[16px] p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--text3)' }}>
-            Agenda de hoje
-          </h2>
-          {todaysEvents.length === 0 ? (
-            <p className="text-[13px]" style={{ color: 'var(--text3)' }}>
-              Nada agendado por hoje.
-            </p>
-          ) : (
-            <div className="flex flex-col gap-1.5">
-              {todaysEvents.map((ev) => {
-                const cal = calendarOf(state, ev.calId);
-                return (
-                  <button
-                    key={ev.id}
-                    onClick={() => {
-                      dispatch({ type: 'SET_PAGE', page: 'calendario' });
-                      dispatch({ type: 'SET_SELECTED', id: ev.id });
-                    }}
-                    className="flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-left"
-                    style={{ background: eventBg(cal?.color ?? 'var(--accent)', 12) }}
-                  >
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cal?.color }} />
-                    <span className="w-[68px] shrink-0 text-[12.5px] font-mono-ae" style={{ color: cal?.color }}>
-                      {ev.allDay ? 'dia todo' : hm(minutesOfDay(ev.startsAt), state.settings.timeFormat)}
-                    </span>
-                    <span className="text-[14px] font-medium truncate" style={{ color: 'var(--text)' }}>
-                      {ev.title}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
 
         <section className="mb-5 rounded-[16px] p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
@@ -340,6 +306,7 @@ export function HojePage() {
             )}
           </section>
         </div>
+      </div>
       </div>
     </div>
   );
