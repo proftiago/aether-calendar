@@ -610,7 +610,13 @@ function reducer(state: AppState, action: Action): AppState {
       for (const incoming of action.events) {
         const idx = events.findIndex((ev) => ev.googleEventId && ev.googleEventId === incoming.googleEventId);
         if (idx >= 0) {
-          events[idx] = { ...events[idx], ...incoming, id: events[idx].id };
+          // calId é recalculado por um chute de palavra-chave toda vez que
+          // vem do Google (Google não tem esse conceito, é só categorização
+          // nossa) — se já existe localmente, respeita a escolha manual da
+          // pessoa em vez de sobrescrever com o chute de novo. Bug real: como
+          // a sincronização agora roda assim que o app abre, isso apagava
+          // qualquer troca de calendário quase imediatamente a cada refresh.
+          events[idx] = { ...events[idx], ...incoming, id: events[idx].id, calId: events[idx].calId };
         } else {
           events.push(incoming);
         }
