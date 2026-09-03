@@ -759,6 +759,15 @@ export function DayWeekGrid() {
           >
             <button
               onClick={() => {
+                if (quickMenu.event.seriesId) {
+                  // instância de série recorrente — abre o Drawer em vez do
+                  // formulário direto, pra oferecer a escolha entre "só esta"
+                  // ou "toda a série" (mesma lógica do Drawer, sem duplicar
+                  // essa interface aqui de novo)
+                  dispatch({ type: 'SET_SELECTED', id: quickMenu.event.id });
+                  setQuickMenu(null);
+                  return;
+                }
                 const startMin = minutesOfDay(quickMenu.event.startsAt);
                 const durationMin = minutesOfDay(quickMenu.event.endsAt) - startMin;
                 dispatch({

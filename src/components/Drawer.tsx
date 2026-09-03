@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { X, Share2, Copy, Check } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
@@ -20,6 +21,8 @@ export function Drawer() {
   const allEvents = useAllEvents(state);
   const event = allEvents.find((e) => e.id === state.selected);
   const overlay = state.w < 1240;
+  const [editChoiceOpen, setEditChoiceOpen] = useState(false);
+  const [deleteChoiceOpen, setDeleteChoiceOpen] = useState(false);
   const fullWidth = state.w < 480;
 
   if (!event) return null;
@@ -221,11 +224,11 @@ export function Drawer() {
             <Check size={15} />
           </button>
           <button
-            onClick={edit}
+            onClick={() => (isRecurringInstance ? setEditChoiceOpen(true) : edit())}
             className="flex-1 rounded-[10px] py-2.5 text-[13px] font-semibold"
             style={{ background: 'var(--surface2)', color: 'var(--text)' }}
           >
-            {isRecurringInstance ? 'Editar este' : 'Editar'}
+            Editar
           </button>
           <button
             onClick={duplicate}
@@ -248,23 +251,86 @@ export function Drawer() {
             </button>
           )}
           <button
-            onClick={remove}
+            onClick={() => (isRecurringInstance ? setDeleteChoiceOpen(true) : remove())}
             className="flex-1 rounded-[10px] py-2.5 text-[13px] font-semibold border"
             style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}
           >
-            {isRecurringInstance ? 'Excluir este' : 'Excluir'}
+            Excluir
           </button>
         </div>
 
-        {isRecurringInstance && (
-          <div className="flex gap-2 -mt-1.5">
-            <button onClick={editSeries} className="flex-1 text-[12px] font-semibold py-1" style={{ color: 'var(--text3)' }}>
-              Editar toda a série
-            </button>
-            <button onClick={removeSeries} className="flex-1 text-[12px] font-semibold py-1" style={{ color: 'var(--text3)' }}>
-              Excluir toda a série
-            </button>
-          </div>
+        {deleteChoiceOpen && (
+          <>
+            <div className="fixed inset-0 z-[65]" onClick={() => setDeleteChoiceOpen(false)} />
+            <div
+              className="absolute left-4 right-4 z-[66] rounded-[14px] border p-2 animate-ae-pop"
+              style={{ bottom: 88, background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+            >
+              <p className="text-[12px] px-2 pt-1 pb-2" style={{ color: 'var(--text3)' }}>
+                Este evento se repete. O que você quer excluir?
+              </p>
+              <button
+                onClick={() => {
+                  setDeleteChoiceOpen(false);
+                  remove();
+                }}
+                className="w-full text-left rounded-[9px] px-2.5 py-2.5 text-[13px] font-medium hover:[background:var(--surface2)]"
+                style={{ color: 'var(--danger)' }}
+              >
+                Só esta ocorrência
+              </button>
+              <button
+                onClick={() => {
+                  setDeleteChoiceOpen(false);
+                  removeSeries();
+                }}
+                className="w-full text-left rounded-[9px] px-2.5 py-2.5 text-[13px] font-medium hover:[background:var(--surface2)]"
+                style={{ color: 'var(--danger)' }}
+              >
+                Toda a série
+              </button>
+            </div>
+          </>
+        )}
+
+        {editChoiceOpen && (
+          <>
+            <div className="fixed inset-0 z-[65]" onClick={() => setEditChoiceOpen(false)} />
+            <div
+              className="absolute left-4 right-4 z-[66] rounded-[14px] border p-2 animate-ae-pop"
+              style={{ bottom: 88, background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+            >
+              <p className="text-[12px] px-2 pt-1 pb-2" style={{ color: 'var(--text3)' }}>
+                Este evento se repete. O que você quer editar?
+              </p>
+              <button
+                onClick={() => {
+                  setEditChoiceOpen(false);
+                  edit();
+                }}
+                className="w-full text-left rounded-[9px] px-2.5 py-2.5 text-[13px] font-medium hover:[background:var(--surface2)]"
+                style={{ color: 'var(--text)' }}
+              >
+                Só esta ocorrência
+                <span className="block text-[11px] mt-0.5" style={{ color: 'var(--text3)' }}>
+                  As outras semanas continuam como estavam
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  setEditChoiceOpen(false);
+                  editSeries();
+                }}
+                className="w-full text-left rounded-[9px] px-2.5 py-2.5 text-[13px] font-medium hover:[background:var(--surface2)]"
+                style={{ color: 'var(--text)' }}
+              >
+                Toda a série
+                <span className="block text-[11px] mt-0.5" style={{ color: 'var(--text3)' }}>
+                  Vale pra essa e todas as próximas ocorrências
+                </span>
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
