@@ -37,6 +37,9 @@ export function useDeviceSync() {
         calendars: data.calendars ?? [],
         calendarSets: data.calendar_sets ?? [],
         settings: data.settings ?? {},
+        notes: data.notes ?? [],
+        habits: data.habits ?? [],
+        pages: data.pages ?? [],
       });
       dispatch({ type: 'TOAST', message: 'Dados sincronizados carregados' });
     })();
@@ -49,6 +52,9 @@ export function useDeviceSync() {
       calendars: state.calendars,
       calendar_sets: state.calendarSets,
       settings: state.settings,
+      notes: state.notes,
+      habits: state.habits,
+      pages: state.pages,
     };
     const hash = JSON.stringify(payload);
     if (hash === lastPushedHash.current) return;
@@ -62,5 +68,5 @@ export function useDeviceSync() {
       });
     }, 2000);
     return () => window.clearTimeout(timer);
-  }, [state.tasks, state.calendars, state.calendarSets, state.settings]);
+  }, [state.tasks, state.calendars, state.calendarSets, state.settings, state.notes, state.habits, state.pages]);
 }

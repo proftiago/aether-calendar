@@ -585,12 +585,76 @@ function DataTab() {
               </button>
             </div>
             <p className="text-[11.5px] leading-[1.6] mt-2" style={{ color: 'var(--text3)' }}>
-              Sincroniza tarefas, calendários e configurações — não sincroniza eventos locais (esses vêm do Google
-              Calendar em cada dispositivo). É "o último que salvar vence": editar ao mesmo tempo em dois lugares
-              pode sobrescrever uma mudança sem avisar.
+              Sincroniza tarefas, notas, hábitos, páginas, calendários e configurações — não sincroniza eventos
+              locais (esses vêm do Google Calendar em cada dispositivo). É "o último que salvar vence": editar ao
+              mesmo tempo em dois lugares pode sobrescrever uma mudança sem avisar.
             </p>
           </>
         )}
+      </div>
+
+      <div>
+        <SectionHeading>Backup manual</SectionHeading>
+        <p className="text-[13px] leading-[1.6] mb-2.5" style={{ color: 'var(--text2)' }}>
+          Baixa um arquivo com tudo que está salvo neste navegador (tarefas, notas, hábitos, páginas, calendários) —
+          funciona mesmo sem configurar a sincronização acima. Guarda esse arquivo em algum lugar seguro; pra
+          restaurar, usa "Importar backup" em outro dispositivo.
+        </p>
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => {
+              const backup = {
+                exportedAt: new Date().toISOString(),
+                tasks: state.tasks,
+                notes: state.notes,
+                habits: state.habits,
+                pages: state.pages,
+                calendars: state.calendars,
+                calendarSets: state.calendarSets,
+              };
+              const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `aether-backup-${new Date().toISOString().slice(0, 10)}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="rounded-[9px] px-4 py-2 text-[13px] font-semibold"
+            style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+          >
+            Exportar backup
+          </button>
+          <label
+            className="rounded-[9px] px-4 py-2 text-[13px] font-semibold cursor-pointer"
+            style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+          >
+            Importar backup
+            <input
+              type="file"
+              accept="application/json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                  try {
+                    const parsed = JSON.parse(String(reader.result));
+                    if (!window.confirm('Isso substitui tarefas, notas, hábitos, páginas e calendários pelo conteúdo do arquivo. Continuar?')) {
+                      return;
+                    }
+                    dispatch({ type: 'RESTORE_BACKUP', backup: parsed });
+                  } catch {
+                    window.alert('Não consegui ler esse arquivo — confere se é um backup exportado daqui mesmo.');
+                  }
+                };
+                reader.readAsText(file);
+                e.target.value = '';
+              }}
+            />
+          </label>
+        </div>
       </div>
 
       <div>

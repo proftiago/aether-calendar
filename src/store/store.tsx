@@ -149,6 +149,7 @@ export type Action =
   | { type: 'REMOVE_HABIT'; id: string }
   | { type: 'TOGGLE_HABIT_TODAY'; id: string }
   | { type: 'ADD_WORKSPACE_PAGE'; page: Page }
+  | { type: 'RESTORE_BACKUP'; backup: Record<string, unknown> }
   | { type: 'UPDATE_WORKSPACE_PAGE'; id: string; changes: Partial<Page> }
   | { type: 'REMOVE_WORKSPACE_PAGE'; id: string }
   | { type: 'ADD_NOTE'; note: Note }
@@ -174,7 +175,16 @@ export type Action =
   | { type: 'ARCHIVE_OLD_TASKS' }
   | { type: 'ADD_PENDING_SYNC'; id: string }
   | { type: 'REMOVE_PENDING_SYNC'; id: string }
-  | { type: 'APPLY_REMOTE_SYNC'; tasks: Task[]; calendars: Calendar[]; calendarSets: CalendarSet[]; settings: Partial<AppSettings> }
+  | {
+      type: 'APPLY_REMOTE_SYNC';
+      tasks: Task[];
+      calendars: Calendar[];
+      calendarSets: CalendarSet[];
+      settings: Partial<AppSettings>;
+      notes?: Note[];
+      habits?: Habit[];
+      pages?: Page[];
+    }
   | { type: 'SCHEDULE_TASK'; taskId: string; event: Event }
   | { type: 'SET_SELECTED'; id: string | null }
   | { type: 'OPEN_FORM'; form: FormState }
@@ -366,6 +376,23 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case 'ADD_WORKSPACE_PAGE':
       return { ...state, pages: [action.page, ...state.pages] };
+    case 'RESTORE_BACKUP': {
+      // valida cada campo isoladamente — um backup de versão antiga ou
+      // arquivo mal formado não deve quebrar o app, só ignora o que não
+      // reconhece e mantém o que já estava
+      const b = action.backup;
+      const arr = <T,>(v: unknown, fallback: T[]): T[] => (Array.isArray(v) ? (v as T[]) : fallback);
+      return {
+        ...state,
+        tasks: arr(b.tasks, state.tasks),
+        notes: arr(b.notes, state.notes),
+        habits: arr(b.habits, state.habits),
+        pages: arr(b.pages, state.pages),
+        calendars: arr(b.calendars, state.calendars),
+        calendarSets: arr(b.calendarSets, state.calendarSets),
+        toast: 'Backup restaurado',
+      };
+    }
     case 'UPDATE_WORKSPACE_PAGE':
       return {
         ...state,
@@ -499,6 +526,9 @@ function reducer(state: AppState, action: Action): AppState {
         calendars: action.calendars,
         calendarSets: action.calendarSets,
         settings: { ...state.settings, ...remoteSettings },
+        notes: action.notes ?? state.notes,
+        habits: action.habits ?? state.habits,
+        pages: action.pages ?? state.pages,
       };
     }
     case 'SCHEDULE_TASK': {
