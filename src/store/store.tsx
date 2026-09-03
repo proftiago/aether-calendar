@@ -141,6 +141,7 @@ export type Action =
   | { type: 'SET_QUICK'; value: string }
   | { type: 'SET_SEARCH'; value: string }
   | { type: 'ADD_EVENT'; event: Event; toast?: string }
+  | { type: 'EXCLUDE_SERIES_DATE'; seriesId: string; dateKey: string }
   | { type: 'PATCH_EVENT'; id: string; changes: Partial<Event>; toast?: string }
   | { type: 'REMOVE_EVENT'; id: string; toast?: string }
   | { type: 'ADD_TASK'; task: Task }
@@ -313,27 +314,12 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, search: action.value };
     case 'ADD_EVENT':
       return { ...state, events: [...state.events, action.event], toast: action.toast ?? state.toast };
+    case 'EXCLUDE_SERIES_DATE':
+      return {
+        ...state,
+        events: state.events.map((ev) => (ev.id === action.seriesId ? { ...ev, ex: [...(ev.ex ?? []), action.dateKey] } : ev)),
+      };
     case 'PATCH_EVENT': {
-      const isInstance = action.id.includes('@');
-      if (isInstance) {
-        const [seriesId, dateKey] = action.id.split('@');
-        const events = state.events.map((ev) => {
-          if (ev.id !== seriesId) return ev;
-          return { ...ev, ex: [...(ev.ex ?? []), dateKey] };
-        });
-        const series = state.events.find((ev) => ev.id === seriesId);
-        if (!series) return { ...state, events, toast: action.toast ?? state.toast };
-        const materialized: Event = {
-          ...series,
-          ...action.changes,
-          id: `local-${Date.now()}`,
-          seriesId: undefined,
-          rrule: undefined,
-          ex: undefined,
-          src: 'local',
-        };
-        return { ...state, events: [...events, materialized], toast: action.toast ?? state.toast };
-      }
       const events = state.events.map((ev) => {
         if (ev.id !== action.id) return ev;
         if (ev.src === 'google') {

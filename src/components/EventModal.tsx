@@ -50,6 +50,44 @@ export function EventModal() {
       pushCreate(event);
       hapticTick();
     } else if (form.id) {
+      const isInstance = form.id.includes('@') && !form.editingSeries;
+      if (isInstance) {
+        // Editar só UMA ocorrência de uma série recorrente (não a série
+        // inteira): exclui essa data da série original, e cria um evento
+        // avulso novo com as mudanças — precisa ser construído aqui (não
+        // dentro do reducer) pra dar pra chamar pushCreate com o objeto
+        // completo. Antes disso, essa chamada nunca acontecia de verdade:
+        // o código tentava achar o evento pelo id sintético da instância
+        // (que nunca existe em state.events, só o id da série real existe),
+        // então a mudança nunca ia pro Google — e como o evento materializado
+        // herdava por engano o mesmo googleEventId da série, a próxima
+        // sincronização periódica podia sobrescrever a mudança de volta.
+        const [seriesId, dateKey] = form.id.split('@');
+        const series = state.events.find((ev) => ev.id === seriesId);
+        if (series) {
+          dispatch({ type: 'EXCLUDE_SERIES_DATE', seriesId, dateKey });
+          const materialized: Event = {
+            ...series,
+            title: form.title.trim() || 'Novo evento',
+            calId: form.calId,
+            startsAt,
+            endsAt,
+            allDay: form.allDay,
+            location: form.location || undefined,
+            notes: form.notes || undefined,
+            id: `local-${Date.now()}`,
+            seriesId: undefined,
+            rrule: undefined,
+            ex: undefined,
+            googleEventId: undefined,
+            src: 'local',
+          };
+          dispatch({ type: 'ADD_EVENT', event: materialized, toast: 'Evento atualizado (só esta ocorrência)' });
+          pushCreate(materialized);
+        }
+        close();
+        return;
+      }
       const existing = state.events.find((ev) => ev.id === form.id);
       const changes = {
         title: form.title.trim() || 'Novo evento',
