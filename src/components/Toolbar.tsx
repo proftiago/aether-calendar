@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, SlidersHorizontal, ListChecks } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, SlidersHorizontal, ListChecks, Search, RefreshCw } from 'lucide-react';
 import { useStore, emptyCreateForm } from '../store/store';
 import { useSmartReschedule } from '../hooks/useSmartReschedule';
 import { formatPeriodLabel, weekNumberOf } from '../lib/dates';
@@ -20,7 +20,16 @@ export function Toolbar() {
   const { resolveConflicts } = useSmartReschedule();
   const weather = weatherOf(state.cursor);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const compact = state.w < 640;
+
+  useEffect(() => {
+    function onOpenSearch() {
+      setSearchOpen(true);
+    }
+    window.addEventListener('aether:open-search', onOpenSearch);
+    return () => window.removeEventListener('aether:open-search', onOpenSearch);
+  }, []);
 
   const nav = (
     <>
@@ -186,6 +195,41 @@ export function Toolbar() {
       </div>
 
       {moreMenuButton}
+
+      {searchOpen ? (
+        <div className="h-8 flex items-center gap-1.5 rounded-full px-2.5 shrink-0" style={{ background: 'var(--surface2)' }}>
+          <Search size={12} style={{ color: 'var(--text3)' }} />
+          <input
+            autoFocus
+            value={state.search}
+            onChange={(e) => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
+            onKeyDown={(e) => e.key === 'Escape' && setSearchOpen(false)}
+            onBlur={() => !state.search && setSearchOpen(false)}
+            placeholder="Buscar eventos…"
+            className="bg-transparent outline-none text-[13px] w-[160px]"
+            style={{ color: 'var(--text)' }}
+          />
+        </div>
+      ) : (
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
+          aria-label="Buscar"
+          title="Buscar (G)"
+        >
+          <Search size={15} style={{ color: 'var(--text2)' }} />
+        </button>
+      )}
+
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('aether:sync-now'))}
+        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
+        aria-label="Sincronizar agora"
+        title={state.google === 'on' ? 'Sincronizar agora' : 'Conecte o Google Calendar pra sincronizar'}
+        style={{ opacity: state.google === 'on' ? 1 : 0.4 }}
+      >
+        <RefreshCw size={15} className={state.google === 'sync' ? 'animate-ae-spin' : ''} style={{ color: 'var(--text2)' }} />
+      </button>
 
       <NotificationBell />
 

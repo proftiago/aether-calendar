@@ -8,7 +8,7 @@ import { useStore } from '../store/store';
  * de Configurações (nas outras páginas, onde o hamburguer não abriria
  * nada — bug real que existia antes desse ajuste: clicar nele em Notas/
  * Tarefas/Hoje não fazia literalmente nada). + busca, exclusiva do
- * celular, onde a FloatingDock não aparece.
+ * celular (no desktop, a busca mora no Toolbar da página Calendário).
  */
 export function Header() {
   const { state, dispatch } = useStore();

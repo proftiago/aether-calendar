@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { TaskPanel } from '../components/TaskPanel';
 import { TaskDetailPanel } from '../components/TaskDetailPanel';
+import { AccountMenu } from '../components/AccountMenu';
+import { NotificationBell } from '../components/NotificationBell';
 
 /**
  * Página Tarefas dedicada — mesmo TaskPanel usado no painel compacto da
@@ -14,9 +16,15 @@ export function TarefasPage() {
     <div className="flex-1 flex min-h-0">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[560px] mx-auto px-6 py-8">
-          <h1 className="text-[22px] font-semibold tracking-[-0.02em] mb-6" style={{ color: 'var(--text)' }}>
-            Tarefas
-          </h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-[22px] font-semibold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
+              Tarefas
+            </h1>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <AccountMenu />
+            </div>
+          </div>
           <TaskPanel title="Todas as tarefas" onSelectTask={setSelectedId} full />
         </div>
       </div>

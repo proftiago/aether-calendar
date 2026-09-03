@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Search, Plus, Inbox, ListTree, Trash2, Clock, Tag as TagIcon, Calendar as CalendarIcon, Flag } from 'lucide-react';
 import { useStore } from '../store/store';
+import { AccountMenu } from '../components/AccountMenu';
+import { NotificationBell } from '../components/NotificationBell';
 import type { Page } from '../lib/types';
 
 const PAGE_ICON_PRESETS = ['📄', '📝', '💡', '📚', '🎯', '✅', '🗒️', '📌'];
@@ -45,7 +47,17 @@ export function PaginasPage() {
   }
 
   return (
-    <div className="flex-1 flex min-h-0">
+    <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b shrink-0" style={{ borderColor: 'var(--border)' }}>
+        <span className="text-[14px] font-semibold" style={{ color: 'var(--text)' }}>
+          Páginas
+        </span>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <AccountMenu />
+        </div>
+      </div>
+      <div className="flex-1 flex min-h-0">
       <div className="w-[240px] shrink-0 border-r overflow-y-auto p-3" style={{ borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-1.5 mb-3">
           <div className="relative flex-1">
@@ -142,6 +154,7 @@ export function PaginasPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

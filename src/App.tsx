@@ -2,7 +2,6 @@ import { useEffect, useMemo } from 'react';
 import { StoreProvider, useStore, emptyCreateForm } from './store/store';
 import { useAllEvents } from './store/selectors';
 import { Header } from './components/Header';
-import { FloatingDock } from './components/FloatingDock';
 import { NavRail } from './components/NavRail';
 import { CalendarioPage } from './pages/CalendarioPage';
 import { TarefasPage } from './pages/TarefasPage';
@@ -184,7 +183,6 @@ function AppShell() {
       <Toast />
       <AIAssistant />
       <CommandMenu />
-      <FloatingDock />
     </div>
   );
 }

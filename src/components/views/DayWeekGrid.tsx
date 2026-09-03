@@ -680,24 +680,36 @@ export function DayWeekGrid() {
               isso, mover pra outro dia fazia o bloco sumir no meio do
               arrasto (a coluna de origem escondia ele, mas nenhuma coluna
               nova sabia que devia desenhá-lo). */}
-          {drag && (
-            <EventBlock
-              key={`ghost-${drag.eventId}`}
-              event={drag.event}
-              top={(drag.s - H0) * PX_PER_MIN}
-              height={(drag.e - drag.s) * PX_PER_MIN - 2}
-              left={`${GUTTER + drag.colIndex * colWidthPx()}px`}
-              width={`${colWidthPx() - 3}px`}
-              color={calendarOf(state, drag.event.calId)?.color ?? 'var(--accent)'}
-              calendarName={calendarOf(state, drag.event.calId)?.name}
-              lanes={1}
-              selected={false}
-              dragging
-              onSelect={() => {}}
-              onPointerDownMove={() => {}}
-              onPointerDownResize={() => {}}
-            />
-          )}
+          {drag && (() => {
+            // Mostra o horário em tempo real durante o arrasto — antes o
+            // bloco reposicionava visualmente, mas o rótulo de hora
+            // continuava mostrando o horário ORIGINAL (drag.event não
+            // mutado), então só dava pra saber a hora nova depois de soltar.
+            const ghostDateKey = days[drag.colIndex] ?? dateKeyOf(drag.event.startsAt);
+            const ghostEvent: Event = {
+              ...drag.event,
+              startsAt: toUtcIso(ghostDateKey, drag.s),
+              endsAt: toUtcIso(ghostDateKey, drag.e),
+            };
+            return (
+              <EventBlock
+                key={`ghost-${drag.eventId}`}
+                event={ghostEvent}
+                top={(drag.s - H0) * PX_PER_MIN}
+                height={(drag.e - drag.s) * PX_PER_MIN - 2}
+                left={`${GUTTER + drag.colIndex * colWidthPx()}px`}
+                width={`${colWidthPx() - 3}px`}
+                color={calendarOf(state, drag.event.calId)?.color ?? 'var(--accent)'}
+                calendarName={calendarOf(state, drag.event.calId)?.name}
+                lanes={1}
+                selected={false}
+                dragging
+                onSelect={() => {}}
+                onPointerDownMove={() => {}}
+                onPointerDownResize={() => {}}
+              />
+            );
+          })()}
         </div>
         {state.workOnly && (
           <button
