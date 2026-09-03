@@ -41,6 +41,14 @@ export type Event = {
   src?: EventSource;
   /** id do evento correspondente no Google Calendar, quando sincronizado */
   googleEventId?: string;
+  /**
+   * id do evento "mestre" no Google, presente só quando este evento é uma
+   * ocorrência de uma série que se repete DE VERDADE no Google (criada lá,
+   * não no Aether) — diferente de `seriesId`, que só existe pra séries
+   * criadas dentro do próprio Aether (via rrule local). Usado pra permitir
+   * "aplicar a esta e às próximas ocorrências" nesse tipo de série.
+   */
+  googleRecurringEventId?: string;
   /** id da tarefa que originou este bloco, se houver */
   fromTaskId?: string;
   /** presente apenas em instâncias virtuais expandidas em memória */

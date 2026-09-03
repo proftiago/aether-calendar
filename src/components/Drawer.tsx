@@ -23,6 +23,8 @@ export function Drawer() {
   const overlay = state.w < 1240;
   const [editChoiceOpen, setEditChoiceOpen] = useState(false);
   const [deleteChoiceOpen, setDeleteChoiceOpen] = useState(false);
+  const [googleSeriesChoiceOpen, setGoogleSeriesChoiceOpen] = useState(false);
+  const [calendarPickerOpen, setCalendarPickerOpen] = useState(false);
   const fullWidth = state.w < 480;
 
   if (!event) return null;
@@ -38,6 +40,12 @@ export function Drawer() {
   // buscamos a série original pelo seriesId para exibir a repetição corretamente.
   const originalSeries = event.seriesId ? state.events.find((ev) => ev.id === event.seriesId) : undefined;
   const isRecurringInstance = !!originalSeries;
+  // série que se repete DE VERDADE no Google (criada lá, não no Aether) —
+  // cada ocorrência chega como evento separado e independente, sem rrule
+  // local nenhum. Não dá pra "editar toda a série" nesse caso (exigiria
+  // mexer na API do Google de um jeito bem mais complexo), mas dá pra
+  // aplicar uma troca de calendário a esta e às próximas ocorrências.
+  const isGoogleRecurringInstance = !isRecurringInstance && !!event.googleRecurringEventId;
 
   function close() {
     dispatch({ type: 'SET_SELECTED', id: null });
@@ -224,7 +232,11 @@ export function Drawer() {
             <Check size={15} />
           </button>
           <button
-            onClick={() => (isRecurringInstance ? setEditChoiceOpen(true) : edit())}
+            onClick={() => {
+              if (isRecurringInstance) setEditChoiceOpen(true);
+              else if (isGoogleRecurringInstance) setGoogleSeriesChoiceOpen(true);
+              else edit();
+            }}
             className="flex-1 rounded-[10px] py-2.5 text-[13px] font-semibold"
             style={{ background: 'var(--surface2)', color: 'var(--text)' }}
           >
@@ -329,6 +341,81 @@ export function Drawer() {
                   Vale pra essa e todas as próximas ocorrências
                 </span>
               </button>
+            </div>
+          </>
+        )}
+
+        {googleSeriesChoiceOpen && (
+          <>
+            <div className="fixed inset-0 z-[65]" onClick={() => setGoogleSeriesChoiceOpen(false)} />
+            <div
+              className="absolute left-4 right-4 z-[66] rounded-[14px] border p-2 animate-ae-pop"
+              style={{ bottom: 88, background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+            >
+              <p className="text-[12px] px-2 pt-1 pb-2" style={{ color: 'var(--text3)' }}>
+                Este evento se repete no Google Calendar. O que você quer fazer?
+              </p>
+              <button
+                onClick={() => {
+                  setGoogleSeriesChoiceOpen(false);
+                  edit();
+                }}
+                className="w-full text-left rounded-[9px] px-2.5 py-2.5 text-[13px] font-medium hover:[background:var(--surface2)]"
+                style={{ color: 'var(--text)' }}
+              >
+                Editar só este evento
+                <span className="block text-[11px] mt-0.5" style={{ color: 'var(--text3)' }}>
+                  Título, horário, local — só desta ocorrência
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  setGoogleSeriesChoiceOpen(false);
+                  setCalendarPickerOpen(true);
+                }}
+                className="w-full text-left rounded-[9px] px-2.5 py-2.5 text-[13px] font-medium hover:[background:var(--surface2)]"
+                style={{ color: 'var(--text)' }}
+              >
+                Mudar calendário desta e das próximas
+                <span className="block text-[11px] mt-0.5" style={{ color: 'var(--text3)' }}>
+                  Não muda título nem horário, só o calendário — pra essa e todas as ocorrências futuras
+                </span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {calendarPickerOpen && (
+          <>
+            <div className="fixed inset-0 z-[65]" onClick={() => setCalendarPickerOpen(false)} />
+            <div
+              className="absolute left-4 right-4 z-[66] rounded-[14px] border p-3 animate-ae-pop"
+              style={{ bottom: 88, background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
+            >
+              <p className="text-[12px] px-1 pb-2" style={{ color: 'var(--text3)' }}>
+                Mudar pra qual calendário? (esta e as próximas ocorrências)
+              </p>
+              <div className="flex flex-col gap-1">
+                {state.calendars.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      setCalendarPickerOpen(false);
+                      dispatch({
+                        type: 'BULK_SET_CALENDAR_FOR_GOOGLE_SERIES',
+                        googleRecurringEventId: event.googleRecurringEventId!,
+                        fromDateKey: dateKeyOf(event.startsAt),
+                        calId: String(c.id),
+                      });
+                    }}
+                    className="flex items-center gap-2.5 rounded-[9px] px-2.5 py-2 text-[13px] font-medium hover:[background:var(--surface2)]"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
+                    {c.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </>
         )}

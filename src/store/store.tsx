@@ -142,6 +142,7 @@ export type Action =
   | { type: 'SET_SEARCH'; value: string }
   | { type: 'ADD_EVENT'; event: Event; toast?: string }
   | { type: 'EXCLUDE_SERIES_DATE'; seriesId: string; dateKey: string }
+  | { type: 'BULK_SET_CALENDAR_FOR_GOOGLE_SERIES'; googleRecurringEventId: string; fromDateKey: string; calId: string }
   | { type: 'PATCH_EVENT'; id: string; changes: Partial<Event>; toast?: string }
   | { type: 'REMOVE_EVENT'; id: string; toast?: string }
   | { type: 'ADD_TASK'; task: Task }
@@ -319,6 +320,17 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         events: state.events.map((ev) => (ev.id === action.seriesId ? { ...ev, ex: [...(ev.ex ?? []), action.dateKey] } : ev)),
       };
+    case 'BULK_SET_CALENDAR_FOR_GOOGLE_SERIES': {
+      const events = state.events.map((ev) =>
+        ev.googleRecurringEventId === action.googleRecurringEventId && dateKeyOf(ev.startsAt) >= action.fromDateKey
+          ? { ...ev, calId: action.calId }
+          : ev,
+      );
+      const count = events.filter(
+        (ev) => ev.googleRecurringEventId === action.googleRecurringEventId && dateKeyOf(ev.startsAt) >= action.fromDateKey,
+      ).length;
+      return { ...state, events, toast: `Calendário atualizado em ${count} ocorrências` };
+    }
     case 'PATCH_EVENT': {
       const events = state.events.map((ev) => {
         if (ev.id !== action.id) return ev;

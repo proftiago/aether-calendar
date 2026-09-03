@@ -74,6 +74,7 @@ export function rawToAetherEvent(raw: Record<string, unknown>): import('./types'
     notes: raw.notes ? String(raw.notes) : undefined,
     src: 'google',
     googleEventId: String(raw.googleEventId),
+    googleRecurringEventId: raw.recurringEventId ? String(raw.recurringEventId) : undefined,
   };
 }
 
