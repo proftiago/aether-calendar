@@ -44,7 +44,7 @@ export function NotasPage() {
       id: `note-${Date.now()}`,
       title: 'Nova nota',
       content: '',
-      calId: 'work',
+      calId: state.calendars[0]?.id ?? 'work',
       favorite: false,
       checklist: [],
       createdAt: now,

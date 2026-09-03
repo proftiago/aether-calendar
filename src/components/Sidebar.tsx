@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Plus, X, Settings } from 'lucide-react';
+import { Check, Plus, X, Settings, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { useStore } from '../store/store';
 import { hm } from '../lib/dates';
 import { MiniCalendar } from './MiniCalendar';
@@ -49,6 +49,9 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
   const [addingSet, setAddingSet] = useState(false);
   const [newSetName, setNewSetName] = useState('');
   const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState('');
+  const [addingCalendar, setAddingCalendar] = useState(false);
+  const [newCalendarName, setNewCalendarName] = useState('');
   const [workHoursOpen, setWorkHoursOpen] = useState(false);
 
   // sempre overlay agora — no original o painel de filtros abre/fecha por
@@ -61,6 +64,20 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
     }
     setNewSetName('');
     setAddingSet(false);
+  }
+
+  function confirmAddCalendar() {
+    const name = newCalendarName.trim();
+    if (name) {
+      const usedColors = new Set(state.calendars.map((c) => c.color));
+      const color = CALENDAR_COLOR_PRESETS.find((c) => !usedColors.has(c)) ?? CALENDAR_COLOR_PRESETS[0];
+      dispatch({
+        type: 'ADD_CALENDAR',
+        calendar: { id: `cal-${Date.now()}`, name, color, visible: true },
+      });
+    }
+    setNewCalendarName('');
+    setAddingCalendar(false);
   }
 
   return (
@@ -205,10 +222,20 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         <SectionDivider />
 
         <section>
-          <SectionTitle>Calendários</SectionTitle>
+          <div className="flex items-center justify-between mb-0.5">
+            <SectionTitle>Calendários</SectionTitle>
+            <button
+              onClick={() => setAddingCalendar(true)}
+              className="w-5 h-5 rounded-[5px] grid place-items-center hover:[background:var(--surface2)]"
+              aria-label="Novo calendário"
+              title="Novo calendário"
+            >
+              <Plus size={12} style={{ color: 'var(--text3)' }} />
+            </button>
+          </div>
           <div className="mt-2 flex flex-col">
-            {state.calendars.map((c) => (
-              <div key={c.id} className="relative flex items-center gap-2.5 rounded-[7px] px-1.5 py-[7px] hover:[background:var(--surface2)]">
+            {state.calendars.map((c, i) => (
+              <div key={c.id} className="relative flex items-center gap-1.5 rounded-[7px] px-1.5 py-[7px] hover:[background:var(--surface2)] group">
                 <button
                   onClick={() => dispatch({ type: 'TOGGLE_CAL', id: c.id })}
                   className="flex items-center gap-2.5 flex-1 min-w-0 text-left"
@@ -228,25 +255,89 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                     {c.name}
                   </span>
                 </button>
+
+                <span className="hidden group-hover:flex items-center shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch({ type: 'MOVE_CALENDAR', id: c.id, direction: 'up' });
+                    }}
+                    disabled={i === 0}
+                    className="w-5 h-5 rounded-[5px] grid place-items-center disabled:opacity-25"
+                    aria-label={`Mover ${c.name} pra cima`}
+                  >
+                    <ChevronUp size={12} style={{ color: 'var(--text3)' }} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch({ type: 'MOVE_CALENDAR', id: c.id, direction: 'down' });
+                    }}
+                    disabled={i === state.calendars.length - 1}
+                    className="w-5 h-5 rounded-[5px] grid place-items-center disabled:opacity-25"
+                    aria-label={`Mover ${c.name} pra baixo`}
+                  >
+                    <ChevronDown size={12} style={{ color: 'var(--text3)' }} />
+                  </button>
+                </span>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setColorPickerFor(colorPickerFor === c.id ? null : c.id);
+                    setRenameDraft(c.name);
                   }}
                   className="w-4 h-4 rounded-full shrink-0"
                   style={{ background: c.color, boxShadow: '0 0 0 2px var(--surface)' }}
                   aria-label={`Personalizar ${c.name}`}
-                  title="Cor e ícone"
+                  title="Cor, ícone e nome"
                 />
-                <span className="text-[11px] font-mono-ae shrink-0" style={{ color: 'var(--text3)' }}>
+                <span className="text-[11px] font-mono-ae shrink-0 group-hover:hidden" style={{ color: 'var(--text3)' }}>
                   {eventCountByCal[c.id] ?? 0}
                 </span>
+
+                {state.calendars.length > 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const fallback = state.calendars.find((other) => other.id !== c.id);
+                      if (!fallback) return;
+                      if (
+                        window.confirm(
+                          `Excluir "${c.name}"? Os eventos, tarefas e notas que estavam nele vão pro calendário "${fallback.name}".`,
+                        )
+                      ) {
+                        dispatch({ type: 'REMOVE_CALENDAR', id: c.id, fallbackId: String(fallback.id) });
+                      }
+                    }}
+                    className="hidden group-hover:grid w-5 h-5 rounded-[5px] place-items-center shrink-0"
+                    aria-label={`Excluir ${c.name}`}
+                    title="Excluir calendário"
+                  >
+                    <Trash2 size={12} style={{ color: 'var(--danger)' }} />
+                  </button>
+                )}
 
                 {colorPickerFor === c.id && (
                   <div
                     className="absolute right-0 top-full mt-1 z-30 rounded-[10px] border p-2.5 w-[192px]"
                     style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
                   >
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text3)' }}>
+                      Nome
+                    </div>
+                    <input
+                      value={renameDraft}
+                      onChange={(e) => setRenameDraft(e.target.value)}
+                      onBlur={() => {
+                        if (renameDraft.trim() && renameDraft.trim() !== c.name) {
+                          dispatch({ type: 'RENAME_CALENDAR', id: c.id, name: renameDraft.trim() });
+                        }
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+                      className="w-full rounded-[7px] px-2 py-1.5 text-[12.5px] outline-none mb-3"
+                      style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+                    />
                     <div className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--text3)' }}>
                       Cor
                     </div>
@@ -292,6 +383,25 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
                 )}
               </div>
             ))}
+
+            {addingCalendar ? (
+              <input
+                autoFocus
+                value={newCalendarName}
+                onChange={(e) => setNewCalendarName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') confirmAddCalendar();
+                  if (e.key === 'Escape') {
+                    setAddingCalendar(false);
+                    setNewCalendarName('');
+                  }
+                }}
+                onBlur={confirmAddCalendar}
+                placeholder="Nome do calendário"
+                className="mt-1 rounded-[7px] px-2.5 py-[6px] text-[13px] outline-none"
+                style={{ background: 'var(--surface2)', color: 'var(--text)' }}
+              />
+            ) : null}
           </div>
         </section>
 

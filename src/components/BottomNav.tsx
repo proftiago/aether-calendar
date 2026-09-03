@@ -24,7 +24,7 @@ export function BottomNav() {
   return (
     <>
       <button
-        onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
+        onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor, undefined, undefined, state.calendars[0]?.id) })}
         className="fixed z-40 w-12 h-12 rounded-full grid place-items-center"
         style={{
           right: 16,

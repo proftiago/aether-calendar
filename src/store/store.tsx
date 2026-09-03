@@ -162,6 +162,10 @@ export type Action =
   | { type: 'REMOVE_TASK'; id: string }
   | { type: 'UPDATE_CALENDAR_COLOR'; id: string; color: string }
   | { type: 'UPDATE_CALENDAR_ICON'; id: string; icon: string | undefined }
+  | { type: 'ADD_CALENDAR'; calendar: Calendar }
+  | { type: 'REMOVE_CALENDAR'; id: string; fallbackId: string }
+  | { type: 'RENAME_CALENDAR'; id: string; name: string }
+  | { type: 'MOVE_CALENDAR'; id: string; direction: 'up' | 'down' }
   | { type: 'TOGGLE_TASK'; id: string }
   | { type: 'RESET_RECURRING_TASKS' }
   | { type: 'TOGGLE_TASK_IMPORTANT'; id: string }
@@ -446,6 +450,30 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, calendars: state.calendars.map((c) => (c.id === action.id ? { ...c, color: action.color } : c)) };
     case 'UPDATE_CALENDAR_ICON':
       return { ...state, calendars: state.calendars.map((c) => (c.id === action.id ? { ...c, icon: action.icon } : c)) };
+    case 'ADD_CALENDAR':
+      return { ...state, calendars: [...state.calendars, action.calendar] };
+    case 'RENAME_CALENDAR':
+      return { ...state, calendars: state.calendars.map((c) => (c.id === action.id ? { ...c, name: action.name } : c)) };
+    case 'MOVE_CALENDAR': {
+      const idx = state.calendars.findIndex((c) => c.id === action.id);
+      const swapWith = action.direction === 'up' ? idx - 1 : idx + 1;
+      if (idx < 0 || swapWith < 0 || swapWith >= state.calendars.length) return state;
+      const calendars = [...state.calendars];
+      [calendars[idx], calendars[swapWith]] = [calendars[swapWith], calendars[idx]];
+      return { ...state, calendars };
+    }
+    case 'REMOVE_CALENDAR': {
+      const { id, fallbackId } = action;
+      return {
+        ...state,
+        calendars: state.calendars.filter((c) => c.id !== id),
+        calendarSets: state.calendarSets.map((s) => ({ ...s, calIds: s.calIds.filter((cid) => cid !== id) })),
+        events: state.events.map((ev) => (ev.calId === id ? { ...ev, calId: fallbackId } : ev)),
+        tasks: state.tasks.map((t) => (t.calId === id ? { ...t, calId: fallbackId } : t)),
+        notes: state.notes.map((n) => (n.calId === id ? { ...n, calId: fallbackId } : n)),
+        toast: 'Calendário excluído — o que estava nele foi movido pro calendário restante',
+      };
+    }
     case 'TOGGLE_TASK':
       return {
         ...state,

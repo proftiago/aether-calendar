@@ -144,14 +144,14 @@ export function EventModal() {
             style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text)' }}
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {state.calendars.map((c) => {
               const active = form.calId === c.id;
               return (
                 <button
                   key={c.id}
                   onClick={() => dispatch({ type: 'UPDATE_FORM', changes: { calId: String(c.id) } })}
-                  className="flex-1 flex items-center gap-1.5 rounded-[9px] px-2 py-2 text-[13px] font-semibold border justify-center"
+                  className="flex items-center gap-1.5 rounded-[9px] px-3 py-2 text-[13px] font-semibold border"
                   style={{
                     background: active ? `color-mix(in oklab, ${c.color} 15%, var(--surface2))` : 'var(--surface2)',
                     borderColor: active ? c.color : 'var(--border)',

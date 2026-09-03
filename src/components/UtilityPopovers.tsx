@@ -17,7 +17,7 @@ export function UtilityPopovers() {
   }
 
   function openSlotInModal(dateKey: string, startMin: number, duration: number) {
-    dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey, startMin, duration) });
+    dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey, startMin, duration, state.calendars[0]?.id) });
     close();
   }
 

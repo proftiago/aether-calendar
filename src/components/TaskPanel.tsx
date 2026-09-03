@@ -84,7 +84,7 @@ export function TaskPanel({
   const [prio, setPrio] = useState<TaskPriority>('média');
   const [dur, setDur] = useState(30);
   const [tag, setTag] = useState('');
-  const [taskCalId, setTaskCalId] = useState('work');
+  const [taskCalId, setTaskCalId] = useState(() => state.calendars[0]?.id ?? 'work');
   const [dueDate, setDueDate] = useState('');
   const [recurring, setRecurring] = useState(false);
   const [recurDows, setRecurDows] = useState<number[]>([]);

@@ -51,7 +51,7 @@ export function AIAssistant() {
   function applySuggestion(s: Suggestion) {
     dispatch({
       type: 'OPEN_FORM',
-      form: emptyCreateForm(s.dateKey, s.startMin, s.durationMin),
+      form: emptyCreateForm(s.dateKey, s.startMin, s.durationMin, state.calendars[0]?.id),
     });
     dispatch({ type: 'UPDATE_FORM', changes: { title: title.trim() || 'Novo evento' } });
     close();

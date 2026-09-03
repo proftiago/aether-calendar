@@ -110,7 +110,7 @@ export function CommandMenu() {
         label: 'Criar evento',
         hint: 'C',
         icon: <CalendarPlus size={15} />,
-        run: () => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) }),
+        run: () => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor, undefined, undefined, state.calendars[0]?.id) }),
       },
       { id: 'view-day', label: 'Ver: Dia', hint: '1', icon: <CalendarDays size={15} />, run: setView('day') },
       { id: 'view-week', label: 'Ver: Semana', hint: '2', icon: <CalendarDays size={15} />, run: setView('week') },

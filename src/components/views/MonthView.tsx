@@ -88,7 +88,7 @@ export function MonthView() {
               key={dateKey}
               className="border-r border-b p-[5px] flex flex-col gap-[3px] overflow-hidden min-w-0"
               style={{ borderColor: 'var(--border)', opacity: inMonth ? 1 : 0.42 }}
-              onDoubleClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey) })}
+              onDoubleClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey, undefined, undefined, state.calendars[0]?.id) })}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();

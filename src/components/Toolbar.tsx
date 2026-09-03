@@ -244,7 +244,7 @@ export function Toolbar() {
       </button>
 
       <button
-        onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor) })}
+        onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor, undefined, undefined, state.calendars[0]?.id) })}
         className="h-8 flex items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold shrink-0"
         style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
       >

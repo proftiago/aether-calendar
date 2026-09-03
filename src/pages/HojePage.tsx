@@ -87,7 +87,7 @@ export function HojePage() {
       prio: 'média',
       dur: 30,
       tag: 'Geral',
-      calId: 'work',
+      calId: state.calendars[0]?.id ?? 'work',
       done: false,
       dueDate: bucket === 'tomorrow' ? tomorrow : undefined,
       someday: bucket === 'someday',

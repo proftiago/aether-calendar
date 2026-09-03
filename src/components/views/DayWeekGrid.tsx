@@ -197,7 +197,7 @@ export function DayWeekGrid() {
   }
 
   function openCreateAt(dateKey: string, startMin: number) {
-    dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey, startMin) });
+    dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(dateKey, startMin, undefined, state.calendars[0]?.id) });
   }
 
   function scheduleTaskAt(taskId: string, dateKey: string, startMin: number) {
@@ -589,7 +589,7 @@ export function DayWeekGrid() {
                       if (prev && moved && prev.endMin - prev.startMin >= 15) {
                         dispatch({
                           type: 'OPEN_FORM',
-                          form: emptyCreateForm(dateKey, prev.startMin, prev.endMin - prev.startMin),
+                          form: emptyCreateForm(dateKey, prev.startMin, prev.endMin - prev.startMin, state.calendars[0]?.id),
                         });
                       }
                       return null;
