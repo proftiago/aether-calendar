@@ -23,6 +23,14 @@ export function Header() {
     return () => window.removeEventListener('aether:open-search', onOpenSearch);
   }, []);
 
+  // Em telas largas a NavRail já cobre a marca/navegação, e o Toolbar da
+  // página Calendário já cobre filtros/busca — esse Header ficava
+  // aparecendo como uma faixa quase vazia por cima, redundante. Só faz
+  // sentido no celular, onde a NavRail não aparece. O return precisa vir
+  // DEPOIS de todos os hooks (useState/useEffect acima), senão quebra a
+  // ordem de hooks entre renders.
+  if (state.w >= 900) return null;
+
   return (
     <header
       className="flex items-center px-3 py-2 border-b shrink-0"

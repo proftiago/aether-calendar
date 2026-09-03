@@ -28,6 +28,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Sem isso, uma versão nova do app instala em segundo plano mas
+        // só assume de verdade depois que TODAS as abas abertas forem
+        // fechadas — um F5/Ctrl+Shift+R normal não é suficiente, o que
+        // fazia parecer que uma mudança publicada "não pegou" quando na
+        // verdade só não tinha assumido ainda. Isso força a versão nova
+        // a tomar controle imediatamente na próxima carga da página.
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],
