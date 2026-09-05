@@ -19,6 +19,38 @@ function sortTasks(list: Task[], sortBy: 'prio' | 'dueDate' | 'title'): Task[] {
   return sorted;
 }
 
+/**
+ * Imagem de arrasto customizada — o navegador tem uma prévia padrão pra
+ * drag nativo (dataTransfer), mas em layouts flex complexos como o nosso
+ * ela às vezes falha silenciosamente (fica em branco ou nem aparece).
+ * Cria um elemento simples só com o título, gruda no dataTransfer, e some
+ * logo em seguida (o navegador já tirou o "retrato" na hora do dragstart).
+ */
+function setCustomDragImage(e: React.DragEvent, title: string) {
+  const ghost = document.createElement('div');
+  ghost.textContent = title;
+  Object.assign(ghost.style, {
+    position: 'fixed',
+    top: '-1000px',
+    left: '-1000px',
+    padding: '6px 12px',
+    borderRadius: '9px',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    boxShadow: 'var(--shadow)',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: 'var(--text)',
+    maxWidth: '220px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  });
+  document.body.appendChild(ghost);
+  e.dataTransfer.setDragImage(ghost, 16, 16);
+  setTimeout(() => ghost.remove(), 0);
+}
+
 function startTouchDrag(e: React.PointerEvent, taskId: string, title: string) {
   const ghost = document.createElement('div');
   ghost.textContent = title;
@@ -486,6 +518,7 @@ export function TaskPanel({
                           onDragStart={(e) => {
                             e.dataTransfer.setData('application/x-aether-task', task.id);
                             e.dataTransfer.effectAllowed = 'copyMove';
+                            setCustomDragImage(e, task.title);
                           }}
                           onPointerDown={(e) => {
                             if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
@@ -557,6 +590,7 @@ export function TaskPanel({
                       onDragStart={(e) => {
                         e.dataTransfer.setData('application/x-aether-task', task.id);
                         e.dataTransfer.effectAllowed = 'copyMove';
+                        setCustomDragImage(e, task.title);
                       }}
                       onPointerDown={(e) => {
                         if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
