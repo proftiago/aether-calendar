@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Plus, X, Repeat, ChevronDown } from 'lucide-react';
+import { Check, Plus, X, Repeat, ChevronDown, Star } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, calendarOf } from '../store/selectors';
 import { todayKey } from '../lib/dates';
 import { prioColor } from '../lib/style';
 import { weeklyStats, formatMinutes } from '../lib/analytics';
+import { Checkbox } from './Checkbox';
 import type { Task, TaskPriority } from '../lib/types';
 
 const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
@@ -196,14 +197,16 @@ export function TaskPanel({
         <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
           {title}
         </span>
-        <button
-          onClick={() => setAdding((v) => !v)}
-          className="w-5 h-5 rounded-[5px] grid place-items-center hover:[background:var(--surface2)]"
-          style={{ color: adding ? 'var(--accent)' : 'var(--text3)' }}
-          aria-label="Nova tarefa"
-        >
-          <Plus size={13} />
-        </button>
+        {!full && (
+          <button
+            onClick={() => setAdding((v) => !v)}
+            className="w-5 h-5 rounded-[5px] grid place-items-center hover:[background:var(--surface2)]"
+            style={{ color: adding ? 'var(--accent)' : 'var(--text3)' }}
+            aria-label="Nova tarefa"
+          >
+            <Plus size={13} />
+          </button>
+        )}
       </div>
 
       {adding && (
@@ -432,6 +435,87 @@ export function TaskPanel({
                 <div className="flex flex-col gap-0.5">
                   {group.tasks.map((task) => {
                     const cal = calendarOf(state, task.calId);
+                    if (full) {
+                      return (
+                        <div
+                          key={task.id}
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('application/x-aether-task', task.id);
+                            e.dataTransfer.effectAllowed = 'copyMove';
+                          }}
+                          onPointerDown={(e) => {
+                            if (e.pointerType === 'touch') startTouchDrag(e, task.id, task.title);
+                          }}
+                          onClick={() => onSelectTask?.(task.id)}
+                          className="rounded-[9px] px-2.5 py-2.5 cursor-grab select-none hover:[background:var(--surface2)] flex items-center gap-3 group"
+                          style={{ opacity: task.done ? 0.5 : 1, touchAction: 'none' }}
+                        >
+                          <Checkbox
+                            checked={task.done}
+                            onChange={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
+                            size={18}
+                            accentColor={cal?.color ?? 'var(--accent)'}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              {!!task.recurring && <Repeat size={10} className="shrink-0" style={{ color: 'var(--text3)' }} />}
+                              <span
+                                className="text-[13.5px] font-medium truncate"
+                                style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
+                              >
+                                {task.title}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: cal?.color }} />
+                              <span className="text-[11.5px] truncate" style={{ color: 'var(--text3)' }}>
+                                {cal?.name}
+                              </span>
+                            </div>
+                          </div>
+
+                          {(task.prio === 'alta' || (task.tag && task.tag !== 'Geral')) && state.w >= 480 && (
+                            task.prio === 'alta' ? (
+                              <span
+                                className="text-[11px] font-semibold rounded-full px-2.5 py-1 shrink-0"
+                                style={{ background: 'color-mix(in oklab, var(--danger) 16%, var(--surface2))', color: 'var(--danger)' }}
+                              >
+                                Alta prioridade
+                              </span>
+                            ) : (
+                              <span
+                                className="text-[11px] font-semibold rounded-full px-2.5 py-1 shrink-0"
+                                style={{
+                                  background: 'color-mix(in oklab, ' + (cal?.color ?? 'var(--accent)') + ' 16%, var(--surface2))',
+                                  color: cal?.color ?? 'var(--accent)',
+                                }}
+                              >
+                                {task.tag}
+                              </span>
+                            )
+                          )}
+
+                          <span
+                            className="text-[12px] font-mono-ae shrink-0 w-[52px] text-right"
+                            style={{ color: task.dueDate && task.dueDate < todayKey() && !task.done ? 'var(--danger)' : 'var(--text3)' }}
+                          >
+                            {task.dueDate ? task.dueDate.slice(5) : '—'}
+                          </span>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dispatch({ type: 'TOGGLE_TASK_IMPORTANT', id: task.id });
+                            }}
+                            className="w-6 h-6 rounded-[6px] grid place-items-center shrink-0"
+                            aria-label="Importante"
+                          >
+                            <Star size={15} fill={task.important ? 'var(--gold)' : 'none'} style={{ color: 'var(--gold)' }} />
+                          </button>
+                        </div>
+                      );
+                    }
                     return (
                     <div
                       key={task.id}
@@ -509,6 +593,17 @@ export function TaskPanel({
           );
         })}
       </div>
+
+      {full && (
+        <button
+          onClick={() => setAdding(true)}
+          className="mt-2.5 rounded-full py-2.5 text-[13px] font-semibold flex items-center justify-center gap-1.5"
+          style={{ background: 'color-mix(in oklab, var(--gold) 14%, var(--surface2))', color: 'var(--gold)' }}
+        >
+          <Plus size={14} />
+          Adicionar tarefa
+        </button>
+      )}
 
       <div className="mt-4">
         <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
