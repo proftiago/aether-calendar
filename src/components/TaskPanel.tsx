@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Plus, X, Repeat, ChevronDown, Star } from 'lucide-react';
+import { Check, Plus, X, Repeat, ChevronDown, Star, Sun, Calendar as CalendarIcon } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, calendarOf } from '../store/selectors';
 import { todayKey } from '../lib/dates';
@@ -189,25 +189,27 @@ export function TaskPanel({
 
   return (
     <div className="flex flex-col">
-      <div className="mb-2.5">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
-            Progresso do dia
-          </span>
-          <span className="text-[11px] font-mono-ae" style={{ color: 'var(--text2)' }}>
-            {doneCount}/{totalCount}
-          </span>
+      {!full && (
+        <div className="mb-2.5">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
+              Progresso do dia
+            </span>
+            <span className="text-[11px] font-mono-ae" style={{ color: 'var(--text2)' }}>
+              {doneCount}/{totalCount}
+            </span>
+          </div>
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--surface2)' }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${progressPct}%`, background: 'var(--gold)' }} />
+          </div>
         </div>
-        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--surface2)' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${progressPct}%`, background: 'var(--gold)' }} />
-        </div>
-      </div>
+      )}
 
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
-          {title}
-        </span>
-        {!full && (
+      {!full && (
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>
+            {title}
+          </span>
           <button
             onClick={() => setAdding((v) => !v)}
             className="w-5 h-5 rounded-[5px] grid place-items-center hover:[background:var(--surface2)]"
@@ -216,8 +218,8 @@ export function TaskPanel({
           >
             <Plus size={13} />
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {adding && (
         <div className="rounded-[9px] p-2.5 mb-3 flex flex-col gap-2" style={{ background: 'var(--surface2)' }}>
@@ -354,31 +356,22 @@ export function TaskPanel({
       )}
 
       {full && (
-        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-          <div className="flex items-center p-[2px] rounded-[8px]" style={{ background: 'var(--surface2)' }}>
-            {(['hoje', 'proximas', 'projetos'] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className="h-7 px-3 rounded-[6px] text-[12px] font-medium"
-                style={tab === t ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
-              >
-                {t === 'hoje' ? 'Hoje' : t === 'proximas' ? 'Próximas' : 'Projetos'}
-              </button>
-            ))}
+        <>
+          <div className="mb-2.5">
+            <div className="flex items-center p-[2px] rounded-[8px] w-fit" style={{ background: 'var(--surface2)' }}>
+              {(['hoje', 'proximas', 'projetos'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className="h-7 px-3 rounded-[6px] text-[12px] font-medium"
+                  style={tab === t ? { background: 'var(--surface)', color: 'var(--text)' } : { color: 'var(--text3)' }}
+                >
+                  {t === 'hoje' ? 'Hoje' : t === 'proximas' ? 'Próximas' : 'Projetos'}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <select
-              value={groupBy}
-              onChange={(e) => setGroupBy(e.target.value as 'calendar' | 'date' | 'priority' | 'none')}
-              className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
-              style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
-            >
-              <option value="date">Grupo: data</option>
-              <option value="calendar">Grupo: calendário</option>
-              <option value="priority">Grupo: prioridade</option>
-              <option value="none">Grupo: nenhum</option>
-            </select>
+          <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
             <select
               value={prioFilter}
               onChange={(e) => setPrioFilter(e.target.value as TaskPriority | 'todas')}
@@ -392,11 +385,23 @@ export function TaskPanel({
                 </option>
               ))}
             </select>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'prio' | 'dueDate' | 'title')}
-              className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
-              style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+            <div className="flex items-center gap-1.5">
+              <select
+                value={groupBy}
+                onChange={(e) => setGroupBy(e.target.value as 'calendar' | 'date' | 'priority' | 'none')}
+                className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+                style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+              >
+                <option value="date">Grupo: data</option>
+                <option value="calendar">Grupo: calendário</option>
+                <option value="priority">Grupo: prioridade</option>
+                <option value="none">Grupo: nenhum</option>
+              </select>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'prio' | 'dueDate' | 'title')}
+                className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
+                style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
             >
               <option value="prio">Ordenar: prioridade</option>
               <option value="dueDate">Ordenar: vencimento</option>
@@ -404,13 +409,16 @@ export function TaskPanel({
             </select>
           </div>
         </div>
+        </>
       )}
 
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[10px]" style={{ color: 'var(--text3)' }}>
-          arraste p/ agendar
-        </span>
-      </div>
+      {!full && (
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px]" style={{ color: 'var(--text3)' }}>
+            arraste p/ agendar
+          </span>
+        </div>
+      )}
       {visibleTasks.length === 0 && (
         <p className="text-[12px] py-3 text-center" style={{ color: 'var(--text3)' }}>
           Nenhuma tarefa pendente
@@ -428,7 +436,15 @@ export function TaskPanel({
                   }
                   className="w-full flex items-center gap-2 mb-1 rounded-[6px] px-1 py-[3px] hover:[background:var(--surface2)]"
                 >
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: group.color }} />
+                  {groupBy === 'date' ? (
+                    group.key === 'hoje' ? (
+                      <Sun size={13} className="shrink-0" style={{ color: group.color }} />
+                    ) : (
+                      <CalendarIcon size={13} className="shrink-0" style={{ color: group.color }} />
+                    )
+                  ) : (
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: group.color }} />
+                  )}
                   <span className="text-[12px] font-semibold flex-1 text-left truncate" style={{ color: 'var(--text)' }}>
                     {group.label}
                   </span>
