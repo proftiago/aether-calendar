@@ -7,6 +7,7 @@ import { AccountMenu } from '../components/AccountMenu';
 import { NotificationBell } from '../components/NotificationBell';
 import { ResizeHandle } from '../components/ResizeHandle';
 import { useResizablePanel } from '../hooks/useResizablePanel';
+import { CalendarSelect } from '../components/CalendarSelect';
 import type { Note, NoteChecklistItem } from '../lib/types';
 
 const NOTE_COLOR_PALETTE = [
@@ -239,18 +240,10 @@ export function NotasPage() {
             style={{ color: 'var(--text)' }}
           />
 
-          <select
-            value={selected.calId}
-            onChange={(e) => dispatch({ type: 'UPDATE_NOTE', id: selected.id, changes: { calId: e.target.value } })}
-            className="w-fit rounded-full px-3 py-1 text-[12px] font-semibold outline-none"
-            style={{ background: eventBg(calendarOf(state, selected.calId)?.color ?? 'var(--accent)', 22), color: calendarOf(state, selected.calId)?.color }}
-          >
-            {state.calendars.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <CalendarSelect
+            value={String(selected.calId)}
+            onChange={(calId) => dispatch({ type: 'UPDATE_NOTE', id: selected.id, changes: { calId } })}
+          />
 
           <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
             {formatRelative(selected.updatedAt)}

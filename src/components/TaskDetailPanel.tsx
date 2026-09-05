@@ -5,6 +5,8 @@ import { calendarOf } from '../store/selectors';
 import { prioColor } from '../lib/style';
 import { useResizablePanel } from '../hooks/useResizablePanel';
 import { ResizeHandle } from './ResizeHandle';
+import { DatePicker } from './DatePicker';
+import { CalendarSelect } from './CalendarSelect';
 import type { NoteChecklistItem } from '../lib/types';
 
 
@@ -79,31 +81,53 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
         </div>
       </div>
 
-      <div className="text-[17px] font-semibold" style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}>
-        {task.title}
-      </div>
+      <input
+        value={task.title}
+        onChange={(e) => dispatch({ type: 'UPDATE_TASK', id: task.id, changes: { title: e.target.value } })}
+        className="text-[17px] font-semibold outline-none bg-transparent"
+        style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none' }}
+      />
 
-      <div className="flex flex-wrap gap-1.5 mb-1">
-        <span
-          className="text-[11px] font-semibold rounded-full px-2.5 py-1"
-          style={{ background: 'color-mix(in oklab, ' + (cal?.color ?? 'var(--accent)') + ' 16%, var(--surface2))', color: cal?.color }}
-        >
-          {cal?.name}
-        </span>
+      <div className="flex flex-wrap items-center gap-1.5 mb-1">
+        <CalendarSelect
+          value={String(task.calId)}
+          onChange={(calId) => dispatch({ type: 'UPDATE_TASK', id: task.id, changes: { calId } })}
+        />
+        <input
+          value={task.tag && task.tag !== 'Geral' ? task.tag : ''}
+          onChange={(e) => dispatch({ type: 'UPDATE_TASK', id: task.id, changes: { tag: e.target.value || 'Geral' } })}
+          placeholder="+ tag"
+          className="text-[11px] font-semibold rounded-full px-2.5 py-1 outline-none w-[80px]"
+          style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
+        />
       </div>
 
       <div className="grid grid-cols-3 gap-2 py-4 border-y" style={{ borderColor: 'var(--border)' }}>
         <div>
           <CalendarIcon size={14} className="mb-2" style={{ color: 'var(--text3)' }} />
-          <span className="text-[12px]" style={{ color: 'var(--text2)' }}>
-            {task.dueDate ? task.dueDate : 'Sem data'}
-          </span>
+          <DatePicker
+            value={task.dueDate}
+            onChange={(d) => dispatch({ type: 'UPDATE_TASK', id: task.id, changes: { dueDate: d } })}
+            placeholder="Sem data"
+            className="text-[12px]"
+          />
         </div>
         <div>
           <Clock size={14} className="mb-2" style={{ color: 'var(--text3)' }} />
-          <span className="text-[12px]" style={{ color: 'var(--text2)' }}>
-            {task.dur >= 60 ? `${Math.floor(task.dur / 60)}h${task.dur % 60 ? ` ${task.dur % 60}min` : ''}` : `${task.dur}min`}
-          </span>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min={5}
+              step={5}
+              value={task.dur}
+              onChange={(e) => dispatch({ type: 'UPDATE_TASK', id: task.id, changes: { dur: Math.max(5, parseInt(e.target.value, 10) || 5) } })}
+              className="text-[12px] w-10 outline-none bg-transparent"
+              style={{ color: 'var(--text2)' }}
+            />
+            <span className="text-[12px]" style={{ color: 'var(--text3)' }}>
+              min
+            </span>
+          </div>
         </div>
         <button
           onClick={() => {

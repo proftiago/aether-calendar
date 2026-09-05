@@ -172,6 +172,7 @@ export type Action =
   | { type: 'RESET_RECURRING_TASKS' }
   | { type: 'TOGGLE_TASK_IMPORTANT'; id: string }
   | { type: 'UPDATE_TASK_NOTES'; id: string; notes: string }
+  | { type: 'UPDATE_TASK'; id: string; changes: Partial<Task> }
   | { type: 'UPDATE_TASK_PRIORITY'; id: string; prio: TaskPriority }
   | { type: 'ADD_TASK_SUBTASK'; taskId: string; item: NoteChecklistItem }
   | { type: 'TOGGLE_TASK_SUBTASK'; taskId: string; itemId: string }
@@ -495,6 +496,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, important: !t.important } : t)) };
     case 'UPDATE_TASK_NOTES':
       return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, notes: action.notes } : t)) };
+    case 'UPDATE_TASK':
+      return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, ...action.changes } : t)) };
     case 'UPDATE_TASK_PRIORITY':
       return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, prio: action.prio } : t)) };
     case 'ADD_TASK_SUBTASK':

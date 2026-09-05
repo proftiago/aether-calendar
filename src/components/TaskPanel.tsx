@@ -327,18 +327,24 @@ export function TaskPanel({
               style={{ background: 'var(--surface)', color: 'var(--text)' }}
             />
           </div>
-          <select
-            value={taskCalId}
-            onChange={(e) => setTaskCalId(e.target.value)}
-            className="rounded-[7px] px-2 py-[6px] text-[12px] outline-none"
-            style={{ background: 'var(--surface)', color: 'var(--text)' }}
-          >
+          <div className="flex gap-1.5 flex-wrap">
             {state.calendars.map((c) => (
-              <option key={c.id} value={c.id}>
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setTaskCalId(String(c.id))}
+                className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold border"
+                style={
+                  taskCalId === c.id
+                    ? { background: 'color-mix(in oklab, ' + c.color + ' 16%, var(--surface))', borderColor: c.color, color: c.color }
+                    : { background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text2)' }
+                }
+              >
+                <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: c.color }} />
                 {c.name}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
 
           <div>
             <div className="text-[10px] font-semibold mb-1" style={{ color: 'var(--text3)' }}>
