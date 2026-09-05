@@ -47,6 +47,12 @@ function setCustomDragImage(e: React.DragEvent, title: string) {
     whiteSpace: 'nowrap',
   });
   document.body.appendChild(ghost);
+  // força o navegador a calcular o layout do elemento agora, de forma
+  // sincrona - sem isso, no momento exato do setDragImage o elemento podia
+  // ainda nao ter sido "desenhado" de verdade (layout so acontece no
+  // proximo ciclo de repintura por padrao), resultando numa imagem vazia/
+  // invisivel - bem provavelmente a causa real do sumico relatado
+  void ghost.offsetWidth;
   e.dataTransfer.setDragImage(ghost, 16, 16);
   setTimeout(() => ghost.remove(), 0);
 }
