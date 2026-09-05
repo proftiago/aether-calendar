@@ -7,6 +7,7 @@ import type { GoogleCalendarOption } from '../lib/googleApi';
 import { isSyncConfigured } from '../lib/supabaseClient';
 import { weeklyTimeBreakdown, focusHeatmap, dailyTotalsSparkline, formatMinutes } from '../lib/analytics';
 import { Sparkline } from './Sparkline';
+import { Checkbox } from './Checkbox';
 import type { SettingsTab } from '../store/store';
 
 const TABS: { key: SettingsTab; label: string }[] = [
@@ -393,11 +394,12 @@ function CalendarPicker() {
           {calendars.map((cal) => {
             const checked = state.settings.selectedGoogleCalendarIds.includes(cal.id);
             return (
-              <label
+              <div
                 key={cal.id}
-                className="flex items-center gap-2.5 rounded-[8px] px-2 py-[7px] cursor-pointer hover:[background:var(--surface2)]"
+                onClick={() => toggle(cal.id)}
+                className="w-full flex items-center gap-2.5 rounded-[8px] px-2 py-[7px] hover:[background:var(--surface2)] cursor-pointer"
               >
-                <input type="checkbox" checked={checked} onChange={() => toggle(cal.id)} className="shrink-0" />
+                <Checkbox checked={checked} onChange={() => toggle(cal.id)} size={15} />
                 {cal.color && <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: cal.color }} />}
                 <span className="text-[13px] flex-1 truncate" style={{ color: 'var(--text)' }}>
                   {cal.name}
@@ -407,7 +409,7 @@ function CalendarPicker() {
                     principal
                   </span>
                 )}
-              </label>
+              </div>
             );
           })}
           <p className="text-[11.5px] leading-[1.6] mt-1.5" style={{ color: 'var(--text3)' }}>

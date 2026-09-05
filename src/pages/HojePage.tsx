@@ -5,6 +5,7 @@ import type { Action } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { dateKeyOf, addDays, minutesOfDay, todayKey } from '../lib/dates';
 import { TodayHourGrid } from '../components/TodayHourGrid';
+import { Checkbox } from '../components/Checkbox';
 import type { Task } from '../lib/types';
 
 const HABIT_ICON_PRESETS = ['🧘', '🏃', '🚶', '📖', '🏋️', '🍎', '💧', '😴', '✍️', '🎨'];
@@ -408,20 +409,15 @@ function TaskColumn({
       {showBody && (
         <div className="flex flex-col gap-1">
           {tasks.map((task) => (
-            <label key={task.id} className="flex items-center gap-2 py-1 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={task.done}
-                onChange={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
-                className="shrink-0"
-              />
+            <div key={task.id} className="flex items-center gap-2 py-1">
+              <Checkbox checked={task.done} onChange={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })} />
               <span
                 className="text-[13px] truncate flex-1 min-w-0"
                 style={{ color: 'var(--text)', textDecoration: task.done ? 'line-through' : 'none', opacity: task.done ? 0.5 : 1 }}
               >
                 {task.title}
               </span>
-            </label>
+            </div>
           ))}
           {adding ? (
             <input

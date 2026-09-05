@@ -3,6 +3,7 @@ import { X, Play, Pause, RotateCcw, Settings as SettingsIcon, ChevronRight } fro
 import { useStore } from '../store/store';
 import { useAllEvents, useVisibleEvents } from '../store/selectors';
 import { dateKeyOf, todayKey } from '../lib/dates';
+import { Checkbox } from './Checkbox';
 
 type TimerMode = 'pomodoro' | 'short' | 'long' | 'task';
 
@@ -163,15 +164,15 @@ export function FocusModeView() {
             ) : (
               <div className="flex flex-col gap-1">
                 {todaysTasks.map((t) => (
-                  <label key={t.id} className="flex items-center gap-2 py-1 cursor-pointer">
-                    <input type="checkbox" checked={t.done} onChange={() => dispatch({ type: 'TOGGLE_TASK', id: t.id })} />
+                  <div key={t.id} className="flex items-center gap-2 py-1">
+                    <Checkbox checked={t.done} onChange={() => dispatch({ type: 'TOGGLE_TASK', id: t.id })} accentColor="#4a2c28" />
                     <span
                       className="text-[13px] truncate flex-1 min-w-0"
                       style={{ color: '#3a2a26', textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.5 : 1 }}
                     >
                       {t.title}
                     </span>
-                  </label>
+                  </div>
                 ))}
               </div>
             )}
