@@ -233,15 +233,17 @@ export function Toolbar() {
 
       <NotificationBell />
 
-      <button
-        onClick={() => dispatch({ type: 'TOGGLE_TASK_PANEL' })}
-        className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
-        style={{ background: state.taskPanelOpen ? 'var(--surface2)' : undefined }}
-        aria-label="Tarefas"
-        title="Tarefas"
-      >
-        <ListChecks size={15} style={{ color: state.taskPanelOpen ? 'var(--accent)' : 'var(--text2)' }} />
-      </button>
+      {state.w < 1280 && (
+        <button
+          onClick={() => dispatch({ type: 'TOGGLE_TASK_PANEL' })}
+          className="h-8 w-8 rounded-[7px] grid place-items-center hover:[background:var(--surface2)] shrink-0"
+          style={{ background: state.taskPanelOpen ? 'var(--surface2)' : undefined }}
+          aria-label="Tarefas"
+          title="Tarefas"
+        >
+          <ListChecks size={15} style={{ color: state.taskPanelOpen ? 'var(--accent)' : 'var(--text2)' }} />
+        </button>
+      )}
 
       <button
         onClick={() => dispatch({ type: 'OPEN_FORM', form: emptyCreateForm(state.cursor, undefined, undefined, state.calendars[0]?.id) })}

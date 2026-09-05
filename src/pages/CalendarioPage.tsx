@@ -9,15 +9,19 @@ import { Drawer } from '../components/Drawer';
 import { UtilityPopovers } from '../components/UtilityPopovers';
 
 /**
- * Página Calendário — sidebar de filtros (esquerda) e painel de tarefas
- * (direita) são os dois popovers/overlay, igual ao app de referência: a
- * grade fica em largura cheia por padrão, os dois só aparecem quando
- * abertos explicitamente (botões no Toolbar), flutuando por cima em vez
- * de ocupar espaço fixo.
+ * Página Calendário — sidebar de filtros (esquerda) continua popover/
+ * overlay. O painel de tarefas (direita), porém, volta a ficar fixo
+ * sempre visível em telas largas (>=1280px) — o novo arquivo de
+ * referência (CalendarTab.tsx) mostra exatamente isso: um painel de
+ * tarefas permanente do lado do calendário, pra arrastar tarefa pra
+ * dentro da grade sem precisar abrir nada. Em telas mais estreitas,
+ * onde não cabe os dois lado a lado, continua como popover (mesmo
+ * botão no Toolbar).
  */
 export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<string, number> }) {
   const { state, dispatch } = useStore();
   const drawerOpen = state.selected !== null;
+  const showPersistentTaskPanel = state.w >= 1280 && !drawerOpen;
 
   return (
     <>
@@ -39,7 +43,16 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
         <UtilityPopovers />
       </div>
 
-      {state.taskPanelOpen && !drawerOpen && (
+      {showPersistentTaskPanel && (
+        <aside
+          className="w-[280px] shrink-0 border-l p-4 overflow-y-auto"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+        >
+          <TaskPanel />
+        </aside>
+      )}
+
+      {!showPersistentTaskPanel && state.taskPanelOpen && !drawerOpen && (
         <>
           <div
             className="fixed inset-0 z-30"
