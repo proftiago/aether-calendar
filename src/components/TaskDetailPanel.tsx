@@ -146,6 +146,21 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
             >
               {item.text}
             </span>
+            <label
+              className="relative text-[10.5px] font-mono-ae shrink-0 rounded-[5px] px-1.5 py-[2px] cursor-pointer"
+              style={{ color: item.dueDate ? 'var(--accent)' : 'var(--text3)', background: item.dueDate ? 'color-mix(in oklab, var(--accent) 12%, var(--surface2))' : 'transparent' }}
+              title="Prazo da subtarefa"
+            >
+              {item.dueDate ? item.dueDate.slice(5) : '+ prazo'}
+              <input
+                type="date"
+                value={item.dueDate ?? ''}
+                onChange={(e) =>
+                  dispatch({ type: 'UPDATE_TASK_SUBTASK_DATE', taskId: task.id, itemId: item.id, dueDate: e.target.value || undefined })
+                }
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </label>
             <button
               onClick={() => dispatch({ type: 'REMOVE_TASK_SUBTASK', taskId: task.id, itemId: item.id })}
               className="w-4 h-4 rounded-[4px] grid place-items-center opacity-0 group-hover:opacity-100 shrink-0"

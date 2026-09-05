@@ -121,6 +121,9 @@ export type NoteChecklistItem = {
   id: string;
   text: string;
   done: boolean;
+  /** só usado quando o item é subtarefa de uma Task — checklist de Note
+   * não usa isso, mas reaproveita o mesmo tipo */
+  dueDate?: string;
 };
 
 export type Note = {

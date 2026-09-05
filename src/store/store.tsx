@@ -176,6 +176,7 @@ export type Action =
   | { type: 'ADD_TASK_SUBTASK'; taskId: string; item: NoteChecklistItem }
   | { type: 'TOGGLE_TASK_SUBTASK'; taskId: string; itemId: string }
   | { type: 'REMOVE_TASK_SUBTASK'; taskId: string; itemId: string }
+  | { type: 'UPDATE_TASK_SUBTASK_DATE'; taskId: string; itemId: string; dueDate: string | undefined }
   | { type: 'ADD_TASK_LINK'; taskId: string; link: { id: string; url: string; label: string } }
   | { type: 'REMOVE_TASK_LINK'; taskId: string; linkId: string }
   | { type: 'ARCHIVE_OLD_TASKS' }
@@ -515,6 +516,15 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         tasks: state.tasks.map((t) =>
           t.id === action.taskId ? { ...t, subtasks: (t.subtasks ?? []).filter((s) => s.id !== action.itemId) } : t,
+        ),
+      };
+    case 'UPDATE_TASK_SUBTASK_DATE':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.taskId
+            ? { ...t, subtasks: (t.subtasks ?? []).map((s) => (s.id === action.itemId ? { ...s, dueDate: action.dueDate } : s)) }
+            : t,
         ),
       };
     case 'ADD_TASK_LINK':

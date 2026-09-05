@@ -221,8 +221,24 @@ export function TaskPanel({
         </div>
       )}
 
+      {adding && full && (
+        <div className="fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.25)' }} onClick={resetTaskForm} />
+      )}
       {adding && (
-        <div className="rounded-[9px] p-2.5 mb-3 flex flex-col gap-2" style={{ background: 'var(--surface2)' }}>
+        <div
+          className={full ? 'fixed inset-y-0 left-0 z-50 w-[340px] overflow-y-auto p-5 flex flex-col gap-3 border-r animate-ae-in' : 'rounded-[9px] p-2.5 mb-3 flex flex-col gap-2'}
+          style={full ? { background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' } : { background: 'var(--surface2)' }}
+        >
+          {full && (
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[15px] font-semibold" style={{ color: 'var(--text)' }}>
+                Nova tarefa
+              </span>
+              <button onClick={resetTaskForm} className="w-7 h-7 rounded-[7px] grid place-items-center hover:[background:var(--surface2)]" aria-label="Fechar">
+                <X size={15} style={{ color: 'var(--text3)' }} />
+              </button>
+            </div>
+          )}
           <input
             autoFocus
             value={taskTitle}
