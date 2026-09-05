@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { TaskPanel } from '../components/TaskPanel';
 import { TaskDetailPanel } from '../components/TaskDetailPanel';
 import { AccountMenu } from '../components/AccountMenu';
@@ -23,6 +24,14 @@ export function TarefasPage() {
             <div className="flex items-center gap-2">
               <NotificationBell />
               <AccountMenu />
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('aether:add-task'))}
+                className="flex items-center gap-1.5 rounded-[9px] px-3.5 py-2 text-[13px] font-semibold"
+                style={{ background: 'var(--gold)', color: 'var(--goldText)' }}
+              >
+                <Plus size={14} />
+                Adicionar tarefa
+              </button>
             </div>
           </div>
           <TaskPanel title="Todas as tarefas" onSelectTask={setSelectedId} full />

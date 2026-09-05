@@ -502,25 +502,16 @@ export function TaskPanel({
                             </div>
                           </div>
 
-                          {(task.prio === 'alta' || (task.tag && task.tag !== 'Geral')) && state.w >= 480 && (
-                            task.prio === 'alta' ? (
-                              <span
-                                className="text-[11px] font-semibold rounded-full px-2.5 py-1 shrink-0"
-                                style={{ background: 'color-mix(in oklab, var(--danger) 16%, var(--surface2))', color: 'var(--danger)' }}
-                              >
-                                Alta prioridade
-                              </span>
-                            ) : (
-                              <span
-                                className="text-[11px] font-semibold rounded-full px-2.5 py-1 shrink-0"
-                                style={{
-                                  background: 'color-mix(in oklab, ' + tagColor(task.tag!) + ' 16%, var(--surface2))',
-                                  color: tagColor(task.tag!),
-                                }}
-                              >
-                                {task.tag}
-                              </span>
-                            )
+                          {state.w >= 480 && (
+                            <span
+                              className="text-[11px] font-semibold rounded-[7px] px-2.5 py-1 shrink-0"
+                              style={{
+                                background: 'color-mix(in oklab, ' + prioColor(task.prio) + ' 16%, var(--surface2))',
+                                color: prioColor(task.prio),
+                              }}
+                            >
+                              {task.prio.charAt(0).toUpperCase() + task.prio.slice(1)}
+                            </span>
                           )}
 
                           <span
@@ -620,17 +611,6 @@ export function TaskPanel({
           );
         })}
       </div>
-
-      {full && (
-        <button
-          onClick={() => setAdding(true)}
-          className="mt-2.5 rounded-full py-2.5 text-[13px] font-semibold flex items-center justify-center gap-1.5"
-          style={{ background: 'color-mix(in oklab, var(--gold) 14%, var(--surface2))', color: 'var(--gold)' }}
-        >
-          <Plus size={14} />
-          Adicionar tarefa
-        </button>
-      )}
 
       <div className="mt-4">
         <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text3)' }}>

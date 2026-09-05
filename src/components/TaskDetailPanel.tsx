@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { X, Check, Plus, Star, Trash2, Link as LinkIcon } from 'lucide-react';
+import { X, Check, Plus, Star, Trash2, Link as LinkIcon, Calendar as CalendarIcon, Clock, Flag } from 'lucide-react';
 import { useStore } from '../store/store';
 import { calendarOf } from '../store/selectors';
 import { prioColor } from '../lib/style';
-import type { NoteChecklistItem, TaskPriority } from '../lib/types';
+import type { NoteChecklistItem } from '../lib/types';
 
-const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
 
 /**
  * Painel de detalhe de uma tarefa — título, calendário/prioridade,
@@ -80,34 +79,40 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
         {task.title}
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1.5 mb-1">
         <span
           className="text-[11px] font-semibold rounded-full px-2.5 py-1"
           style={{ background: 'color-mix(in oklab, ' + (cal?.color ?? 'var(--accent)') + ' 16%, var(--surface2))', color: cal?.color }}
         >
           {cal?.name}
         </span>
-        <div className="flex gap-1">
-          {PRIOS.map((p) => (
-            <button
-              key={p}
-              onClick={() => dispatch({ type: 'UPDATE_TASK_PRIORITY', id: task.id, prio: p })}
-              className="text-[11px] font-semibold rounded-full px-2.5 py-1"
-              style={
-                task.prio === p
-                  ? { background: prioColor(p), color: 'var(--bg)' }
-                  : { background: 'var(--surface2)', color: 'var(--text3)' }
-              }
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-        {task.dueDate && (
-          <span className="text-[11px] font-mono-ae rounded-full px-2.5 py-1" style={{ background: 'var(--surface2)', color: 'var(--text2)' }}>
-            vence {task.dueDate}
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 py-4 border-y" style={{ borderColor: 'var(--border)' }}>
+        <div>
+          <CalendarIcon size={14} className="mb-2" style={{ color: 'var(--text3)' }} />
+          <span className="text-[12px]" style={{ color: 'var(--text2)' }}>
+            {task.dueDate ? task.dueDate : 'Sem data'}
           </span>
-        )}
+        </div>
+        <div>
+          <Clock size={14} className="mb-2" style={{ color: 'var(--text3)' }} />
+          <span className="text-[12px]" style={{ color: 'var(--text2)' }}>
+            {task.dur >= 60 ? `${Math.floor(task.dur / 60)}h${task.dur % 60 ? ` ${task.dur % 60}min` : ''}` : `${task.dur}min`}
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            const next = task.prio === 'alta' ? 'média' : task.prio === 'média' ? 'baixa' : 'alta';
+            dispatch({ type: 'UPDATE_TASK_PRIORITY', id: task.id, prio: next });
+          }}
+          className="text-left"
+        >
+          <Flag size={14} className="mb-2" style={{ color: prioColor(task.prio) }} />
+          <span className="text-[12px] block" style={{ color: prioColor(task.prio) }}>
+            {task.prio.charAt(0).toUpperCase() + task.prio.slice(1)}
+          </span>
+        </button>
       </div>
 
       {subtasks.length > 0 && (
