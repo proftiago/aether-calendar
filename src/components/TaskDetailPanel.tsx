@@ -50,12 +50,26 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
     setNewLinkUrl('');
   }
 
+  const sheet = state.w < 640;
+
   return (
-    <aside
-      className="relative shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
-      style={{ width: resize.width, background: 'var(--surface)', borderColor: 'var(--border)' }}
-    >
-      <ResizeHandle onPointerDown={resize.startDrag} dragging={resize.dragging} side="left" />
+    <>
+      {sheet && <div className="fixed inset-0 z-[60]" style={{ background: 'rgba(0,0,0,0.35)' }} onClick={onClose} />}
+      <aside
+        className={
+          sheet
+            ? 'fixed inset-x-0 bottom-0 z-[61] max-h-[85vh] rounded-t-[20px] overflow-y-auto p-5 flex flex-col gap-4 animate-ae-sheet'
+            : 'relative shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4'
+        }
+        style={{
+          width: sheet ? undefined : resize.width,
+          background: 'var(--surface)',
+          borderColor: 'var(--border)',
+          boxShadow: sheet ? 'var(--shadow)' : undefined,
+        }}
+      >
+        {sheet && <div className="w-9 h-1 rounded-full mx-auto mb-1" style={{ background: 'var(--border)' }} />}
+        {!sheet && <ResizeHandle onPointerDown={resize.startDrag} dragging={resize.dragging} side="left" />}
       <div className="flex items-center justify-between">
         <button
           onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}
@@ -280,6 +294,7 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
         <Trash2 size={14} />
         Excluir tarefa
       </button>
-    </aside>
+      </aside>
+    </>
   );
 }

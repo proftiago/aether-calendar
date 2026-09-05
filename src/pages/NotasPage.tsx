@@ -53,6 +53,7 @@ export function NotasPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [newChecklistText, setNewChecklistText] = useState('');
   const notePanelResize = useResizablePanel('aether:notepanel-width', 460, 320, 700, -1);
+  const noteSheet = state.w < 640;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -210,11 +211,23 @@ export function NotasPage() {
       </div>
 
       {selected && (
-        <aside
-          className="relative shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
-          style={{ width: notePanelResize.width, background: 'var(--surface)', borderColor: 'var(--border)' }}
-        >
-          <ResizeHandle onPointerDown={notePanelResize.startDrag} dragging={notePanelResize.dragging} side="left" />
+        <>
+          {noteSheet && <div className="fixed inset-0 z-[60]" style={{ background: 'rgba(0,0,0,0.35)' }} onClick={() => setSelectedId(null)} />}
+          <aside
+            className={
+              noteSheet
+                ? 'fixed inset-x-0 bottom-0 z-[61] max-h-[85vh] rounded-t-[20px] overflow-y-auto p-5 flex flex-col gap-4 animate-ae-sheet'
+                : 'relative shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4'
+            }
+            style={{
+              width: noteSheet ? undefined : notePanelResize.width,
+              background: 'var(--surface)',
+              borderColor: 'var(--border)',
+              boxShadow: noteSheet ? 'var(--shadow)' : undefined,
+            }}
+          >
+            {noteSheet && <div className="w-9 h-1 rounded-full mx-auto mb-1" style={{ background: 'var(--border)' }} />}
+            {!noteSheet && <ResizeHandle onPointerDown={notePanelResize.startDrag} dragging={notePanelResize.dragging} side="left" />}
           <div className="flex items-center justify-between">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_NOTE_FAVORITE', id: selected.id })}
@@ -328,6 +341,7 @@ export function NotasPage() {
             </button>
           </div>
         </aside>
+        </>
       )}
     </div>
   );
