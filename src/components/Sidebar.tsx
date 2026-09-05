@@ -3,6 +3,8 @@ import { Check, Plus, X, Settings, ChevronUp, ChevronDown, Trash2 } from 'lucide
 import { useStore } from '../store/store';
 import { hm } from '../lib/dates';
 import { MiniCalendar } from './MiniCalendar';
+import { ResizeHandle } from './ResizeHandle';
+import { useResizablePanel } from '../hooks/useResizablePanel';
 
 const DOW_SHORT_PT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
@@ -53,6 +55,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
   const [addingCalendar, setAddingCalendar] = useState(false);
   const [newCalendarName, setNewCalendarName] = useState('');
   const [workHoursOpen, setWorkHoursOpen] = useState(false);
+  const resize = useResizablePanel('aether:sidebar-width', 240, 200, 420, 1);
 
   // sempre overlay agora — no original o painel de filtros abre/fecha por
   // cima da grade, não fica fixo ocupando espaço permanente
@@ -90,10 +93,11 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
         />
       )}
       <aside
-        className={`w-[240px] shrink-0 overflow-y-auto flex flex-col p-4 border-r ${
-          overlayMode ? 'fixed inset-y-0 left-0 z-30 transition-transform' : 'relative'
+        className={`relative shrink-0 overflow-y-auto flex flex-col p-4 border-r ${
+          overlayMode ? 'fixed inset-y-0 left-0 z-30 transition-transform' : ''
         }`}
         style={{
+          width: resize.width,
           background: 'var(--surface)',
           borderColor: 'var(--border)',
           boxShadow: overlayMode ? 'var(--shadow)' : undefined,
@@ -101,6 +105,7 @@ export function Sidebar({ eventCountByCal }: { eventCountByCal: Record<string, n
           display: overlayMode && !state.sidebarOpen ? 'none' : 'flex',
         }}
       >
+        <ResizeHandle onPointerDown={resize.startDrag} dragging={resize.dragging} side="right" />
         <MiniCalendar />
 
         <SectionDivider />

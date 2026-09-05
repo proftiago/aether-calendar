@@ -3,6 +3,8 @@ import { X, Check, Plus, Star, Trash2, Link as LinkIcon, Calendar as CalendarIco
 import { useStore } from '../store/store';
 import { calendarOf } from '../store/selectors';
 import { prioColor } from '../lib/style';
+import { useResizablePanel } from '../hooks/useResizablePanel';
+import { ResizeHandle } from './ResizeHandle';
 import type { NoteChecklistItem } from '../lib/types';
 
 
@@ -16,6 +18,7 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
   const { state, dispatch } = useStore();
   const [newSubtask, setNewSubtask] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
+  const resize = useResizablePanel('aether:taskdetail-width', 300, 260, 560, -1);
   const task = state.tasks.find((t) => t.id === taskId);
   if (!task) return null;
   const cal = calendarOf(state, task.calId);
@@ -47,9 +50,10 @@ export function TaskDetailPanel({ taskId, onClose }: { taskId: string; onClose: 
 
   return (
     <aside
-      className="w-[300px] shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
-      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+      className="relative shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
+      style={{ width: resize.width, background: 'var(--surface)', borderColor: 'var(--border)' }}
     >
+      <ResizeHandle onPointerDown={resize.startDrag} dragging={resize.dragging} side="left" />
       <div className="flex items-center justify-between">
         <button
           onClick={() => dispatch({ type: 'TOGGLE_TASK', id: task.id })}

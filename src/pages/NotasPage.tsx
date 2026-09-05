@@ -5,6 +5,8 @@ import { eventBg } from '../lib/style';
 import { calendarOf } from '../store/selectors';
 import { AccountMenu } from '../components/AccountMenu';
 import { NotificationBell } from '../components/NotificationBell';
+import { ResizeHandle } from '../components/ResizeHandle';
+import { useResizablePanel } from '../hooks/useResizablePanel';
 import type { Note, NoteChecklistItem } from '../lib/types';
 
 const NOTE_COLOR_PALETTE = [
@@ -49,6 +51,7 @@ export function NotasPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [newChecklistText, setNewChecklistText] = useState('');
+  const notePanelResize = useResizablePanel('aether:notepanel-width', 460, 320, 700, -1);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -207,9 +210,10 @@ export function NotasPage() {
 
       {selected && (
         <aside
-          className="w-[460px] shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
-          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+          className="relative shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
+          style={{ width: notePanelResize.width, background: 'var(--surface)', borderColor: 'var(--border)' }}
         >
+          <ResizeHandle onPointerDown={notePanelResize.startDrag} dragging={notePanelResize.dragging} side="left" />
           <div className="flex items-center justify-between">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_NOTE_FAVORITE', id: selected.id })}

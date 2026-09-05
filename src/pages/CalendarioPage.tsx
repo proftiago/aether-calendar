@@ -7,6 +7,8 @@ import { AgendaView } from '../components/views/AgendaView';
 import { TaskPanel } from '../components/TaskPanel';
 import { Drawer } from '../components/Drawer';
 import { UtilityPopovers } from '../components/UtilityPopovers';
+import { ResizeHandle } from '../components/ResizeHandle';
+import { useResizablePanel } from '../hooks/useResizablePanel';
 
 /**
  * Página Calendário — sidebar de filtros (esquerda) continua popover/
@@ -22,6 +24,7 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
   const { state, dispatch } = useStore();
   const drawerOpen = state.selected !== null;
   const showPersistentTaskPanel = state.w >= 1280 && !drawerOpen;
+  const taskPanelResize = useResizablePanel('aether:taskpanel-width', 440, 280, 640, -1);
 
   return (
     <>
@@ -45,9 +48,10 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
 
       {showPersistentTaskPanel && (
         <aside
-          className="w-[440px] shrink-0 border-l p-4 overflow-y-auto"
-          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+          className="relative shrink-0 border-l p-4 overflow-y-auto"
+          style={{ width: taskPanelResize.width, background: 'var(--surface)', borderColor: 'var(--border)' }}
         >
+          <ResizeHandle onPointerDown={taskPanelResize.startDrag} dragging={taskPanelResize.dragging} side="left" />
           <TaskPanel />
         </aside>
       )}
