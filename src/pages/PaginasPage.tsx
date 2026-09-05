@@ -3,6 +3,7 @@ import { Search, Plus, Inbox, ListTree, Trash2, Clock, Tag as TagIcon, Calendar 
 import { useStore } from '../store/store';
 import { AccountMenu } from '../components/AccountMenu';
 import { NotificationBell } from '../components/NotificationBell';
+import { DatePicker } from '../components/DatePicker';
 import type { Page } from '../lib/types';
 
 const PAGE_ICON_PRESETS = ['📄', '📝', '💡', '📚', '🎯', '✅', '🗒️', '📌'];
@@ -239,22 +240,10 @@ function PageEditor({ page, onDelete }: { page: Page; onDelete: () => void }) {
           />
         </PropField>
         <PropField icon={<CalendarIcon size={12} />} label="Agendar">
-          <input
-            type="date"
-            value={page.scheduleDate ?? ''}
-            onChange={(e) => update({ scheduleDate: e.target.value || undefined })}
-            className="bg-transparent outline-none text-[12px] flex-1 min-w-0"
-            style={{ color: 'var(--text)' }}
-          />
+          <DatePicker value={page.scheduleDate} onChange={(d) => update({ scheduleDate: d })} className="mt-1" />
         </PropField>
         <PropField icon={<Flag size={12} />} label="Prazo">
-          <input
-            type="date"
-            value={page.deadline ?? ''}
-            onChange={(e) => update({ deadline: e.target.value || undefined })}
-            className="bg-transparent outline-none text-[12px] flex-1 min-w-0"
-            style={{ color: 'var(--text)' }}
-          />
+          <DatePicker value={page.deadline} onChange={(d) => update({ deadline: d })} className="mt-1" />
         </PropField>
       </div>
     </div>

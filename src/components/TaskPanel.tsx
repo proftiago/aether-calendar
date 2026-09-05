@@ -6,6 +6,7 @@ import { todayKey } from '../lib/dates';
 import { prioColor, tagColor } from '../lib/style';
 import { weeklyStats, formatMinutes } from '../lib/analytics';
 import { Checkbox } from './Checkbox';
+import { DatePicker } from './DatePicker';
 import type { Task, TaskPriority } from '../lib/types';
 
 const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
@@ -343,13 +344,7 @@ export function TaskPanel({
             <div className="text-[10px] font-semibold mb-1" style={{ color: 'var(--text3)' }}>
               Vencimento (opcional)
             </div>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-[7px] px-2 py-[6px] text-[12px] outline-none"
-              style={{ background: 'var(--surface)', color: 'var(--text)' }}
-            />
+            <DatePicker value={dueDate || undefined} onChange={(d) => setDueDate(d ?? '')} />
           </div>
 
           <button

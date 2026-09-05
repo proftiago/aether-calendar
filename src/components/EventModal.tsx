@@ -4,6 +4,7 @@ import { useStore, buildRRuleFromForm } from '../store/store';
 import { useGoogleSync } from '../hooks/useGoogleSync';
 import { toUtcIso } from '../lib/dates';
 import { hapticTick } from '../lib/haptics';
+import { DatePicker } from './DatePicker';
 import type { Event } from '../lib/types';
 
 const DOW_LABELS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
@@ -206,13 +207,7 @@ export function EventModal() {
 
           <div className="flex gap-2 flex-wrap">
             <Field label="Data" grow>
-              <input
-                type="date"
-                value={form.dateKey}
-                onChange={(e) => dispatch({ type: 'UPDATE_FORM', changes: { dateKey: e.target.value } })}
-                className="w-full rounded-[10px] px-2.5 py-2 text-[13px] outline-none border"
-                style={{ background: 'var(--surface2)', borderColor: 'var(--border)', color: 'var(--text)' }}
-              />
+              <DatePicker value={form.dateKey} onChange={(d) => dispatch({ type: 'UPDATE_FORM', changes: { dateKey: d ?? form.dateKey } })} />
             </Field>
             <Field label="Início">
               <input
@@ -300,12 +295,9 @@ export function EventModal() {
                     })}
                   </div>
                   <Field label="Repetir até (opcional)">
-                    <input
-                      type="date"
-                      value={form.repeatUntil}
-                      onChange={(e) => dispatch({ type: 'UPDATE_FORM', changes: { repeatUntil: e.target.value } })}
-                      className="w-full rounded-[10px] px-2.5 py-2 text-[13px] outline-none border"
-                      style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text)' }}
+                    <DatePicker
+                      value={form.repeatUntil || undefined}
+                      onChange={(d) => dispatch({ type: 'UPDATE_FORM', changes: { repeatUntil: d ?? '' } })}
                     />
                   </Field>
                 </div>
