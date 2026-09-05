@@ -3,7 +3,7 @@ import { Check, Plus, X, Repeat, ChevronDown, Star } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useAllEvents, calendarOf } from '../store/selectors';
 import { todayKey } from '../lib/dates';
-import { prioColor } from '../lib/style';
+import { prioColor, tagColor } from '../lib/style';
 import { weeklyStats, formatMinutes } from '../lib/analytics';
 import { Checkbox } from './Checkbox';
 import type { Task, TaskPriority } from '../lib/types';
@@ -93,7 +93,7 @@ export function TaskPanel({
   const [tab, setTab] = useState<'hoje' | 'proximas' | 'projetos'>('projetos');
   const [prioFilter, setPrioFilter] = useState<TaskPriority | 'todas'>('todas');
   const [sortBy, setSortBy] = useState<'prio' | 'dueDate' | 'title'>('prio');
-  const [groupBy, setGroupBy] = useState<'calendar' | 'priority' | 'none'>('calendar');
+  const [groupBy, setGroupBy] = useState<'calendar' | 'date' | 'priority' | 'none'>('date');
 
   useEffect(() => {
     function onRequestAdd() {
@@ -162,6 +162,16 @@ export function TaskPanel({
         }))
         .filter((g) => g.tasks.length > 0);
     }
+    if (groupBy === 'date') {
+      const hoje = visibleTasks.filter((t) => !!t.dueDate && t.dueDate! <= today);
+      const proximas = visibleTasks.filter((t) => !!t.dueDate && t.dueDate! > today);
+      const semData = visibleTasks.filter((t) => !t.dueDate);
+      return [
+        { key: 'hoje', label: 'Hoje', color: 'var(--gold)', tasks: sortTasks(hoje, sortBy) },
+        { key: 'proximas', label: 'Próximas', color: 'var(--accent)', tasks: sortTasks(proximas, sortBy) },
+        { key: 'sem-data', label: 'Sem data', color: 'var(--text3)', tasks: sortTasks(semData, sortBy) },
+      ].filter((g) => g.tasks.length > 0);
+    }
     if (groupBy === 'priority') {
       return PRIOS.map((p) => ({
         key: p,
@@ -175,7 +185,7 @@ export function TaskPanel({
     }
     // 'none': um grupo só, sem cabeçalho de verdade
     return [{ key: 'all', label: 'Todas', color: 'var(--accent)', tasks: sortTasks(visibleTasks, sortBy) }];
-  }, [full, groupBy, state.calendars, visibleTasks, sortBy]);
+  }, [full, groupBy, state.calendars, visibleTasks, sortBy, today]);
 
   return (
     <div className="flex flex-col">
@@ -360,10 +370,11 @@ export function TaskPanel({
           <div className="flex items-center gap-1.5">
             <select
               value={groupBy}
-              onChange={(e) => setGroupBy(e.target.value as 'calendar' | 'priority' | 'none')}
+              onChange={(e) => setGroupBy(e.target.value as 'calendar' | 'date' | 'priority' | 'none')}
               className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
               style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
             >
+              <option value="date">Grupo: data</option>
               <option value="calendar">Grupo: calendário</option>
               <option value="priority">Grupo: prioridade</option>
               <option value="none">Grupo: nenhum</option>
@@ -487,8 +498,8 @@ export function TaskPanel({
                               <span
                                 className="text-[11px] font-semibold rounded-full px-2.5 py-1 shrink-0"
                                 style={{
-                                  background: 'color-mix(in oklab, ' + (cal?.color ?? 'var(--accent)') + ' 16%, var(--surface2))',
-                                  color: cal?.color ?? 'var(--accent)',
+                                  background: 'color-mix(in oklab, ' + tagColor(task.tag!) + ' 16%, var(--surface2))',
+                                  color: tagColor(task.tag!),
                                 }}
                               >
                                 {task.tag}
@@ -556,7 +567,7 @@ export function TaskPanel({
                       {task.tag && task.tag !== 'Geral' && (
                         <span
                           className="text-[9.5px] font-semibold rounded-full px-2 py-[1px] shrink-0"
-                          style={{ background: 'color-mix(in oklab, ' + (cal?.color ?? 'var(--accent)') + ' 18%, var(--surface2))', color: cal?.color ?? 'var(--accent)' }}
+                          style={{ background: 'color-mix(in oklab, ' + tagColor(task.tag) + ' 18%, var(--surface2))', color: tagColor(task.tag) }}
                         >
                           {task.tag}
                         </span>
