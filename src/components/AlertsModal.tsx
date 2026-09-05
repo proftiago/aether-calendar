@@ -77,13 +77,20 @@ export function AlertsModal({ onClose }: { onClose: () => void }) {
     return list;
   }, [visibleEvents, state.tasks, today, now, state, dispatch, onClose]);
 
+  const sheet = state.w < 640;
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-start justify-center p-5 animate-ae-in" style={{ background: 'rgba(0,0,0,0.35)' }} onClick={onClose}>
+    <div
+      className={`fixed inset-0 z-[70] flex ${sheet ? 'items-end' : 'items-start justify-center p-5'} animate-ae-in`}
+      style={{ background: 'rgba(0,0,0,0.35)' }}
+      onClick={onClose}
+    >
       <div
-        className="w-full max-w-[480px] mt-[8vh] rounded-[16px] overflow-hidden animate-ae-pop"
+        className={sheet ? 'w-full max-h-[85vh] rounded-t-[20px] overflow-hidden animate-ae-sheet' : 'w-full max-w-[480px] mt-[8vh] rounded-[16px] overflow-hidden animate-ae-pop'}
         style={{ background: 'var(--surface)', boxShadow: 'var(--shadow)' }}
         onClick={(e) => e.stopPropagation()}
       >
+        {sheet && <div className="w-9 h-1 rounded-full mx-auto mt-2.5 mb-1" style={{ background: 'var(--border)' }} />}
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <h2 className="text-[16px] font-semibold" style={{ color: 'var(--text)' }}>
             Alertas
