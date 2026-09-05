@@ -633,9 +633,9 @@ export function TaskPanel({
           Resumo da semana
         </span>
         <div className="grid grid-cols-3 gap-1.5 mt-2">
-          <StatBlock label="Eventos" value={stats.eventsCount} delta={stats.eventsDelta} unit="" />
-          <StatBlock label="Foco" value={formatMinutes(stats.focusMinutes)} delta={stats.focusDeltaMinutes} unit="min" />
-          <StatBlock label="Tarefas" value={stats.tasksCompleted} delta={stats.tasksDelta} unit="" />
+          <StatBlock label="Eventos" value={stats.eventsCount} delta={stats.eventsDelta} unit="" color="oklch(0.6 0.14 220)" />
+          <StatBlock label="Foco" value={formatMinutes(stats.focusMinutes)} delta={stats.focusDeltaMinutes} unit="min" color="oklch(0.58 0.18 300)" />
+          <StatBlock label="Tarefas" value={stats.tasksCompleted} delta={stats.tasksDelta} unit="" color="var(--gold)" />
         </div>
       </div>
 
@@ -650,10 +650,10 @@ export function TaskPanel({
   );
 }
 
-function StatBlock({ label, value, delta, unit }: { label: string; value: number | string; delta: number; unit: string }) {
+function StatBlock({ label, value, delta, unit, color }: { label: string; value: number | string; delta: number; unit: string; color?: string }) {
   const sign = delta > 0 ? '+' : '';
   return (
-    <div className="rounded-[9px] p-2" style={{ background: 'var(--surface2)' }}>
+    <div className="rounded-[9px] p-2" style={{ background: color ? `color-mix(in oklab, ${color} 14%, var(--surface2))` : 'var(--surface2)' }}>
       <div className="text-[9.5px] mb-0.5" style={{ color: 'var(--text3)' }}>
         {label}
       </div>

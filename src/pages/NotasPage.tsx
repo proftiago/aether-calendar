@@ -7,6 +7,26 @@ import { AccountMenu } from '../components/AccountMenu';
 import { NotificationBell } from '../components/NotificationBell';
 import type { Note, NoteChecklistItem } from '../lib/types';
 
+const NOTE_COLOR_PALETTE = [
+  'oklch(0.62 0.19 292)', // violeta
+  'oklch(0.64 0.15 150)', // verde
+  'oklch(0.68 0.16 62)', // âmbar
+  'oklch(0.6 0.14 220)', // azul
+  'oklch(0.6 0.18 25)', // rosa
+];
+
+/** Cor estável por nota (não ligada ao calendário) — mesma ideia do
+ * tagColor() das tarefas: cada nota cai numa cor de um "quadro de
+ * post-its" colorido, em vez de todas as notas de um calendário
+ * saírem na mesma cor. */
+function noteColor(noteId: string): string {
+  let hash = 0;
+  for (let i = 0; i < noteId.length; i++) {
+    hash = (hash * 31 + noteId.charCodeAt(i)) | 0;
+  }
+  return NOTE_COLOR_PALETTE[Math.abs(hash) % NOTE_COLOR_PALETTE.length];
+}
+
 function formatRelative(iso: string): string {
   const d = new Date(iso);
   const today = new Date();
@@ -117,9 +137,10 @@ export function NotasPage() {
           </p>
         )}
 
-        <div className={viewMode === 'grid' ? 'columns-[220px] gap-3' : 'flex flex-col gap-2'}>
+        <div className={viewMode === 'grid' ? 'grid grid-cols-2 xl:grid-cols-4 gap-4' : 'flex flex-col gap-2'}>
           {filtered.map((note) => {
             const cal = calendarOf(state, note.calId);
+            const nColor = noteColor(note.id);
             const doneCount = note.checklist.filter((i) => i.done).length;
             if (viewMode === 'list') {
               return (
@@ -127,7 +148,7 @@ export function NotasPage() {
                   key={note.id}
                   onClick={() => setSelectedId(note.id)}
                   className="text-left rounded-[10px] px-3.5 py-2.5 flex items-center gap-3"
-                  style={{ background: eventBg(cal?.color ?? 'var(--accent)', 8), border: '1px solid var(--border)' }}
+                  style={{ background: eventBg(nColor, 8), border: '1px solid var(--border)' }}
                 >
                   {note.favorite && <Star size={12} fill="var(--gold)" style={{ color: 'var(--gold)' }} className="shrink-0" />}
                   <span className="text-[13px] font-semibold flex-1 truncate" style={{ color: 'var(--text)' }}>
@@ -148,8 +169,8 @@ export function NotasPage() {
               <button
                 key={note.id}
                 onClick={() => setSelectedId(note.id)}
-                className="text-left rounded-[14px] p-3.5 flex flex-col gap-2 hover:scale-[1.015] transition-transform w-full mb-3 break-inside-avoid"
-                style={{ background: eventBg(cal?.color ?? 'var(--accent)', 10), border: '1px solid var(--border)' }}
+                className="text-left rounded-[14px] p-3.5 flex flex-col gap-2 hover:scale-[1.015] transition-transform w-full min-h-[190px]"
+                style={{ background: eventBg(nColor, 10), border: '1px solid var(--border)' }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="text-[14px] font-semibold leading-snug" style={{ color: 'var(--text)' }}>
@@ -166,7 +187,7 @@ export function NotasPage() {
                   </span>
                 )}
                 {note.content && (
-                  <p className="text-[12px] leading-[1.5] line-clamp-3" style={{ color: 'var(--text2)' }}>
+                  <p className="text-[12px] leading-[1.5] line-clamp-5" style={{ color: 'var(--text2)' }}>
                     {note.content}
                   </p>
                 )}
@@ -292,17 +313,23 @@ export function NotasPage() {
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              dispatch({ type: 'REMOVE_NOTE', id: selected.id });
-              setSelectedId(null);
-            }}
-            className="mt-auto flex items-center gap-1.5 text-[13px] font-medium rounded-[8px] px-2 py-2"
-            style={{ color: 'var(--danger)' }}
-          >
-            <Trash2 size={14} />
-            Excluir nota
-          </button>
+          <div className="mt-auto flex items-center justify-between pt-3 border-t" style={{ borderColor: 'var(--border)' }}>
+            <span className="text-[11px]" style={{ color: 'var(--text3)' }}>
+              Salvo automaticamente às {new Date(selected.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <button
+              onClick={() => {
+                dispatch({ type: 'REMOVE_NOTE', id: selected.id });
+                setSelectedId(null);
+              }}
+              className="w-7 h-7 rounded-[7px] grid place-items-center hover:[background:var(--surface2)]"
+              style={{ color: 'var(--text3)' }}
+              aria-label="Excluir nota"
+              title="Excluir nota"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </aside>
       )}
     </div>
