@@ -7,6 +7,7 @@ import { prioColor, tagColor } from '../lib/style';
 import { weeklyStats, formatMinutes } from '../lib/analytics';
 import { Checkbox } from './Checkbox';
 import { DatePicker } from './DatePicker';
+import { Dropdown } from './Dropdown';
 import type { Task, TaskPriority } from '../lib/types';
 
 const PRIOS: TaskPriority[] = ['alta', 'média', 'baixa'];
@@ -427,43 +428,36 @@ export function TaskPanel({
             </div>
           </div>
           <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-            <select
+            <Dropdown
               value={prioFilter}
-              onChange={(e) => setPrioFilter(e.target.value as TaskPriority | 'todas')}
-              className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
-              style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
-            >
-              <option value="todas">Todas as prioridades</option>
-              {PRIOS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+              onChange={setPrioFilter}
+              options={[
+                { value: 'todas', label: 'Todas as prioridades' },
+                ...PRIOS.map((p) => ({ value: p, label: p.charAt(0).toUpperCase() + p.slice(1) })),
+              ]}
+            />
             <div className="flex items-center gap-1.5">
-              <select
+              <Dropdown
                 value={groupBy}
-                onChange={(e) => setGroupBy(e.target.value as 'calendar' | 'date' | 'priority' | 'none')}
-                className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
-                style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
-              >
-                <option value="date">Grupo: data</option>
-                <option value="calendar">Grupo: calendário</option>
-                <option value="priority">Grupo: prioridade</option>
-                <option value="none">Grupo: nenhum</option>
-              </select>
-              <select
+                onChange={setGroupBy}
+                options={[
+                  { value: 'date', label: 'Grupo: data' },
+                  { value: 'calendar', label: 'Grupo: calendário' },
+                  { value: 'priority', label: 'Grupo: prioridade' },
+                  { value: 'none', label: 'Grupo: nenhum' },
+                ]}
+              />
+              <Dropdown
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'prio' | 'dueDate' | 'title')}
-                className="text-[12px] rounded-[7px] px-2 py-1.5 outline-none"
-                style={{ background: 'var(--surface2)', color: 'var(--text2)' }}
-            >
-              <option value="prio">Ordenar: prioridade</option>
-              <option value="dueDate">Ordenar: vencimento</option>
-              <option value="title">Ordenar: título</option>
-            </select>
+                onChange={setSortBy}
+                options={[
+                  { value: 'prio', label: 'Ordenar: prioridade' },
+                  { value: 'dueDate', label: 'Ordenar: vencimento' },
+                  { value: 'title', label: 'Ordenar: título' },
+                ]}
+              />
+            </div>
           </div>
-        </div>
         </>
       )}
 
