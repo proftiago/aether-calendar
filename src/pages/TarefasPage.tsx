@@ -15,7 +15,7 @@ export function TarefasPage() {
   return (
     <div className="flex-1 flex min-h-0">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[560px] mx-auto px-6 py-8">
+        <div className="max-w-[880px] mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-[22px] font-semibold tracking-[-0.02em]" style={{ color: 'var(--text)' }}>
               Tarefas
