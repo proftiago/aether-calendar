@@ -207,7 +207,7 @@ export function NotasPage() {
 
       {selected && (
         <aside
-          className="w-[340px] shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
+          className="w-[460px] shrink-0 border-l overflow-y-auto p-5 flex flex-col gap-4"
           style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
         >
           <div className="flex items-center justify-between">
@@ -256,8 +256,8 @@ export function NotasPage() {
             value={selected.content}
             onChange={(e) => dispatch({ type: 'UPDATE_NOTE', id: selected.id, changes: { content: e.target.value } })}
             placeholder="Escreva algo…"
-            rows={5}
-            className="text-[13px] leading-[1.6] outline-none bg-transparent resize-none"
+            rows={14}
+            className="text-[14px] leading-[1.7] outline-none bg-transparent resize-none flex-1"
             style={{ color: 'var(--text)' }}
           />
 

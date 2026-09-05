@@ -45,7 +45,7 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
 
       {showPersistentTaskPanel && (
         <aside
-          className="w-[280px] shrink-0 border-l p-4 overflow-y-auto"
+          className="w-[440px] shrink-0 border-l p-4 overflow-y-auto"
           style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
         >
           <TaskPanel />
@@ -60,7 +60,7 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
             onClick={() => dispatch({ type: 'SET_TASK_PANEL', open: false })}
           />
           <aside
-            className="fixed inset-y-0 right-0 z-40 w-[280px] shrink-0 border-l p-4 overflow-y-auto animate-ae-in"
+            className="fixed inset-y-0 right-0 z-40 w-[440px] shrink-0 border-l p-4 overflow-y-auto animate-ae-in"
             style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}
           >
             <TaskPanel />
