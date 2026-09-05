@@ -2,6 +2,7 @@ import { useStore } from '../store/store';
 import { Sidebar } from '../components/Sidebar';
 import { Toolbar } from '../components/Toolbar';
 import { DayWeekGrid } from '../components/views/DayWeekGrid';
+import { MobileDayAgenda } from '../components/views/MobileDayAgenda';
 import { MonthView } from '../components/views/MonthView';
 import { AgendaView } from '../components/views/AgendaView';
 import { TaskPanel } from '../components/TaskPanel';
@@ -36,7 +37,7 @@ export function CalendarioPage({ eventCountByCal }: { eventCountByCal: Record<st
           className="flex-1 flex flex-col min-h-0 animate-ae-in"
         >
           {state.view === 'day' || state.view === 'week' ? (
-            <DayWeekGrid />
+            state.w < 640 ? <MobileDayAgenda /> : <DayWeekGrid />
           ) : state.view === 'month' ? (
             <MonthView />
           ) : (
